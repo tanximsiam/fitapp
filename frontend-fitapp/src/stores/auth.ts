@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
         try {
-          const res = await api.get('/profile')
+          const res = await api.get('/user')
           this.user = res.data
         } catch (err) {
           this.user = null
@@ -50,6 +50,9 @@ export const useAuthStore = defineStore('auth', {
 
         this.user = res.data.data
       } catch (err: any) {
+        if (err.response?.status === 401) {
+          console.error('Wrong Credentials')
+        }
         this.error = err.response?.data?.message || 'Login failed'
         this.user = null
       } finally {
@@ -67,7 +70,7 @@ export const useAuthStore = defineStore('auth', {
       }
 
       try {
-        const res = await api.get('/profile') // token is added by axios interceptor
+        const res = await api.get('/user') // token is added by axios interceptor
         console.log('Logged-in user:', res.data)
         this.user = res.data
       } catch {

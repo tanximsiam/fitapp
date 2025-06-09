@@ -2,7 +2,7 @@ import { useAuthStore } from '@/stores/auth'
 
 declare global {
   interface Window {
-    authStore?: ReturnType<typeof useAuthStore>;
+    authStore?: any;
   }
 }
 
