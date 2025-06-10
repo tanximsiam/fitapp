@@ -1,4 +1,4 @@
-<template>
+<template aria-label="Home Page">
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>

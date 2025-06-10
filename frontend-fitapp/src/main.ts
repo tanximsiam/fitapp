@@ -5,6 +5,7 @@ import router from './router';
 import PrimeVue from 'primevue/config';
 import Material from '@primeuix/themes/material'
 import { useAuthStore } from '@/stores/auth';
+import ripple from '@/directives/ripple';
 
 
 import { IonicVue } from '@ionic/vue';
@@ -74,6 +75,7 @@ const app = createApp(App)
     }
   }
 });
+app.directive('ripple', ripple)
 
 const auth = useAuthStore()
 auth.init()
