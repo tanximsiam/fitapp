@@ -19,12 +19,13 @@
       </div>
       <Button label="Secondary" severity="primary" />
 
-      
+      <BottomNav />
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
+import BottomNav from '@/components/BottomNav.vue';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
 import Button from "primevue/button"
 </script>
