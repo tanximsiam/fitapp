@@ -16,9 +16,8 @@
         <div class="flex flex-col gap-3">
           <p class="text-sm font-semibold text-slate-600">
             Good morning, User!<br />
-            <span class="text-xs font-medium">Check what you have for today.</span>
+            <span class="text-xs font-light">Check what you have for today.</span>
           </p>
-          <!-- <Button label="Secondary" severity="primary" /> -->
           <CalendarComp />
         </div>
       </main>
