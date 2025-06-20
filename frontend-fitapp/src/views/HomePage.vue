@@ -17,7 +17,6 @@
         <strong>Ready to create an app?</strong>
         <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
       </div>
-      <Button label="Secondary" severity="primary" />
 
       
     </ion-content>
@@ -26,7 +25,6 @@
 
 <script setup lang="ts">
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/vue';
-import Button from "primevue/button"
 </script>
 
 <style scoped>
