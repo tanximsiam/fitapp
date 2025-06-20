@@ -2,8 +2,6 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia';
 import App from './App.vue'
 import router from './router';
-import PrimeVue from 'primevue/config';
-import Material from '@primeuix/themes/material'
 import { useAuthStore } from '@/stores/auth';
 import ripple from '@/directives/ripple';
 
@@ -64,17 +62,7 @@ const pinia = createPinia();
 const app = createApp(App)
 .use(IonicVue)
 .use(router)
-.use(pinia)
-.use(PrimeVue, {
-  theme: {
-    preset: Material,
-    options: {
-      prefix: 'p',
-      darkModeSelector: false,
-      cssLayer: false
-    }
-  }
-});
+.use(pinia);
 app.directive('ripple', ripple)
 
 const auth = useAuthStore()
