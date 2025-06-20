@@ -51,7 +51,8 @@ export const useAuthStore = defineStore('auth', {
         this.user = res.data.data
       } catch (err: any) {
         if (err.response?.status === 401) {
-          console.error('Wrong Credentials')
+          console.error('Sorry, wrong credentials. Please try again.')
+          this.error = 'Sorry, wrong credentials. Please try again.'
         }
         this.error = err.response?.data?.message || 'Login failed'
         this.user = null
