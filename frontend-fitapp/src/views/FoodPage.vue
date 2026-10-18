@@ -9,7 +9,7 @@
       <DateToolbar />
       <JournalState>
         <div class="grid gap-4">
-          <PanelSection title="Meals" variant="elevated" :icon="ICONS.meals">
+          <PanelSection title="Meals" :icon="ICONS.meals">
             <template #aside>
               <p class="text-xs text-muted">{{ energyLine }}</p>
             </template>
@@ -47,7 +47,7 @@
             </p>
           </PanelSection>
 
-          <PanelSection title="Water and drinks" variant="tinted" tone="activity" :icon="ICONS.water">
+          <PanelSection title="Water and drinks" tone="activity" :icon="ICONS.water">
             <template #aside>
               <p class="tabular text-sm font-semibold">{{ day.waterMl ? `${formatInt(day.waterMl)} ml` : 'None logged' }}</p>
             </template>

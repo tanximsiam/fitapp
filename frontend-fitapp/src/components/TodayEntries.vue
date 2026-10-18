@@ -1,5 +1,5 @@
 <template>
-  <PanelSection :title="fitness.isToday ? 'Your entries today' : 'Your entries this day'" variant="elevated" :icon="ICONS.mood">
+  <PanelSection :title="fitness.isToday ? 'Your entries today' : 'Your entries this day'" :icon="ICONS.mood">
     <template #aside>
       <RouterLink to="/timeline" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Timeline</RouterLink>
     </template>

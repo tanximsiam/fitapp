@@ -1,11 +1,14 @@
 <template>
-  <PanelSection title="Body signals" variant="plain">
-    <template #aside><p class="text-xs text-muted">From the watch</p></template>
+  <section aria-labelledby="body-signals-title">
+    <div class="mb-3 flex items-baseline justify-between gap-4">
+      <h2 id="body-signals-title" class="text-base font-semibold tracking-tight">Body signals</h2>
+      <p class="text-xs text-muted">From the watch</p>
+    </div>
     <ul class="grid gap-3 sm:grid-cols-3">
       <li v-for="s in items" :key="s.to">
         <RouterLink
           :to="s.to"
-          class="tone block rounded-2xl px-4 py-3.5 transition-[filter,transform] duration-150 ease-out hover:brightness-[0.98] active:scale-[0.99]"
+          class="tone block rounded-xl px-4 py-3.5 transition-[filter,transform] duration-150 ease-out hover:brightness-[0.98] active:scale-[0.99]"
           :class="`tone-${s.tone}`"
         >
           <span class="flex items-center gap-2 text-xs text-muted">
@@ -16,14 +19,13 @@
         </RouterLink>
       </li>
     </ul>
-  </PanelSection>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { ICONS } from '@/components/metricIcons'
-import PanelSection from '@/components/PanelSection.vue'
 import { formatDeviation } from '@/data/signals'
 import { EMPTY } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'

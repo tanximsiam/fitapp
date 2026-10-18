@@ -43,12 +43,12 @@
             </ul>
           </PanelSection>
 
-          <PanelSection :title="formatLongDate(selected)" variant="elevated" :icon="ICONS.cycle">
+          <PanelSection :title="formatLongDate(selected)" :icon="ICONS.cycle">
             <CycleDayForm :key="`${selected}-${journal.data.cycleDays.length}`" :date="selected" :cancellable="false" @done="() => {}" />
           </PanelSection>
         </div>
 
-        <PanelSection title="History" variant="plain" class="mt-6">
+        <PanelSection title="History" class="mt-6">
           <dl class="mb-2 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
             <MetricItem label="Recorded periods" :value="String(summary.recordedPeriods)" />
             <MetricItem label="Completed cycles" :value="String(summary.completedCycles)" />

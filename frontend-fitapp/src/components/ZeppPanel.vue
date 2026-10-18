@@ -1,5 +1,5 @@
 <template>
-  <PanelSection title="Zepp account" variant="elevated">
+  <PanelSection title="Zepp account">
     <template #aside>
       <span class="rounded-full border px-2 py-0.5 text-xs font-medium" :class="badge.cls">{{ badge.text }}</span>
     </template>

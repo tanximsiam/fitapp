@@ -43,7 +43,7 @@
           />
         </PanelSection>
 
-        <PanelSection :title="`Daily average, last ${fitness.rangeDays} days`" variant="plain">
+        <PanelSection :title="`Daily average, last ${fitness.rangeDays} days`">
           <dl class="mb-5 grid grid-cols-3 gap-4">
             <MetricItem label="Average of days" :value="score(rangeAvg)" />
             <MetricItem label="Days measured" :value="`${measured.length} of ${fitness.rangeDays}`" />

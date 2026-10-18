@@ -43,7 +43,7 @@
           />
         </PanelSection>
 
-        <PanelSection :title="`Resting heart rate, last ${fitness.rangeDays} days`" variant="plain">
+        <PanelSection :title="`Resting heart rate, last ${fitness.rangeDays} days`">
           <dl class="mb-5 grid grid-cols-3 gap-4">
             <MetricItem label="Average" :value="bpm(restingAvg)" />
             <MetricItem label="Lowest" :value="bpm(restingValues.length ? Math.min(...restingValues) : null)" />
