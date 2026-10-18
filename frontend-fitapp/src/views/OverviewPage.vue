@@ -1,9 +1,9 @@
 <template>
   <AppShell :title="fitness.isToday ? 'Today' : formatLongDate(fitness.selectedDate)">
     <template #subtitle>{{ fitness.isToday ? `${formatLongDate(fitness.today)} · ` : '' }}{{ freshness }}</template>
-    <DateToolbar />
-
     <DataState>
+      <WatchStatus />
+      <DateToolbar />
       <div class="grid gap-4">
         <PanelSection :title="fitness.isToday ? 'Goals so far today' : 'Goals'">
           <template #aside>
@@ -103,6 +103,7 @@ import LineChart from '@/components/charts/LineChart.vue'
 import DataState from '@/components/DataState.vue'
 import DateToolbar from '@/components/DateToolbar.vue'
 import GoalMeter from '@/components/GoalMeter.vue'
+import WatchStatus from '@/components/WatchStatus.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import SleepStages from '@/components/SleepStages.vue'

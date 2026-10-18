@@ -1,9 +1,26 @@
 {
-  "source": { "key": "my-bridge", "name": "My export bridge" },
+  "source": {
+    "key": "my-bridge",
+    "name": "My export bridge",
+    "device": "Example watch",
+    "measurements": ["steps", "distance", "active_energy", "active_minutes", "workouts", "sleep", "sleep_stages", "sleep_score", "heart_rate", "resting_heart_rate"]
+  },
   "timezone": "Asia/Dhaka",
   "activity": [
     { "date": "2026-10-16", "steps": 9412, "distance_m": 6870, "active_kcal": 486, "active_minutes": 58 },
     { "date": "2026-10-17", "steps": 4120, "distance_m": 2990, "active_kcal": 201, "active_minutes": null }
+  ],
+  "workouts": [
+    {
+      "date": "2026-10-16",
+      "type": "running",
+      "start_at": "2026-10-16T18:10:00+06:00",
+      "end_at": "2026-10-16T18:52:00+06:00",
+      "active_kcal": 310,
+      "distance_m": 5200,
+      "avg_bpm": 142,
+      "max_bpm": 168
+    }
   ],
   "sleep": [
     {

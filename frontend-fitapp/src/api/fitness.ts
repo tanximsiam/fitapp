@@ -44,6 +44,17 @@ export function toDaySummary(raw: DaySummaryPayload): DaySummary {
       sampleCount: h.sample_count,
       source: h.source,
     },
+    workouts: (raw.workouts ?? []).map((w) => ({
+      type: w.type,
+      startAt: w.start_at,
+      endAt: w.end_at,
+      durationMin: w.duration_min,
+      activeKcal: w.active_kcal,
+      distanceM: w.distance_m,
+      avgBpm: w.avg_bpm,
+      maxBpm: w.max_bpm,
+      source: w.source,
+    })),
   }
 }
 
@@ -67,9 +78,18 @@ export async function getHeartRate(date: ISODate): Promise<HeartRateSample[]> {
 export async function getStatus(): Promise<DataStatus> {
   const { data } = (await api.get<{ data: StatusPayload }>('/fitness/status')).data
   return {
-    sources: data.sources.map((s) => ({ key: s.key, name: s.name, lastIngestedAt: s.last_ingested_at, latestDate: s.latest_date ?? null })),
+    sources: data.sources.map((s) => ({
+      key: s.key,
+      name: s.name,
+      device: s.device,
+      measurements: s.measurements,
+      received: s.received ?? [],
+      lastIngestedAt: s.last_ingested_at,
+      latestDate: s.latest_date ?? null,
+    })),
     lastIngestedAt: data.last_ingested_at,
     latestDate: data.latest_date,
+    latestHeartRate: data.latest_heart_rate,
     timezone: data.timezone,
   }
 }

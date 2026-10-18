@@ -8,6 +8,8 @@ import ActivityPage from '@/views/ActivityPage.vue'
 import SleepPage from '@/views/SleepPage.vue'
 import HeartRatePage from '@/views/HeartRatePage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
+import DevicePage from '@/views/DevicePage.vue'
+import MorePage from '@/views/MorePage.vue'
 import LoginPage from '@/views/LoginPage.vue'
 
 declare module 'vue-router' {
@@ -25,7 +27,9 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/activity', name: 'Activity', component: ActivityPage, meta: { requiresData: true, title: 'Activity' } },
   { path: '/sleep', name: 'Sleep', component: SleepPage, meta: { requiresData: true, title: 'Sleep' } },
   { path: '/heart-rate', name: 'HeartRate', component: HeartRatePage, meta: { requiresData: true, title: 'Heart rate' } },
+  { path: '/device', name: 'Device', component: DevicePage, meta: { requiresData: true, title: 'Watch & sync' } },
   { path: '/settings', name: 'Settings', component: SettingsPage, meta: { title: 'Settings' } },
+  { path: '/more', name: 'More', component: MorePage, meta: { title: 'All sections' } },
   { path: '/login', name: 'Login', component: LoginPage, meta: { title: 'Sign in' } },
   { path: '/:pathMatch(.*)*', redirect: '/overview' },
 ]

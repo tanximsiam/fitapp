@@ -36,14 +36,17 @@ class FitnessController extends Controller
     public function status(Request $request): JsonResponse
     {
         $user = $request->user();
-        $latest = $this->query->latestDates($user);
-        $sources = $user->dataSources()->orderByDesc('last_ingested_at')->get()
-            ->each(fn ($s) => $s->latest_date = $latest->get($s->id));
+        $coverage = $this->query->coverage($user);
+        $sources = $user->dataSources()->orderByDesc('last_ingested_at')->get()->each(function ($s) use ($coverage) {
+            $s->latest_date = $coverage->get($s->id)['latest_date'] ?? null;
+            $s->received = $coverage->get($s->id)['received'] ?? [];
+        });
 
         return response()->json(['data' => [
             'sources' => DataSourceResource::collection($sources),
             'last_ingested_at' => $sources->max('last_ingested_at')?->toIso8601ZuluString(),
-            'latest_date' => $latest->max(),
+            'latest_date' => $coverage->max('latest_date'),
+            'latest_heart_rate' => $this->query->latestHeartRate($user),
             'timezone' => $user->timezone,
         ]]);
     }

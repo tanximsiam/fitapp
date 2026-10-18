@@ -31,7 +31,7 @@ class IngestionTest extends TestCase
         $this->postJson('/api/ingest', $this->sample())
             ->assertOk()
             ->assertJsonPath('data.source.key', 'my-bridge')
-            ->assertJsonPath('data.received', ['activity_days' => 2, 'sleep_sessions' => 1, 'resting_heart_rate_days' => 1, 'heart_rate_samples' => 4]);
+            ->assertJsonPath('data.received', ['activity_days' => 2, 'sleep_sessions' => 1, 'workouts' => 1, 'resting_heart_rate_days' => 1, 'heart_rate_samples' => 4]);
 
         Sanctum::actingAs($user, ['app']);
         $days = $this->getJson('/api/fitness/days?from=2026-10-16&to=2026-10-17')->assertOk()->json('data');
@@ -116,5 +116,37 @@ class IngestionTest extends TestCase
         $this->app['auth']->forgetGuards();
         $this->withToken($token)->postJson('/api/ingest', $this->sample())->assertOk();
         $this->assertDatabaseHas('data_sources', ['user_id' => $user->id, 'key' => 'my-bridge']);
+    }
+
+    public function test_workouts_device_and_latest_reading_are_served(): void
+    {
+        $user = $this->asIngestClient();
+        $this->postJson('/api/ingest', $this->sample())->assertOk();
+        $this->postJson('/api/ingest', $this->sample())->assertOk();
+
+        Sanctum::actingAs($user, ['app']);
+        $this->getJson('/api/fitness/days?from=2026-10-16&to=2026-10-16')
+            ->assertJsonCount(1, 'data.0.workouts')
+            ->assertJsonPath('data.0.workouts.0.type', 'running')
+            ->assertJsonPath('data.0.workouts.0.duration_min', 42)
+            ->assertJsonPath('data.0.workouts.0.start_at', '2026-10-16T18:10:00+06:00');
+
+        $status = $this->getJson('/api/fitness/status')->assertOk();
+        $status->assertJsonPath('data.sources.0.device', 'Example watch')
+            ->assertJsonPath('data.latest_heart_rate', ['at' => '2026-10-17T23:59:00+06:00', 'bpm' => 61, 'source' => 'my-bridge']);
+        $this->assertContains('workouts', $status->json('data.sources.0.measurements'));
+        $this->assertEqualsCanonicalizing(['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate'], $status->json('data.sources.0.received'));
+    }
+
+    public function test_workout_span_and_measurement_names_are_validated(): void
+    {
+        $this->asIngestClient();
+        $payload = $this->sample();
+        $payload['workouts'][0]['end_at'] = '2026-10-16T18:00:00+06:00';
+        $payload['source']['measurements'][] = 'blood_oxygen_guess';
+
+        $this->postJson('/api/ingest', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['workouts.0.end_at', 'source.measurements.10']);
     }
 }

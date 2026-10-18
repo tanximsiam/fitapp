@@ -1,6 +1,6 @@
-import { addDays, daysBetween, offsetString, weekday } from '@/lib/dates'
+import { addDays, daysBetween, offsetString, wallMinutes, weekday } from '@/lib/dates'
 import { summarizeHeartRate } from './derive'
-import type { DaySummary, HeartRateSample, ISODate } from '@/types/fitness'
+import { MEASUREMENTS, type DaySummary, type HeartRateSample, type ISODate, type Workout } from '@/types/fitness'
 
 /**
  * Deterministic sample data. Each calendar date has its own seed, so a date always produces the same
@@ -10,6 +10,10 @@ import type { DaySummary, HeartRateSample, ISODate } from '@/types/fitness'
 
 export const DEMO_WINDOW_DAYS = 30
 export const DEMO_SOURCE = 'demo'
+export const DEMO_DEVICE = 'Simulated watch'
+/** The simulated watch provides everything the ingestion contract supports. */
+export const DEMO_MEASUREMENTS = [...MEASUREMENTS]
+const WORKOUT_TYPES = ['running', 'strength', 'cycling'] as const
 
 export interface DemoClock {
   today: ISODate
@@ -83,7 +87,7 @@ export interface DemoDay {
 
 export function generateDay(date: ISODate, clock: DemoClock): DemoDay {
   const age = daysBetween(date, clock.today)
-  const empty = { summary: { date, activity: null, sleep: null, heartRate: null }, samples: [] }
+  const empty = { summary: { date, activity: null, sleep: null, heartRate: null, workouts: [] }, samples: [] }
   if (age < 0 || age >= DEMO_WINDOW_DAYS) return empty
 
   const p = profile(date)
@@ -141,5 +145,25 @@ export function generateDay(date: ISODate, clock: DemoClock): DemoDay {
 
   const heartRate = samples.length ? { restingBpm: p.restingBpm, ...summarizeHeartRate(samples), source: DEMO_SOURCE } : null
 
-  return { summary: { date, activity, sleep, heartRate }, samples }
+  // The evening session behind the workout-day bump in steps, energy and heart rate.
+  const workouts: Workout[] = []
+  if (workoutDone) {
+    const start = 18 * 60 + 10
+    const end = 19 * 60
+    const type = WORKOUT_TYPES[p.n % WORKOUT_TYPES.length]
+    const during = summarizeHeartRate(samples.filter((s) => wallMinutes(s.at) >= start && wallMinutes(s.at) < end))
+    workouts.push({
+      type,
+      startAt: instant(date, start, clock.offset),
+      endAt: instant(date, end, clock.offset),
+      durationMin: end - start,
+      activeKcal: 210,
+      distanceM: type === 'running' ? 5000 + (p.n % 7) * 300 : type === 'cycling' ? 14000 + (p.n % 5) * 1200 : null,
+      avgBpm: during.avgBpm,
+      maxBpm: during.maxBpm,
+      source: DEMO_SOURCE,
+    })
+  }
+
+  return { summary: { date, activity, sleep, heartRate, workouts }, samples }
 }

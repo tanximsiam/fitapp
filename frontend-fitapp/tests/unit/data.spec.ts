@@ -1,7 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 import { api } from '@/api/client'
 import { toDaySummary } from '@/api/fitness'
-import { createBackendAdapter, createDemoAdapter } from '@/data/adapters'
+import { createBackendAdapter, createDemoAdapter, demoControls } from '@/data/adapters'
+import { syncState } from '@/data/connection'
 import { DEMO_WINDOW_DAYS, generateDay, type DemoClock } from '@/data/demo'
 import { mean, summarizeHeartRate, trend } from '@/data/derive'
 import { addDays, dateRange, todayIn } from '@/lib/dates'
@@ -49,8 +50,19 @@ describe('demo data', () => {
 
 describe('adapters share one contract', () => {
   test('backend payloads normalize to exactly the demo shape', async () => {
-    const demo = window.find((d) => d.summary.sleep?.stages && d.summary.heartRate)!.summary
+    const demo = window.find((d) => d.summary.sleep?.stages && d.summary.heartRate && d.summary.workouts.length)!.summary
     const payload: DaySummaryPayload = {
+      workouts: demo.workouts.map((w) => ({
+        type: w.type,
+        start_at: w.startAt,
+        end_at: w.endAt,
+        duration_min: w.durationMin,
+        active_kcal: w.activeKcal,
+        distance_m: w.distanceM,
+        avg_bpm: w.avgBpm,
+        max_bpm: w.maxBpm,
+        source: 'demo',
+      })),
       date: demo.date,
       activity: { steps: demo.activity!.steps, distance_m: demo.activity!.distanceM, active_kcal: demo.activity!.activeKcal, active_minutes: demo.activity!.activeMinutes, source: 'demo' },
       sleep: {
@@ -70,7 +82,27 @@ describe('adapters share one contract', () => {
   })
 
   test('missing backend sections stay null', () => {
-    expect(toDaySummary({ date: '2026-10-01', activity: null, sleep: null, heart_rate: null })).toEqual({ date: '2026-10-01', activity: null, sleep: null, heartRate: null })
+    expect(toDaySummary({ date: '2026-10-01', activity: null, sleep: null, heart_rate: null })).toEqual({ date: '2026-10-01', activity: null, sleep: null, heartRate: null, workouts: [] })
+  })
+
+  test('simulated connection states hide data after the last sync', async () => {
+    const now = new Date(2026, 9, 18, 14, 0)
+    try {
+      demoControls.setScenario('offline')
+      const adapter = createDemoAdapter(() => now)
+      const status = await adapter.getStatus()
+      expect(syncState(status, now)).toBe('stale')
+      const { days } = await adapter.getDays('2026-10-15', '2026-10-18')
+      expect(days.map((d) => d.activity !== null)).toEqual([true, true, false, false])
+      expect(status.latestHeartRate!.at.slice(0, 10)).toBe('2026-10-16')
+
+      demoControls.setScenario('delayed')
+      expect(syncState(await adapter.getStatus(), now)).toBe('delayed')
+      demoControls.syncNow(now)
+      expect(syncState(await adapter.getStatus(), now)).toBe('current')
+    } finally {
+      demoControls.reset()
+    }
   })
 
   test('demo adapter returns one entry per requested date without network', async () => {
@@ -89,6 +121,7 @@ describe('derived values', () => {
     activity: steps === null ? null : { steps, distanceM: null, activeKcal: null, activeMinutes: null, source: 'x' },
     sleep: null,
     heartRate: null,
+    workouts: [],
   })
 
   test('averages ignore missing days instead of counting them as zero', () => {
