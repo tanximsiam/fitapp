@@ -44,6 +44,29 @@
   --zone-3: #167f5a;
   --zone-4: #0b5a40;
   --grid: #ececec;
+
+  /* Metric regions: a soft surface tint and a readable ink derived from the same hue. */
+  --energy: #c27a00;
+  --activity-soft: #eaf2fc;
+  --activity-ink: #1d4f8c;
+  --energy-soft: #fdf3e1;
+  --energy-ink: #7a4a00;
+  --sleep-soft: #efedfb;
+  --sleep-ink: #43369e;
+  --heart-soft: #fdeee6;
+  --heart-ink: #9a3a12;
+  --stress-soft: #e4f4ec;
+  --stress-ink: #0d6a4c;
+  --spo2-soft: #fdecec;
+  --spo2-ink: #a32a2a;
+  --skin-soft: #f0f0ef;
+  --skin-ink: #474747;
+  --mood-soft: #fbeef3;
+  --mood-ink: #8f2f55;
+
+  /* Elevation: offset + soft blur, no border. */
+  --raised: #ffffff;
+  --elevation: 0 1px 2px rgb(20 20 30 / 0.04), 0 8px 24px -6px rgb(20 20 30 / 0.1);
 }
 
 /* Dark theme: chosen explicitly, or "System" resolved to dark (see src/composables/useTheme.ts). */
@@ -79,6 +102,28 @@
     --zone-3: #45c091;
     --zone-4: #9fe6c9;
     --grid: #262624;
+
+    --energy: #e0a53a;
+    --activity-soft: #142235;
+    --activity-ink: #9cc4f5;
+    --energy-soft: #2b2210;
+    --energy-ink: #f0c875;
+    --sleep-soft: #1f1b3a;
+    --sleep-ink: #c3bdf7;
+    --heart-soft: #2f1810;
+    --heart-ink: #f3a786;
+    --stress-soft: #0f2a20;
+    --stress-ink: #8fdcbd;
+    --spo2-soft: #331718;
+    --spo2-ink: #f2a3a3;
+    --skin-soft: #222221;
+    --skin-ink: #cacaca;
+    --mood-soft: #2f1622;
+    --mood-ink: #f2a9c6;
+
+    /* Dark elevation: a lighter surface plus a deep shadow. */
+    --raised: #1f1f1e;
+    --elevation: 0 1px 2px rgb(0 0 0 / 0.5), 0 10px 28px -6px rgb(0 0 0 / 0.55);
   }
 }
 
@@ -100,6 +145,29 @@
   --color-activity: var(--activity);
   --color-heart: var(--heart);
   --color-sleep: var(--sleep);
+  --color-raised: var(--raised);
+  --shadow-raised: var(--elevation);
+}
+
+/*
+ * A tinted region: its secondary text and icons take the region's hue instead of generic grey.
+ * Usage: class="tone tone-sleep".
+ */
+@layer components {
+  .tone {
+    background: var(--tone-soft);
+    --ink-2: var(--tone-ink);
+    --muted: var(--tone-ink);
+    --line: color-mix(in srgb, var(--tone-ink) 18%, transparent);
+  }
+  .tone-activity { --tone-soft: var(--activity-soft); --tone-ink: var(--activity-ink); --tone: var(--activity); }
+  .tone-energy { --tone-soft: var(--energy-soft); --tone-ink: var(--energy-ink); --tone: var(--energy); }
+  .tone-sleep { --tone-soft: var(--sleep-soft); --tone-ink: var(--sleep-ink); --tone: var(--sleep); }
+  .tone-heart { --tone-soft: var(--heart-soft); --tone-ink: var(--heart-ink); --tone: var(--heart); }
+  .tone-stress { --tone-soft: var(--stress-soft); --tone-ink: var(--stress-ink); --tone: var(--stress); }
+  .tone-spo2 { --tone-soft: var(--spo2-soft); --tone-ink: var(--spo2-ink); --tone: var(--spo2); }
+  .tone-skin { --tone-soft: var(--skin-soft); --tone-ink: var(--skin-ink); --tone: var(--ink-2); }
+  .tone-mood { --tone-soft: var(--mood-soft); --tone-ink: var(--mood-ink); --tone: var(--accent); }
 }
 
 @layer base {

@@ -11,11 +11,11 @@
           at {{ formatClock(fitness.status.latestHeartRate.at) }} on {{ formatLongDate(fitness.status.latestHeartRate.at.slice(0, 10)) }}
           <span class="text-xs text-muted">(last value uploaded by the watch, not live)</span>
         </p>
-        <PanelSection title="Through the day">
+        <PanelSection title="Through the day" :icon="ICONS.heartRate">
           <template #aside>
             <p v-if="samples.length" class="text-xs text-muted">{{ samples.length }} readings</p>
           </template>
-          <dl class="mb-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+          <dl class="tone tone-heart mb-5 grid grid-cols-2 gap-x-6 gap-y-5 rounded-xl p-4 sm:grid-cols-4">
             <MetricItem label="Resting" :icon="ICONS.heartRate" :value="bpm(hr?.restingBpm)" />
             <MetricItem label="Average" :value="bpm(hr?.avgBpm)" />
             <MetricItem label="Lowest" :value="bpm(hr?.minBpm)" />
@@ -43,7 +43,7 @@
           />
         </PanelSection>
 
-        <PanelSection :title="`Resting heart rate, last ${fitness.rangeDays} days`">
+        <PanelSection :title="`Resting heart rate, last ${fitness.rangeDays} days`" variant="plain">
           <dl class="mb-5 grid grid-cols-3 gap-4">
             <MetricItem label="Average" :value="bpm(restingAvg)" />
             <MetricItem label="Lowest" :value="bpm(restingValues.length ? Math.min(...restingValues) : null)" />

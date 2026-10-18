@@ -45,7 +45,7 @@
           <p v-if="s.key === 'zepp'" class="mt-3 text-xs text-muted">The Zepp Open Platform does not offer watch-measured stress, so Zepp accounts show no stress data.</p>
         </PanelSection>
 
-        <PanelSection v-if="mode.isDemo" title="Simulation controls">
+        <PanelSection v-if="mode.isDemo" title="Simulation controls" variant="plain">
           <p class="mb-4 max-w-prose text-sm text-ink-2">
             Try how FitApp shows different connection states. This changes only the simulated watch in this browser.
           </p>

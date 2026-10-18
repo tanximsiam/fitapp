@@ -4,44 +4,51 @@
     <DataState>
       <WatchStatus />
       <DateToolbar />
-      <div class="grid gap-4">
-        <PanelSection :title="fitness.isToday ? 'Goals so far today' : 'Goals'">
-          <template #aside>
+      <div class="grid gap-5">
+        <section aria-labelledby="goals-title">
+          <div class="mb-3 flex items-baseline justify-between gap-4">
+            <h2 id="goals-title" class="text-base font-semibold tracking-tight">{{ fitness.isToday ? 'Goals so far today' : 'Goals' }}</h2>
             <RouterLink to="/settings" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Edit goals</RouterLink>
-          </template>
-          <div class="grid gap-6 sm:grid-cols-3">
-            <GoalMeter
-              label="Steps"
-              :icon="ICONS.steps"
-              :value-text="formatInt(day?.activity?.steps)"
-              :goal-text="formatInt(goals.steps)"
-              :ratio="progress(day?.activity?.steps, goals.steps)"
-              color="var(--activity)"
-            />
-            <GoalMeter
-              label="Active energy"
-              :icon="ICONS.activeEnergy"
-              :value-text="day?.activity?.activeKcal == null ? EMPTY : `${formatInt(day.activity.activeKcal)} kcal`"
-              :goal-text="`${formatInt(goals.activeKcal)} kcal`"
-              :ratio="progress(day?.activity?.activeKcal, goals.activeKcal)"
-              color="var(--activity)"
-            />
-            <GoalMeter
-              label="Sleep"
-              :icon="ICONS.sleep"
-              :value-text="formatDuration(day?.sleep?.durationMin)"
-              :goal-text="formatDuration(goals.sleepMin)"
-              :ratio="progress(day?.sleep?.durationMin, goals.sleepMin)"
-              color="var(--sleep)"
-            />
           </div>
-        </PanelSection>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <div class="tone tone-activity rounded-2xl p-5">
+              <GoalMeter
+                label="Steps"
+                :icon="ICONS.steps"
+                :value-text="formatInt(day?.activity?.steps)"
+                :goal-text="formatInt(goals.steps)"
+                :ratio="progress(day?.activity?.steps, goals.steps)"
+                color="var(--activity)"
+              />
+            </div>
+            <div class="tone tone-energy rounded-2xl p-5">
+              <GoalMeter
+                label="Active energy"
+                :icon="ICONS.activeEnergy"
+                :value-text="day?.activity?.activeKcal == null ? EMPTY : `${formatInt(day.activity.activeKcal)} kcal`"
+                :goal-text="`${formatInt(goals.activeKcal)} kcal`"
+                :ratio="progress(day?.activity?.activeKcal, goals.activeKcal)"
+                color="var(--energy)"
+              />
+            </div>
+            <div class="tone tone-sleep rounded-2xl p-5">
+              <GoalMeter
+                label="Sleep"
+                :icon="ICONS.sleep"
+                :value-text="formatDuration(day?.sleep?.durationMin)"
+                :goal-text="formatDuration(goals.sleepMin)"
+                :ratio="progress(day?.sleep?.durationMin, goals.sleepMin)"
+                color="var(--sleep)"
+              />
+            </div>
+          </div>
+        </section>
 
         <JournalState>
           <WellbeingOverview />
         </JournalState>
 
-        <PanelSection :title="`Steps, last ${fitness.rangeDays} days`">
+        <PanelSection :title="`Steps, last ${fitness.rangeDays} days`" :icon="ICONS.steps">
           <template #aside>
             <p class="text-xs text-muted">
               7-day average {{ formatInt(stepsTrend.current) }} · {{ formatPercentChange(stepsTrend.changePct) }} vs the previous 7
@@ -59,7 +66,7 @@
         </PanelSection>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'">
+          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'" variant="tinted" tone="sleep" :icon="ICONS.sleep">
             <template #aside>
               <RouterLink to="/sleep" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Sleep details</RouterLink>
             </template>
@@ -74,7 +81,7 @@
             <p v-else class="text-sm text-muted">No sleep was recorded for this night.</p>
           </PanelSection>
 
-          <PanelSection title="Resting heart rate">
+          <PanelSection title="Resting heart rate" :icon="ICONS.heartRate">
             <template #aside>
               <RouterLink to="/heart-rate" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Heart rate details</RouterLink>
             </template>

@@ -1,5 +1,5 @@
 <template>
-  <PanelSection title="Wellbeing overview">
+  <PanelSection title="Wellbeing overview" variant="elevated" :icon="ICONS.combined">
     <template #aside>
       <p class="text-xs text-muted">{{ fitness.rangeDays }} complete days, {{ formatShortDate(window.from) }}–{{ formatShortDate(window.to) }}</p>
     </template>
@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import InsightRow from '@/components/InsightRow.vue'
+import { ICONS } from '@/components/metricIcons'
 import PanelSection from '@/components/PanelSection.vue'
 import ShowMore from '@/components/ShowMore.vue'
 import { analyse, completeness, summarise, summaryInsights } from '@/insights/engine'

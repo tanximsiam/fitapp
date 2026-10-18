@@ -1,5 +1,5 @@
 <template>
-  <PanelSection :title="fitness.isToday ? 'Your entries today' : 'Your entries this day'">
+  <PanelSection :title="fitness.isToday ? 'Your entries today' : 'Your entries this day'" variant="elevated" :icon="ICONS.mood">
     <template #aside>
       <RouterLink to="/timeline" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Timeline</RouterLink>
     </template>
@@ -9,21 +9,29 @@
       <MetricItem v-if="journal.prefs.food" label="Water" :icon="ICONS.water" :value="water ? `${formatInt(water)} ml` : EMPTY" />
       <MetricItem v-if="journal.prefs.cycle" label="Cycle" :icon="ICONS.cycle" :value="cycle" />
     </dl>
-    <div v-if="fitness.isToday" class="mt-4 flex flex-wrap gap-2">
-      <PrimaryButton v-if="journal.prefs.mood" variant="secondary" label="Log mood" @click="ui.openQuickLog('mood')" />
-      <PrimaryButton v-if="journal.prefs.food" variant="secondary" label="Log meal" @click="ui.openQuickLog('meal')" />
-      <PrimaryButton v-if="journal.prefs.food" variant="secondary" label="Log drink" @click="ui.openQuickLog('drink')" />
-      <PrimaryButton v-if="journal.prefs.cycle" variant="secondary" label="Log cycle day" @click="ui.openQuickLog('cycle')" />
+    <div v-if="fitness.isToday" class="mt-5 flex flex-wrap gap-2">
+      <button
+        v-for="a in actions"
+        :key="a.kind"
+        type="button"
+        class="tone inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition-[filter,transform] duration-150 ease-out hover:brightness-[0.97] active:scale-[0.97]"
+        :class="`tone-${a.tone}`"
+        :style="{ color: 'var(--tone-ink)' }"
+        @click="ui.openQuickLog(a.kind)"
+      >
+        <ion-icon :icon="a.icon" aria-hidden="true" />{{ a.label }}
+      </button>
     </div>
   </PanelSection>
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
+import { IonIcon } from '@ionic/vue'
+import { ICONS } from '@/components/metricIcons'
 import MetricItem from '@/components/MetricItem.vue'
-import PanelSection from '@/components/PanelSection.vue'
-import PrimaryButton from '@/components/PrimaryButton.vue'
+import PanelSection, { type Tone } from '@/components/PanelSection.vue'
+import type { LogKind } from '@/stores/ui'
 import { mean } from '@/data/derive'
 import { EMPTY, formatInt } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
@@ -35,6 +43,17 @@ const journal = useJournalStore()
 const ui = useUiStore()
 
 const day = computed(() => journal.onDate(fitness.selectedDate))
+
+const actions = computed(() =>
+  (
+    [
+      { kind: 'mood', label: 'Log mood', icon: ICONS.mood, tone: 'mood', on: journal.prefs.mood },
+      { kind: 'meal', label: 'Log meal', icon: ICONS.meals, tone: 'energy', on: journal.prefs.food },
+      { kind: 'drink', label: 'Log drink', icon: ICONS.water, tone: 'activity', on: journal.prefs.food },
+      { kind: 'cycle', label: 'Log cycle day', icon: ICONS.cycle, tone: 'mood', on: journal.prefs.cycle },
+    ] as { kind: LogKind; label: string; icon: string; tone: Tone; on: boolean }[]
+  ).filter((a) => a.on),
+)
 const mood = computed(() => {
   const avg = mean(day.value.mood.map((e) => e.mood))
   return avg == null ? 'Not logged' : `${avg.toFixed(avg % 1 ? 1 : 0)} / 5`
