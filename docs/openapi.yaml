@@ -27,6 +27,8 @@ tags:
     description: Read model used by the frontend (`app` ability).
   - name: Ingestion
     description: Upload interface for external sources (`ingest` ability).
+  - name: Journal
+    description: Manually entered mood, meals, hydration and cycle records (`app` ability). Ingestion never writes these.
 
 paths:
   /login:
@@ -96,6 +98,7 @@ paths:
                 name: { type: string }
                 timezone: { type: string, example: Asia/Dhaka }
                 goals: { $ref: '#/components/schemas/Goals' }
+                preferences: { $ref: '#/components/schemas/Preferences' }
       responses:
         '200':
           description: Updated profile
@@ -300,7 +303,122 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { description: Rate limited }
 
+  /journal/mood:
+    get:
+      tags: [Journal]
+      summary: Mood check-ins in a date range
+      parameters: [{ $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Entries, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/MoodEntry' } } } } } } }
+    post:
+      tags: [Journal]
+      summary: Record a mood check-in
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/MoodEntryInput' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/MoodEntry' } } } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /journal/mood/{id}:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    put:
+      tags: [Journal]
+      summary: Replace a mood check-in
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/MoodEntryInput' } } } }
+      responses:
+        '200': { description: Updated }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Journal]
+      summary: Delete a mood check-in
+      responses: { '200': { description: Deleted }, '404': { $ref: '#/components/responses/Error' } }
+
+  /journal/meals:
+    get:
+      tags: [Journal]
+      summary: Meals in a date range
+      parameters: [{ $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Meals, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Meal' } } } } } } }
+    post:
+      tags: [Journal]
+      summary: Log a meal with its items
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/MealInput' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Meal' } } } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /journal/meals/{id}:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    put:
+      tags: [Journal]
+      summary: Replace a meal and its items
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/MealInput' } } } }
+      responses: { '200': { description: Updated }, '404': { $ref: '#/components/responses/Error' }, '409': { $ref: '#/components/responses/Conflict' } }
+    delete:
+      tags: [Journal]
+      summary: Delete a meal
+      responses: { '200': { description: Deleted }, '404': { $ref: '#/components/responses/Error' } }
+
+  /journal/hydration:
+    get:
+      tags: [Journal]
+      summary: Drinks in a date range
+      parameters: [{ $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Entries, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/HydrationEntry' } } } } } } }
+    post:
+      tags: [Journal]
+      summary: Log a drink
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/HydrationInput' } } } }
+      responses: { '201': { description: Created }, '422': { $ref: '#/components/responses/ValidationError' } }
+  /journal/hydration/{id}:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    put:
+      tags: [Journal]
+      summary: Replace a drink entry
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/HydrationInput' } } } }
+      responses: { '200': { description: Updated }, '404': { $ref: '#/components/responses/Error' }, '409': { $ref: '#/components/responses/Conflict' } }
+    delete:
+      tags: [Journal]
+      summary: Delete a drink entry
+      responses: { '200': { description: Deleted }, '404': { $ref: '#/components/responses/Error' } }
+
+  /journal/cycle-days:
+    get:
+      tags: [Journal]
+      summary: Cycle-tracker days in a date range
+      parameters: [{ $ref: '#/components/parameters/From' }, { $ref: '#/components/parameters/To' }]
+      responses:
+        '200': { description: Days, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/CycleDay' } } } } } } }
+  /journal/cycle-days/{date}:
+    parameters:
+      - { name: date, in: path, required: true, schema: { type: string, format: date } }
+    put:
+      tags: [Journal]
+      summary: Create or replace the record for one date
+      description: One record per user and date. Needs at least one of flow, symptoms or note.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow: { type: [string, 'null'], enum: [spotting, light, medium, heavy, null] }
+                symptoms: { type: array, items: { $ref: '#/components/schemas/Symptom' } }
+                note: { type: [string, 'null'], maxLength: 2000 }
+                updated_at: { $ref: '#/components/schemas/Seen' }
+      responses: { '200': { description: Replaced }, '201': { description: Created }, '409': { $ref: '#/components/responses/Conflict' }, '422': { $ref: '#/components/responses/ValidationError' } }
+    delete:
+      tags: [Journal]
+      summary: Delete the record for one date
+      responses: { '200': { description: Deleted }, '404': { $ref: '#/components/responses/Error' } }
+
 components:
+  parameters:
+    From: { name: from, in: query, schema: { type: string, format: date }, description: 'With `to`; defaults to the last 30 days' }
+    To: { name: to, in: query, schema: { type: string, format: date } }
+    Id: { name: id, in: path, required: true, schema: { type: integer } }
+
   securitySchemes:
     bearerAuth:
       type: http
@@ -308,6 +426,11 @@ components:
       description: Sanctum personal access token.
 
   responses:
+    Conflict:
+      description: The record changed since the client loaded it
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
     Error:
       description: Error
       content:
@@ -328,6 +451,96 @@ components:
                     example: { 'activity.0.steps': ['The activity.0.steps field must be between 0 and 200000.'] }
 
   schemas:
+    Seen:
+      type: [string, 'null']
+      format: date-time
+      description: The `updated_at` the client last saw. If the record changed since, the update is refused with 409.
+
+    Provenance:
+      type: string
+      enum: [manual]
+      description: Journal records are always entered by the user; watch data comes only from ingestion.
+
+    MoodEntryInput:
+      type: object
+      required: [recorded_at, mood]
+      properties:
+        recorded_at: { type: string, format: date-time, description: With offset; its local date becomes `date` }
+        mood: { type: integer, minimum: 1, maximum: 5 }
+        energy: { type: [integer, 'null'], minimum: 1, maximum: 5 }
+        stress: { type: [integer, 'null'], minimum: 1, maximum: 5, description: Self-reported; unrelated to any watch stress score }
+        emotions: { type: array, maxItems: 10, items: { type: string, pattern: '^[a-z][a-z -]{1,23}$' } }
+        note: { type: [string, 'null'], maxLength: 2000, description: Stored encrypted }
+        updated_at: { $ref: '#/components/schemas/Seen' }
+    MoodEntry:
+      allOf:
+        - $ref: '#/components/schemas/MoodEntryInput'
+        - type: object
+          properties:
+            id: { type: integer }
+            date: { type: string, format: date }
+            provenance: { $ref: '#/components/schemas/Provenance' }
+
+    MealItem:
+      type: object
+      required: [name]
+      description: Nutrition values are only those the user entered. FitApp does not look up or estimate them.
+      properties:
+        name: { type: string, maxLength: 100 }
+        quantity: { type: [number, 'null'], exclusiveMinimum: 0 }
+        unit: { type: [string, 'null'], maxLength: 20, example: g }
+        energy_kcal: { type: [number, 'null'], minimum: 0, maximum: 5000 }
+        protein_g: { type: [number, 'null'], minimum: 0, maximum: 1000 }
+        carbs_g: { type: [number, 'null'], minimum: 0, maximum: 1000 }
+        fat_g: { type: [number, 'null'], minimum: 0, maximum: 1000 }
+    MealInput:
+      type: object
+      required: [eaten_at, meal_type, items]
+      properties:
+        eaten_at: { type: string, format: date-time }
+        meal_type: { type: string, enum: [breakfast, lunch, dinner, snack] }
+        note: { type: [string, 'null'], maxLength: 2000 }
+        items: { type: array, minItems: 1, maxItems: 30, items: { $ref: '#/components/schemas/MealItem' } }
+        updated_at: { $ref: '#/components/schemas/Seen' }
+    Meal:
+      allOf:
+        - $ref: '#/components/schemas/MealInput'
+        - type: object
+          properties:
+            id: { type: integer }
+            date: { type: string, format: date }
+            provenance: { $ref: '#/components/schemas/Provenance' }
+
+    HydrationInput:
+      type: object
+      required: [recorded_at, volume_ml]
+      properties:
+        recorded_at: { type: string, format: date-time }
+        volume_ml: { type: integer, minimum: 10, maximum: 5000 }
+        updated_at: { $ref: '#/components/schemas/Seen' }
+    HydrationEntry:
+      allOf:
+        - $ref: '#/components/schemas/HydrationInput'
+        - type: object
+          properties:
+            id: { type: integer }
+            date: { type: string, format: date }
+            provenance: { $ref: '#/components/schemas/Provenance' }
+
+    Symptom:
+      type: string
+      enum: [cramps, headache, bloating, back_pain, breast_tenderness, acne, fatigue, nausea, mood_changes, cravings]
+    CycleDay:
+      type: object
+      properties:
+        id: { type: integer }
+        date: { type: string, format: date }
+        flow: { type: [string, 'null'], enum: [spotting, light, medium, heavy, null] }
+        symptoms: { type: array, items: { $ref: '#/components/schemas/Symptom' } }
+        note: { type: [string, 'null'] }
+        provenance: { $ref: '#/components/schemas/Provenance' }
+        updated_at: { type: string, format: date-time }
+
     Error:
       type: object
       required: [message]
@@ -342,7 +555,19 @@ components:
         email: { type: string }
         timezone: { type: string, example: Asia/Dhaka }
         goals: { $ref: '#/components/schemas/Goals' }
+        preferences: { $ref: '#/components/schemas/Preferences' }
         created_at: { type: string, format: date-time }
+
+    Preferences:
+      type: object
+      properties:
+        trackers:
+          type: object
+          description: Complementary trackers shown in the app. Cycle tracking is opt-in.
+          properties:
+            mood: { type: boolean, default: true }
+            food: { type: boolean, default: true }
+            cycle: { type: boolean, default: false }
 
     Goals:
       type: object

@@ -16,6 +16,9 @@ class UpdateUserRequest extends FormRequest
             'goals.active_kcal' => ['integer', 'between:10,10000'],
             'goals.distance_m' => ['integer', 'between:100,200000'],
             'goals.sleep_min' => ['integer', 'between:60,960'],
+            'preferences' => ['sometimes', 'array:trackers'],
+            'preferences.trackers' => ['array:mood,food,cycle'],
+            'preferences.trackers.*' => ['boolean'],
         ];
     }
 }
