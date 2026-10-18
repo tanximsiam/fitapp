@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use Illuminate\Http\Request;
 
-class UserController extends BaseController
+class UserController extends Controller
 {
-    /**
-     * Return the authenticated user's profile.
-     */
-    public function profile(Request $request)
+    public function show(Request $request): UserResource
     {
-        return $this->sendResponse(
-            new UserResource($request->user()),
-            'Fetched user data'
-        );
+        return new UserResource($request->user());
     }
 }

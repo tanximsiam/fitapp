@@ -1,94 +1,64 @@
 import { defineStore } from 'pinia'
-import api from '@/lib/axios'
+import * as authApi from '@/api/auth'
+import { errorMessage, isUnauthorized, tokenStorage } from '@/api/client'
+import type { User } from '@/types/auth'
+
+let initPromise: Promise<void> | null = null
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null as null | Record<string, any>,
+    user: null as User | null,
     isLoading: false,
-    error: '' as string | null,
-    token: null as string | null, // <-- add this line
+    error: null as string | null,
   }),
   getters: {
-    isAuthenticated: (state) => !!state.user,
+    isAuthenticated: (state) => state.user !== null,
   },
   actions: {
-    async init() {
-      const token = localStorage.getItem('authToken')
-      if (token) {
-        this.token = token
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    /** Restore the session from a stored token once per page load. */
+    init(): Promise<void> {
+      initPromise ??= this.restore()
+      return initPromise
+    },
 
-        try {
-          const res = await api.get('/user')
-          this.user = res.data
-        } catch (err) {
-          this.user = null
-          localStorage.removeItem('authToken')
-        }
+    async restore() {
+      if (!tokenStorage.get()) return
+      try {
+        this.user = await authApi.fetchCurrentUser()
+      } catch (err) {
+        this.user = null
+        // Keep the token when the backend is merely unreachable; drop it only when it is rejected.
+        if (isUnauthorized(err)) tokenStorage.clear()
+        else this.error = errorMessage(err)
       }
     },
 
-    async login(credentials: { email: string; password: string }) {
+    async login(email: string, password: string): Promise<boolean> {
+      this.isLoading = true
+      this.error = null
       try {
-        this.isLoading = true
-        this.error = null
-
-        const res = await api.post('/login', credentials) // ✅ no csrf-cookie or withCredentials
-        console.log('Login response:', res.data)
-        console.log('FULL login response:', res.data)
-
-        const token = res.data.data.token
-        console.log('Received token:', token) // ✅ Check if it's really present
-
-        
-        if (token) {
-          localStorage.setItem('authToken', token)
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-        } else {
-          console.warn('❌ Token missing in response')
-        }
-
-        this.user = res.data.data
-      } catch (err: any) {
-        if (err.response?.status === 401) {
-          console.error('Sorry, wrong credentials. Please try again.')
-          this.error = 'Sorry, wrong credentials. Please try again.'
-        }
-        this.error = err.response?.data?.message || 'Login failed'
+        const { user, token } = await authApi.login(email, password)
+        tokenStorage.set(token)
+        this.user = user
+        return true
+      } catch (err) {
         this.user = null
+        this.error = errorMessage(err, 'Sign-in failed.')
+        return false
       } finally {
         this.isLoading = false
       }
     },
 
-    async fetchUser() {
-      const token = localStorage.getItem('authToken')
-
-      // ✅ Skip fetch if no token exists
-      if (!token) {
-        this.user = null
-        return
-      }
-
-      try {
-        const res = await api.get('/user') // token is added by axios interceptor
-        console.log('Logged-in user:', res.data)
-        this.user = res.data
-      } catch {
-        this.user = null
-        localStorage.removeItem('authToken') // clean up invalid token
-      }
-    },
-
     async logout() {
       try {
-        await api.post('/logout')
-      } catch (err) {
-        // ignore
+        if (tokenStorage.get()) await authApi.logout()
+      } catch {
+        // The token is discarded locally either way.
       } finally {
-        localStorage.removeItem('authToken')
+        tokenStorage.clear()
         this.user = null
       }
-    }
+    },
   },
 })
