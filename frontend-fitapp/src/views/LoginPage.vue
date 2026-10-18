@@ -32,7 +32,7 @@ import { useRoute, useRouter } from 'vue-router'
 import FormInput from '@/components/FormInput.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { useAuthStore } from '@/stores/auth'
-import { useFitnessStore } from '@/stores/fitness'
+import { resetDataStores } from '@/stores/reset'
 import { useModeStore } from '@/stores/mode'
 
 const email = ref('')
@@ -41,20 +41,19 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 const mode = useModeStore()
-const fitness = useFitnessStore()
 
 async function handleLogin() {
   if (!(await auth.login(email.value.trim(), password.value))) return
   password.value = ''
   mode.setMode('backend')
-  fitness.$reset()
+  resetDataStores()
   const redirect = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/') ? route.query.redirect : '/overview'
   await router.replace(redirect)
 }
 
 function useDemo() {
   mode.setMode('demo')
-  fitness.$reset()
+  resetDataStores()
   router.replace('/overview')
 }
 </script>

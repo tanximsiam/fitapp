@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia'
 import { BACKEND_URL } from '@/api/client'
 import { createBackendAdapter, createDemoAdapter } from '@/data/adapters'
+import { createBackendJournal } from '@/api/journal'
+import { clockFrom } from '@/data/demo'
+import { createDemoJournal } from '@/data/demoJournal'
 import type { FitnessAdapter } from '@/types/fitness'
+import type { JournalAdapter } from '@/types/journal'
 
 export type DataMode = 'demo' | 'backend'
 
@@ -16,6 +20,7 @@ function initialMode(): DataMode {
 }
 
 const adapters: Record<DataMode, FitnessAdapter | null> = { demo: null, backend: null }
+const journals: Record<DataMode, JournalAdapter | null> = { demo: null, backend: null }
 
 export const useModeStore = defineStore('mode', {
   state: () => ({ mode: initialMode() }),
@@ -25,6 +30,9 @@ export const useModeStore = defineStore('mode', {
     isDemo: (state) => state.mode === 'demo',
     adapter: (state): FitnessAdapter =>
       (adapters[state.mode] ??= state.mode === 'demo' ? createDemoAdapter() : createBackendAdapter()),
+    /** Manual logging uses real time, so it keeps working while the (simulated) watch is not syncing. */
+    journal: (state): JournalAdapter =>
+      (journals[state.mode] ??= state.mode === 'demo' ? createDemoJournal(() => clockFrom(new Date())) : createBackendJournal()),
   },
   actions: {
     setMode(mode: DataMode) {

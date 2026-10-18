@@ -88,6 +88,38 @@
         <GoalsForm />
       </PanelSection>
 
+      <PanelSection v-if="mode.isDemo || auth.user" title="Personal trackers">
+        <p class="mb-4 max-w-prose text-sm text-ink-2">
+          Complementary records you enter yourself, shown next to your watch data. Turning one off hides it; entries are kept.
+        </p>
+        <ul class="divide-y divide-line border-y border-line">
+          <li v-for="t in TRACKERS" :key="t.key" class="flex items-center justify-between gap-4 py-3">
+            <label :for="`tracker-${t.key}`" class="text-sm">
+              <span class="block font-medium">{{ t.label }}</span>
+              <span class="block text-xs text-ink-2">{{ t.hint }}</span>
+            </label>
+            <input
+              :id="`tracker-${t.key}`"
+              type="checkbox"
+              role="switch"
+              class="size-5 shrink-0 accent-[var(--accent)]"
+              :checked="journal.prefs[t.key]"
+              @change="toggleTracker(t.key, ($event.target as HTMLInputElement).checked)"
+            />
+          </li>
+        </ul>
+        <p v-if="prefsError" role="alert" class="mt-2 text-sm text-danger">{{ prefsError }}</p>
+      </PanelSection>
+
+      <PanelSection v-if="mode.isDemo" title="Reset demo">
+        <p class="mb-4 max-w-prose text-sm text-ink-2">
+          Entries you add, edit or delete in the demo, your goals and the simulated connection state are kept in this browser only.
+          Resetting restores the original sample data.
+        </p>
+        <PrimaryButton variant="secondary" :label="confirmReset ? 'Click again to reset' : 'Reset demo'" @click="resetDemo" />
+        <p v-if="resetDone" role="status" class="mt-2 text-sm text-ink-2">Demo restored to its original sample data.</p>
+      </PanelSection>
+
       <PanelSection v-if="!mode.isDemo && auth.user" title="Ingest tokens">
         <p class="mb-4 max-w-prose text-sm text-ink-2">
           A bridge or script that exports your device data uses one of these tokens to send it to
@@ -123,8 +155,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { errorMessage } from '@/api/client'
+import { demoControls } from '@/data/adapters'
+import { resetDemoJournal } from '@/data/demoJournal'
+import { useJournalStore } from '@/stores/journal'
+import type { TrackerPrefs } from '@/types/journal'
 import AppShell from '@/components/AppShell.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
@@ -134,6 +171,7 @@ import IngestTokens from '@/components/settings/IngestTokens.vue'
 import { formatRelative, formatShortDate } from '@/lib/format'
 import { useAuthStore } from '@/stores/auth'
 import { useFitnessStore } from '@/stores/fitness'
+import { resetDataStores } from '@/stores/reset'
 import { useModeStore, type DataMode } from '@/stores/mode'
 
 const DOCS_URL = 'https://github.com/tanximsiam/fitapp/blob/main/docs/integration.md'
@@ -141,6 +179,7 @@ const DOCS_URL = 'https://github.com/tanximsiam/fitapp/blob/main/docs/integratio
 const mode = useModeStore()
 const auth = useAuthStore()
 const fitness = useFitnessStore()
+const journal = useJournalStore()
 const router = useRouter()
 
 const optionClass = (selected: boolean) => [
@@ -157,7 +196,7 @@ onMounted(loadIfReadable)
 
 async function switchMode(next: DataMode) {
   mode.setMode(next)
-  fitness.$reset()
+  resetDataStores()
   if (next === 'backend') {
     await auth.init()
     if (!auth.user) return router.push({ path: '/login', query: { redirect: '/settings' } })
@@ -167,7 +206,37 @@ async function switchMode(next: DataMode) {
 
 async function signOut() {
   await auth.logout()
-  fitness.$reset()
+  resetDataStores()
   router.push('/login')
+}
+
+const TRACKERS: { key: keyof TrackerPrefs; label: string; hint: string }[] = [
+  { key: 'mood', label: 'Mood and wellbeing', hint: 'Check-ins with mood, energy, emotions and stress you felt.' },
+  { key: 'food', label: 'Food and drink', hint: 'Meals, foods with optional nutrition values you enter, and water.' },
+  { key: 'cycle', label: 'Cycle', hint: 'Period days, flow and symptoms. Off by default.' },
+]
+const prefsError = ref<string | null>(null)
+async function toggleTracker(key: keyof TrackerPrefs, on: boolean) {
+  prefsError.value = null
+  try {
+    await journal.savePrefs({ ...journal.prefs, [key]: on })
+  } catch (err) {
+    prefsError.value = errorMessage(err, 'Could not save the preference.')
+  }
+}
+
+const confirmReset = ref(false)
+const resetDone = ref(false)
+async function resetDemo() {
+  if (!confirmReset.value) {
+    confirmReset.value = true
+    return
+  }
+  confirmReset.value = false
+  demoControls.reset()
+  resetDemoJournal()
+  resetDataStores()
+  await Promise.all([fitness.load(), journal.load()])
+  resetDone.value = true
 }
 </script>

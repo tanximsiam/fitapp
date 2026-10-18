@@ -10,6 +10,10 @@ import HeartRatePage from '@/views/HeartRatePage.vue'
 import SettingsPage from '@/views/SettingsPage.vue'
 import DevicePage from '@/views/DevicePage.vue'
 import MorePage from '@/views/MorePage.vue'
+import TimelinePage from '@/views/TimelinePage.vue'
+import MoodPage from '@/views/MoodPage.vue'
+import FoodPage from '@/views/FoodPage.vue'
+import CyclePage from '@/views/CyclePage.vue'
 import LoginPage from '@/views/LoginPage.vue'
 
 declare module 'vue-router' {
@@ -27,6 +31,10 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/activity', name: 'Activity', component: ActivityPage, meta: { requiresData: true, title: 'Activity' } },
   { path: '/sleep', name: 'Sleep', component: SleepPage, meta: { requiresData: true, title: 'Sleep' } },
   { path: '/heart-rate', name: 'HeartRate', component: HeartRatePage, meta: { requiresData: true, title: 'Heart rate' } },
+  { path: '/timeline', name: 'Timeline', component: TimelinePage, meta: { requiresData: true, title: 'Timeline' } },
+  { path: '/mood', name: 'Mood', component: MoodPage, meta: { requiresData: true, title: 'Mood' } },
+  { path: '/food', name: 'Food', component: FoodPage, meta: { requiresData: true, title: 'Food & drink' } },
+  { path: '/cycle', name: 'Cycle', component: CyclePage, meta: { requiresData: true, title: 'Cycle' } },
   { path: '/device', name: 'Device', component: DevicePage, meta: { requiresData: true, title: 'Watch & sync' } },
   { path: '/settings', name: 'Settings', component: SettingsPage, meta: { title: 'Settings' } },
   { path: '/more', name: 'More', component: MorePage, meta: { title: 'All sections' } },

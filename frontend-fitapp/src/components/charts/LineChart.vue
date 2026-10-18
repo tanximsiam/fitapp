@@ -96,8 +96,10 @@ const props = withDefaults(
     markX?: number
     height?: number
     table?: boolean
+    /** Fixed y range for bounded scales (e.g. 1–5); otherwise fitted to the data. */
+    yDomain?: [number, number]
   }>(),
-  { maxGap: Infinity, markX: undefined, height: 200, table: true },
+  { maxGap: Infinity, markX: undefined, height: 200, table: true, yDomain: undefined },
 )
 
 const box = ref<HTMLElement | null>(null)
@@ -109,6 +111,7 @@ const padR = 12
 const baseline = computed(() => props.height - 26)
 const measured = computed(() => props.points.filter((p) => p.value !== null) as (LinePoint & { value: number })[])
 const yRange = computed(() => {
+  if (props.yDomain) return props.yDomain
   const vals = measured.value.map((p) => p.value)
   if (!vals.length) return [40, 100]
   const lo = Math.floor((Math.min(...vals) - 4) / 10) * 10
