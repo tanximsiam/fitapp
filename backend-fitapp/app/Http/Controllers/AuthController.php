@@ -2,47 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-// use App\Models\User;
+use App\Http\Requests\LoginRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
-class AuthController extends BaseController
+class AuthController extends Controller
 {
-    /**
-     * Handle login and issue token.
-     */
-    public function login(Request $request)
+    /** Issue a personal access token limited to the app's read/settings ability. */
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $user = User::where('email', $request->validated('email'))->first();
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return $this->sendError('Invalid credentials', [], 401);
+        if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
+            return response()->json(['message' => 'These credentials do not match our records.'], 401);
         }
 
-        // Ensure $user is an instance of App\Models\User with HasApiTokens
-        $user = Auth::user();
-        if (!$user instanceof \App\Models\User) {
-            abort(500, 'Authenticated user is not valid');
-}
-        $token = $user->createToken('authToken')->plainTextToken;
+        $token = $user->createToken($request->validated('device_name') ?? 'web', ['app'])->plainTextToken;
 
-        return $this->sendResponse([
-            'user'  => new UserResource($user),
-            'token' => $token,
-        ], 'Login successful');
+        return response()->json([
+            'data' => [
+                'user' => new UserResource($user),
+                'token' => $token,
+            ],
+        ]);
     }
 
-    /**
-     * Handle logout (revoke current token).
-     */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()?->delete();
+        $request->user()->currentAccessToken()->delete();
 
-        return $this->sendResponse([], 'Successfully logged out');
+        return response()->json(['message' => 'Logged out.']);
     }
 }
