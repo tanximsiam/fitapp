@@ -11,7 +11,7 @@
               <input type="radio" name="mode" class="mt-1 accent-[var(--accent)]" :checked="mode.isDemo" @change="switchMode('demo')" />
               <span>
                 <span class="block text-sm font-medium">Sample data</span>
-                <span class="mt-0.5 block text-xs text-ink-2">30 days generated in this browser. No account, nothing sent anywhere.</span>
+                <span class="mt-0.5 block text-xs text-ink-2">Six months generated in this browser. No account, nothing sent anywhere.</span>
               </span>
             </label>
             <label :class="[optionClass(!mode.isDemo), !mode.backendConfigured && 'cursor-not-allowed opacity-60']">

@@ -2,16 +2,21 @@
  * Prints an ingestion payload (docs/openapi.yaml, IngestPayload) built from the demo generator,
  * so a self-hosted backend can be tried without a device:
  *
- *   npx vite-node scripts/demo-payload.ts > /tmp/demo.json
+ *   npx vite-node scripts/demo-payload.ts [days=30] [endDaysAgo=0] > /tmp/demo.json
  *   curl -X POST "$API/api/ingest" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" --data @/tmp/demo.json
  *
+ * One request holds at most 10,000 heart-rate readings (about 30 days), so for the full six-month
+ * demo history send several chunks, e.g. `30 0`, `30 30`, `30 60`, … `30 150`.
  * The data is labelled with the source key "fitapp-demo" so it is never mistaken for a real device.
  */
 import { DEMO_DEVICE, DEMO_MEASUREMENTS, DEMO_WINDOW_DAYS, clockFrom, generateDay } from '../src/data/demo'
 import { addDays } from '../src/lib/dates'
 
+const days = Math.min(Math.max(1, Number(process.argv[2] ?? 30)), 34)
+const endDaysAgo = Math.min(Math.max(0, Number(process.argv[3] ?? 0)), DEMO_WINDOW_DAYS - 1)
 const clock = clockFrom(new Date())
-const generated = Array.from({ length: DEMO_WINDOW_DAYS }, (_, i) => generateDay(addDays(clock.today, i - DEMO_WINDOW_DAYS + 1), clock))
+const end = addDays(clock.today, -endDaysAgo)
+const generated = Array.from({ length: days }, (_, i) => generateDay(addDays(end, i - days + 1), clock))
 
 const payload = {
   source: { key: 'fitapp-demo', name: 'FitApp sample data', device: DEMO_DEVICE, measurements: DEMO_MEASUREMENTS },

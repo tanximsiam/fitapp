@@ -6,7 +6,7 @@ An open-source, watch-centred health website built for **Zepp / Amazfit** watche
 - **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals with foods and optional nutrition values you enter, water, and an optional cycle tracker.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
 - **Zepp, ready to connect.** The backend includes a full Zepp Open Platform integration (OAuth, webhooks, FIT workouts, heart-rate pulls, backfill). Add your Zepp credentials to `.env`, register two URLs with Zepp and press **Connect Zepp account**. See [docs/zepp.md](docs/zepp.md).
-- **Works without hardware.** A complete simulated-watch demo runs entirely in the browser. Any other provider or bridge can feed the backend through the documented ingestion API.
+- **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser. Any other provider or bridge can feed the backend through the documented ingestion API.
 
 ![Overview on desktop](docs/screenshots/desktop-overview.png)
 
@@ -101,7 +101,7 @@ curl -X POST http://localhost:8000/api/ingest \
   --data @../docs/examples/ingest-sample.json
 ```
 
-For 30 realistic days, generate a payload from the demo generator with `npx vite-node scripts/demo-payload.ts > /tmp/demo.json` (in `frontend-fitapp`) and post that instead. It is labelled as FitApp sample data.
+For realistic data, generate payloads from the demo generator (in `frontend-fitapp`) and post each one: `npx vite-node scripts/demo-payload.ts 30 0 > /tmp/demo.json` gives the last 30 days; `30 30`, `30 60`, … go further back (one request holds about 30 days). It is labelled as FitApp sample data.
 
 ## Connect your Zepp watch
 
