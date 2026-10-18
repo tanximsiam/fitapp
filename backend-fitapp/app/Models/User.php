@@ -2,58 +2,57 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
-
-/**
- * App\Models\User
- *
- * @mixin \Laravel\Sanctum\HasApiTokens
- * @method \Laravel\Sanctum\NewAccessToken createToken(string $name, array $abilities = ['*'], \DateTimeInterface|null $expiresAt = null)
- */
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public const DEFAULT_GOALS = [
+        'steps' => 8000,
+        'active_kcal' => 450,
+        'distance_m' => 6000,
+        'sleep_min' => 450,
+    ];
+
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'is_dev',
+        'timezone',
+        'goals',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_dev' => 'boolean',
+            'goals' => 'array',
         ];
+    }
+
+    /** Stored goals merged over the defaults. */
+    public function effectiveGoals(): array
+    {
+        return array_merge(self::DEFAULT_GOALS, $this->goals ?? []);
+    }
+
+    public function dataSources(): HasMany
+    {
+        return $this->hasMany(DataSource::class);
     }
 }

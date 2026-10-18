@@ -23,3 +23,16 @@ Artisan::command('fitapp:create-user {email} {--name=}', function (string $email
     $user = User::create(['email' => $email, 'name' => $name, 'password' => $password]);
     $this->info("Created user #{$user->id} ({$user->email}).");
 })->purpose('Create a FitApp account');
+
+Artisan::command('fitapp:ingest-token {email} {--name=bridge}', function (string $email) {
+    $user = User::where('email', $email)->first();
+    if (! $user) {
+        $this->error("No user with email {$email}.");
+
+        return 1;
+    }
+
+    $token = $user->createToken($this->option('name'), ['ingest'])->plainTextToken;
+    $this->info('Ingest token (shown once, store it in your bridge configuration):');
+    $this->line($token);
+})->purpose('Issue a token that may only upload data to POST /api/ingest');

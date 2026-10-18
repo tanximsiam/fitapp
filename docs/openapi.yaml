@@ -1,0 +1,461 @@
+openapi: 3.1.0
+info:
+  title: FitApp API
+  version: 1.0.0
+  description: |
+    FitApp's own Laravel API. Two kinds of clients use it:
+
+    * **The FitApp frontend** signs in with `POST /login` and receives a token with the `app` ability.
+    * **External providers or bridges** upload data with a token that has only the `ingest` ability
+      (create one in Settings or with `php artisan fitapp:ingest-token <email>`).
+
+    Conventions:
+    * All bodies are JSON. Successful responses wrap results in `data`.
+    * Errors return `{ "message": "..." }`; validation errors (422) add `errors` keyed by field path.
+    * `date` fields are local calendar dates (`YYYY-MM-DD`) as the source experienced them.
+    * Instants are ISO 8601 with an explicit offset. They are stored in UTC and returned in the user's timezone.
+    * Units: distance in metres, energy in kilocalories (active energy only), durations in minutes, heart rate in bpm.
+    * A missing measurement is `null`, never `0`.
+servers:
+  - url: http://localhost:8000/api
+    description: Local development
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Fitness
+    description: Read model used by the frontend (`app` ability).
+  - name: Ingestion
+    description: Upload interface for external sources (`ingest` ability).
+
+paths:
+  /login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Exchange credentials for an app token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: '#/components/schemas/User' }
+                      token: { type: string, description: 'Send as `Authorization: Bearer <token>`.' }
+        '401': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { description: Too many attempts }
+
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Revoke the current token
+      responses:
+        '200': { description: Revoked }
+        '401': { $ref: '#/components/responses/Error' }
+
+  /user:
+    get:
+      tags: [Auth]
+      summary: Current user profile
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Error' }
+    patch:
+      tags: [Auth]
+      summary: Update name, timezone or goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                timezone: { type: string, example: Asia/Dhaka }
+                goals: { $ref: '#/components/schemas/Goals' }
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/User' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /fitness/days:
+    get:
+      tags: [Fitness]
+      summary: Daily summaries for a date range
+      description: |
+        Returns one entry per date in the range, oldest first, including dates without data.
+        Without `from`/`to` the range is the 30 days ending today in the user's timezone.
+        When several sources reported a metric for the same date, the most recently updated record is used.
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date }, description: 'Inclusive; at most 366 days after `from`.' }
+      responses:
+        '200':
+          description: Days
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/DaySummary' }
+                  meta:
+                    type: object
+                    properties:
+                      from: { type: string, format: date }
+                      to: { type: string, format: date }
+                      timezone: { type: string }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /fitness/heart-rate/{date}:
+    get:
+      tags: [Fitness]
+      summary: Heart-rate samples for one local date
+      parameters:
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: Samples, ordered by time (empty when none)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      date: { type: string, format: date }
+                      samples:
+                        type: array
+                        items: { $ref: '#/components/schemas/HeartRateSample' }
+
+  /fitness/status:
+    get:
+      tags: [Fitness]
+      summary: Data sources and freshness
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      sources:
+                        type: array
+                        items: { $ref: '#/components/schemas/DataSource' }
+                      last_ingested_at: { type: [string, 'null'], format: date-time }
+                      latest_date: { type: [string, 'null'], format: date }
+                      timezone: { type: string }
+
+  /ingest-tokens:
+    get:
+      tags: [Ingestion]
+      summary: List ingest-only tokens (values are never returned again)
+      responses:
+        '200':
+          description: Tokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        last_used_at: { type: [string, 'null'], format: date-time }
+                        created_at: { type: string, format: date-time }
+    post:
+      tags: [Ingestion]
+      summary: Create an ingest-only token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, maxLength: 100 }
+      responses:
+        '201':
+          description: Created; `token` is shown only in this response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id: { type: integer }
+                      name: { type: string }
+                      token: { type: string }
+
+  /ingest-tokens/{id}:
+    delete:
+      tags: [Ingestion]
+      summary: Revoke a token
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Revoked }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /ingest:
+    post:
+      tags: [Ingestion]
+      summary: Upload activity, sleep and heart-rate data
+      description: |
+        Idempotent per record. Records are keyed by `(source.key, date)` (activity, sleep, resting heart rate)
+        or `(source.key, at)` (heart-rate samples). Re-sending a day replaces it, so cumulative daily totals
+        can be uploaded repeatedly during the day without double counting.
+
+        * Activity: only the fields present are changed; send `null` to clear a value.
+        * Sleep and resting heart rate: the record for that date is replaced.
+        * Heart-rate samples: the local `date` is derived from `at` in `timezone` (default: the user's timezone).
+
+        At least one of `activity`, `sleep` or `heart_rate` is required. Rate limit: 60 requests/minute.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IngestPayload' }
+            examples:
+              sample:
+                summary: Two days from one bridge
+                externalValue: ./examples/ingest-sample.json
+      responses:
+        '200':
+          description: Stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      source: { $ref: '#/components/schemas/DataSource' }
+                      received:
+                        type: object
+                        properties:
+                          activity_days: { type: integer }
+                          sleep_sessions: { type: integer }
+                          resting_heart_rate_days: { type: integer }
+                          heart_rate_samples: { type: integer, description: After removing duplicate instants }
+        '401': { $ref: '#/components/responses/Error' }
+        '403':
+          description: Token lacks the `ingest` ability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { description: Rate limited }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Sanctum personal access token.
+
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Error'
+              - type: object
+                properties:
+                  errors:
+                    type: object
+                    additionalProperties: { type: array, items: { type: string } }
+                    example: { 'activity.0.steps': ['The activity.0.steps field must be between 0 and 200000.'] }
+
+  schemas:
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        timezone: { type: string, example: Asia/Dhaka }
+        goals: { $ref: '#/components/schemas/Goals' }
+        created_at: { type: string, format: date-time }
+
+    Goals:
+      type: object
+      properties:
+        steps: { type: integer, example: 8000 }
+        active_kcal: { type: integer, example: 450 }
+        distance_m: { type: integer, example: 6000 }
+        sleep_min: { type: integer, example: 450 }
+
+    DataSource:
+      type: object
+      properties:
+        key: { type: string, example: my-bridge }
+        name: { type: string }
+        last_ingested_at: { type: [string, 'null'], format: date-time, description: Last successful upload (UTC) }
+        latest_date: { type: [string, 'null'], format: date, description: Latest local date with any data }
+
+    DaySummary:
+      type: object
+      required: [date, activity, sleep, heart_rate]
+      properties:
+        date: { type: string, format: date }
+        activity:
+          type: [object, 'null']
+          properties:
+            steps: { type: [integer, 'null'] }
+            distance_m: { type: [integer, 'null'] }
+            active_kcal: { type: [integer, 'null'] }
+            active_minutes: { type: [integer, 'null'] }
+            source: { type: string }
+        sleep:
+          type: [object, 'null']
+          description: Main sleep that ended on this date
+          properties:
+            start_at: { type: string, format: date-time }
+            end_at: { type: string, format: date-time }
+            duration_min: { type: integer }
+            score: { type: [integer, 'null'], minimum: 0, maximum: 100 }
+            stages:
+              type: [object, 'null']
+              properties:
+                deep_min: { type: [integer, 'null'] }
+                light_min: { type: [integer, 'null'] }
+                rem_min: { type: [integer, 'null'] }
+                awake_min: { type: [integer, 'null'] }
+            source: { type: string }
+        heart_rate:
+          type: [object, 'null']
+          properties:
+            resting_bpm: { type: [integer, 'null'] }
+            min_bpm: { type: [integer, 'null'] }
+            max_bpm: { type: [integer, 'null'] }
+            avg_bpm: { type: [integer, 'null'] }
+            sample_count: { type: integer }
+            source: { type: string }
+
+    HeartRateSample:
+      type: object
+      properties:
+        at: { type: string, format: date-time }
+        bpm: { type: integer }
+
+    IngestPayload:
+      type: object
+      required: [source]
+      properties:
+        source:
+          type: object
+          required: [key, name]
+          properties:
+            key: { type: string, pattern: '^[a-z0-9][a-z0-9._-]{0,63}$', description: Stable identifier you choose for this source }
+            name: { type: string, maxLength: 100 }
+        timezone: { type: string, description: 'IANA zone of the device, e.g. Europe/Berlin. Defaults to the user timezone.' }
+        activity:
+          type: array
+          maxItems: 400
+          items:
+            type: object
+            required: [date]
+            properties:
+              date: { type: string, format: date }
+              steps: { type: [integer, 'null'], minimum: 0, maximum: 200000 }
+              distance_m: { type: [number, 'null'], minimum: 0, maximum: 500000 }
+              active_kcal: { type: [number, 'null'], minimum: 0, maximum: 20000 }
+              active_minutes: { type: [integer, 'null'], minimum: 0, maximum: 1440 }
+        sleep:
+          type: array
+          maxItems: 400
+          items:
+            type: object
+            required: [date, start_at, end_at]
+            properties:
+              date: { type: string, format: date, description: Local date the sleep ended }
+              start_at: { type: string, format: date-time, description: Must include an offset or Z }
+              end_at: { type: string, format: date-time, description: After start_at, at most 24 h later }
+              score: { type: [integer, 'null'], minimum: 0, maximum: 100 }
+              stages:
+                type: [object, 'null']
+                properties:
+                  deep_min: { type: [integer, 'null'] }
+                  light_min: { type: [integer, 'null'] }
+                  rem_min: { type: [integer, 'null'] }
+                  awake_min: { type: [integer, 'null'] }
+        heart_rate:
+          type: object
+          properties:
+            resting:
+              type: array
+              maxItems: 400
+              items:
+                type: object
+                required: [date, bpm]
+                properties:
+                  date: { type: string, format: date }
+                  bpm: { type: integer, minimum: 20, maximum: 250 }
+            samples:
+              type: array
+              maxItems: 5000
+              items:
+                type: object
+                required: [at, bpm]
+                properties:
+                  at: { type: string, format: date-time, description: Must include an offset or Z }
+                  bpm: { type: integer, minimum: 20, maximum: 250 }
