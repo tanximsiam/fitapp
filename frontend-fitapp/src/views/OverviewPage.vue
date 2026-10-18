@@ -34,6 +34,10 @@
           </div>
         </PanelSection>
 
+        <JournalState>
+          <WellbeingOverview />
+        </JournalState>
+
         <PanelSection :title="`Steps, last ${fitness.rangeDays} days`">
           <template #aside>
             <p class="text-xs text-muted">
@@ -90,13 +94,14 @@
             />
           </PanelSection>
         </div>
+        <JournalState><TodayEntries /></JournalState>
       </div>
     </DataState>
   </AppShell>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import LineChart from '@/components/charts/LineChart.vue'
@@ -104,6 +109,10 @@ import DataState from '@/components/DataState.vue'
 import DateToolbar from '@/components/DateToolbar.vue'
 import GoalMeter from '@/components/GoalMeter.vue'
 import WatchStatus from '@/components/WatchStatus.vue'
+import WellbeingOverview from '@/components/WellbeingOverview.vue'
+import TodayEntries from '@/components/TodayEntries.vue'
+import JournalState from '@/components/JournalState.vue'
+import { useJournalStore } from '@/stores/journal'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import SleepStages from '@/components/SleepStages.vue'
@@ -113,6 +122,8 @@ import { progress, trend } from '@/data/derive'
 import { EMPTY, formatClock, formatDuration, formatInt, formatLongDate, formatPercentChange } from '@/lib/format'
 
 const { fitness, freshness, goals, days, rangeDaysList, selectedDay: day } = useFitnessData()
+const journal = useJournalStore()
+onMounted(() => journal.ensureLoaded())
 
 // A partly finished today would drag averages down, so trends use complete days.
 const completeDays = computed(() => (fitness.isToday ? days.value.slice(0, -1) : days.value))
