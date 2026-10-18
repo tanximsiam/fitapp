@@ -16,6 +16,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'timezone' => $this->timezone,
             'goals' => $this->effectiveGoals(),
+            'preferences' => $this->effectivePreferences(),
             'created_at' => $this->created_at?->toIso8601ZuluString(),
         ];
     }

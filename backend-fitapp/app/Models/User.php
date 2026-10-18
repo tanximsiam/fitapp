@@ -20,6 +20,8 @@ class User extends Authenticatable
         'sleep_min' => 450,
     ];
 
+    public const DEFAULT_TRACKERS = ['mood' => true, 'food' => true, 'cycle' => false];
+
     /** @var list<string> */
     protected $fillable = [
         'name',
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'password',
         'timezone',
         'goals',
+        'preferences',
     ];
 
     /** @var list<string> */
@@ -42,6 +45,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_dev' => 'boolean',
             'goals' => 'array',
+            'preferences' => 'array',
         ];
     }
 
@@ -54,5 +58,31 @@ class User extends Authenticatable
     public function dataSources(): HasMany
     {
         return $this->hasMany(DataSource::class);
+    }
+
+    /** Stored preferences merged over the defaults; the cycle tracker is opt-in. */
+    public function effectivePreferences(): array
+    {
+        return ['trackers' => array_merge(self::DEFAULT_TRACKERS, $this->preferences['trackers'] ?? [])];
+    }
+
+    public function moodEntries(): HasMany
+    {
+        return $this->hasMany(MoodEntry::class);
+    }
+
+    public function meals(): HasMany
+    {
+        return $this->hasMany(Meal::class);
+    }
+
+    public function hydrationEntries(): HasMany
+    {
+        return $this->hasMany(HydrationEntry::class);
+    }
+
+    public function cycleDays(): HasMany
+    {
+        return $this->hasMany(CycleDay::class);
     }
 }

@@ -4,6 +4,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FitnessController;
 use App\Http\Controllers\IngestController;
 use App\Http\Controllers\IngestTokenController;
+use App\Http\Controllers\Journal\CycleDayController;
+use App\Http\Controllers\Journal\HydrationController;
+use App\Http\Controllers\Journal\MealController;
+use App\Http\Controllers\Journal\MoodEntryController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +28,19 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
     Route::get('/ingest-tokens', [IngestTokenController::class, 'index']);
     Route::post('/ingest-tokens', [IngestTokenController::class, 'store']);
     Route::delete('/ingest-tokens/{id}', [IngestTokenController::class, 'destroy'])->whereNumber('id');
+
+    // Manually entered records (never written by ingestion).
+    Route::prefix('journal')->group(function () {
+        foreach (['mood' => MoodEntryController::class, 'meals' => MealController::class, 'hydration' => HydrationController::class] as $path => $controller) {
+            Route::get("/$path", [$controller, 'index']);
+            Route::post("/$path", [$controller, 'store']);
+            Route::put("/$path/{id}", [$controller, 'update'])->whereNumber('id');
+            Route::delete("/$path/{id}", [$controller, 'destroy'])->whereNumber('id');
+        }
+        Route::get('/cycle-days', [CycleDayController::class, 'index']);
+        Route::put('/cycle-days/{date}', [CycleDayController::class, 'upsert'])->where('date', '\d{4}-\d{2}-\d{2}');
+        Route::delete('/cycle-days/{date}', [CycleDayController::class, 'destroy'])->where('date', '\d{4}-\d{2}-\d{2}');
+    });
 });
 
 // External providers and bridges.

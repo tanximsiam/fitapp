@@ -20,6 +20,9 @@ class UserController extends Controller
         if (isset($data['goals'])) {
             $data['goals'] = array_merge($user->effectiveGoals(), $data['goals']);
         }
+        if (isset($data['preferences'])) {
+            $data['preferences'] = ['trackers' => array_merge($user->effectivePreferences()['trackers'], $data['preferences']['trackers'] ?? [])];
+        }
         $user->update($data);
 
         return new UserResource($user);
