@@ -5,11 +5,11 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection title="Through the day">
+        <PanelSection title="Through the day" :icon="ICONS.stress">
           <template #aside>
             <p v-if="readings.length" class="text-xs text-muted">{{ readings.length }} readings</p>
           </template>
-          <dl class="mb-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+          <dl class="tone tone-stress mb-5 grid grid-cols-2 gap-x-6 gap-y-5 rounded-xl p-4 sm:grid-cols-4">
             <MetricItem label="Average" :value="score(day?.stress?.avg)" />
             <MetricItem label="Lowest" :value="score(day?.stress?.min)" />
             <MetricItem label="Highest" :value="score(day?.stress?.max)" />
@@ -43,7 +43,7 @@
           />
         </PanelSection>
 
-        <PanelSection :title="`Daily average, last ${fitness.rangeDays} days`">
+        <PanelSection :title="`Daily average, last ${fitness.rangeDays} days`" variant="plain">
           <dl class="mb-5 grid grid-cols-3 gap-4">
             <MetricItem label="Average of days" :value="score(rangeAvg)" />
             <MetricItem label="Days measured" :value="`${measured.length} of ${fitness.rangeDays}`" />
@@ -76,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'

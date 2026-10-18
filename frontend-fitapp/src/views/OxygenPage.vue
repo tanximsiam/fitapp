@@ -5,11 +5,11 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection title="Overnight readings">
+        <PanelSection title="Overnight readings" :icon="ICONS.spo2">
           <template #aside>
             <p v-if="readings.length" class="text-xs text-muted">{{ readings.length }} readings, {{ formatClock(readings[0].at) }}–{{ formatClock(readings.at(-1)!.at) }}</p>
           </template>
-          <dl class="mb-5 grid grid-cols-3 gap-4">
+          <dl class="tone tone-spo2 mb-5 grid grid-cols-3 gap-4 rounded-xl p-4">
             <MetricItem label="Average" :value="pct(day?.spo2?.avg)" />
             <MetricItem label="Lowest" :value="pct(day?.spo2?.min)" />
             <MetricItem label="Highest" :value="pct(day?.spo2?.max)" />
@@ -29,7 +29,7 @@
           />
         </PanelSection>
 
-        <PanelSection :title="`Nightly average, last ${fitness.rangeDays} nights`">
+        <PanelSection :title="`Nightly average, last ${fitness.rangeDays} nights`" variant="plain">
           <dl class="mb-5 grid grid-cols-3 gap-4">
             <MetricItem label="Average of nights" :value="pct(mean(avgs))" />
             <MetricItem label="Lowest single reading" :value="mins.length ? pct(Math.min(...mins)) : EMPTY" />
@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'

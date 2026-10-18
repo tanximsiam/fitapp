@@ -5,7 +5,7 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection :title="fitness.isToday ? 'So far today' : 'This day'">
+        <PanelSection :title="fitness.isToday ? 'So far today' : 'This day'" variant="tinted" tone="activity" :icon="ICONS.activity">
           <dl v-if="day?.activity" class="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
             <MetricItem label="Steps" :icon="ICONS.steps" :value="formatInt(day.activity.steps)" />
             <MetricItem label="Distance" :icon="ICONS.distance" :value="formatKm(day.activity.distanceM)" />
@@ -28,7 +28,7 @@
           <p class="mt-3 text-xs text-muted">{{ rangeWorkouts }} workouts in the last {{ fitness.rangeDays }} days.</p>
         </PanelSection>
 
-        <PanelSection :title="`${metric.label}, last ${fitness.rangeDays} days`">
+        <PanelSection :title="`${metric.label}, last ${fitness.rangeDays} days`" :icon="ICONS.steps">
           <template #aside>
             <div role="radiogroup" aria-label="Metric" class="inline-flex rounded-lg border border-line p-0.5">
               <button
@@ -62,7 +62,7 @@
           />
         </PanelSection>
 
-        <PanelSection title="History">
+        <PanelSection title="History" variant="plain">
           <div class="-mx-4 overflow-x-auto sm:mx-0">
             <table id="activity-history" class="w-full min-w-[34rem] text-left text-sm">
               <thead>
