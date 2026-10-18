@@ -5,7 +5,7 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection title="This night" tone="skin" :icon="ICONS.skinTemp">
+        <PanelSection title="This night" tone="skin">
           <p class="tabular text-3xl font-semibold tracking-tight" :class="day?.skinTemp ? '' : 'text-muted'">{{ formatDeviation(day?.skinTemp?.deviationC) }}</p>
           <p class="mt-1 text-sm text-ink-2">
             {{ day?.skinTemp ? 'compared with your baseline' : 'No skin temperature was recorded for this night.' }}
@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'

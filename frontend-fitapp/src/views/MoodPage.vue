@@ -9,7 +9,7 @@
       <DateToolbar />
       <JournalState>
         <div class="grid gap-4">
-          <PanelSection :title="fitness.isToday ? 'Today' : 'This day'" :icon="ICONS.mood">
+          <PanelSection :title="fitness.isToday ? 'Today' : 'This day'">
             <ul v-if="entries.length" class="divide-y divide-line border-y border-line">
               <li v-for="e in entries" :key="e.id" class="py-3">
                 <MoodForm v-if="editing === e.id" :date="e.date" :existing="e" @done="editing = null" />
@@ -61,7 +61,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed, ref } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import LineChart from '@/components/charts/LineChart.vue'

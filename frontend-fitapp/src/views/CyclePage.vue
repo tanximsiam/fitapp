@@ -43,7 +43,7 @@
             </ul>
           </PanelSection>
 
-          <PanelSection :title="formatLongDate(selected)" :icon="ICONS.cycle">
+          <PanelSection :title="formatLongDate(selected)">
             <CycleDayForm :key="`${selected}-${journal.data.cycleDays.length}`" :date="selected" :cancellable="false" @done="() => {}" />
           </PanelSection>
         </div>
@@ -93,7 +93,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons'

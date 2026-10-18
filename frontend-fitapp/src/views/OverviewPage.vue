@@ -48,7 +48,7 @@
           <WellbeingOverview />
         </JournalState>
 
-        <PanelSection :title="`Steps, last ${fitness.rangeDays} days`" :icon="ICONS.steps">
+        <PanelSection :title="`Steps, last ${fitness.rangeDays} days`">
           <template #aside>
             <p class="text-xs text-muted">
               7-day average {{ formatInt(stepsTrend.current) }} · {{ formatPercentChange(stepsTrend.changePct) }} vs the previous 7
@@ -66,7 +66,7 @@
         </PanelSection>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'" tone="sleep" :icon="ICONS.sleep">
+          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'" tone="sleep">
             <template #aside>
               <RouterLink to="/sleep" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Sleep details</RouterLink>
             </template>
@@ -81,7 +81,7 @@
             <p v-else class="text-sm text-muted">No sleep was recorded for this night.</p>
           </PanelSection>
 
-          <PanelSection title="Resting heart rate" :icon="ICONS.heartRate">
+          <PanelSection title="Resting heart rate">
             <template #aside>
               <RouterLink to="/heart-rate" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Heart rate details</RouterLink>
             </template>

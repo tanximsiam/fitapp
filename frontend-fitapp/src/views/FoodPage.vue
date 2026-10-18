@@ -9,7 +9,7 @@
       <DateToolbar />
       <JournalState>
         <div class="grid gap-4">
-          <PanelSection title="Meals" :icon="ICONS.meals">
+          <PanelSection title="Meals">
             <template #aside>
               <p class="text-xs text-muted">{{ energyLine }}</p>
             </template>
@@ -47,7 +47,7 @@
             </p>
           </PanelSection>
 
-          <PanelSection title="Water and drinks" tone="activity" :icon="ICONS.water">
+          <PanelSection title="Water and drinks" tone="activity">
             <template #aside>
               <p class="tabular text-sm font-semibold">{{ day.waterMl ? `${formatInt(day.waterMl)} ml` : 'None logged' }}</p>
             </template>
@@ -95,7 +95,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed, ref } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'

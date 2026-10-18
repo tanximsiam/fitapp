@@ -5,7 +5,7 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection title="Through the day" :icon="ICONS.stress">
+        <PanelSection title="Through the day">
           <template #aside>
             <p v-if="readings.length" class="text-xs text-muted">{{ readings.length }} readings</p>
           </template>
@@ -76,7 +76,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'

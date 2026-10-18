@@ -5,7 +5,7 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection title="Overnight readings" :icon="ICONS.spo2">
+        <PanelSection title="Overnight readings">
           <template #aside>
             <p v-if="readings.length" class="text-xs text-muted">{{ readings.length }} readings, {{ formatClock(readings[0].at) }}–{{ formatClock(readings.at(-1)!.at) }}</p>
           </template>
@@ -60,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'
