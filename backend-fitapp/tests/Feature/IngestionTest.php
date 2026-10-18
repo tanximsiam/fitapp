@@ -1,0 +1,120 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
+
+class IngestionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function sample(): array
+    {
+        return json_decode(file_get_contents(base_path('../docs/examples/ingest-sample.json')), true);
+    }
+
+    private function asIngestClient(?User $user = null): User
+    {
+        $user ??= User::factory()->create(['timezone' => 'Asia/Dhaka']);
+        Sanctum::actingAs($user, ['ingest']);
+
+        return $user;
+    }
+
+    public function test_documented_sample_payload_is_accepted_and_served(): void
+    {
+        $user = $this->asIngestClient();
+
+        $this->postJson('/api/ingest', $this->sample())
+            ->assertOk()
+            ->assertJsonPath('data.source.key', 'my-bridge')
+            ->assertJsonPath('data.received', ['activity_days' => 2, 'sleep_sessions' => 1, 'resting_heart_rate_days' => 1, 'heart_rate_samples' => 4]);
+
+        Sanctum::actingAs($user, ['app']);
+        $days = $this->getJson('/api/fitness/days?from=2026-10-16&to=2026-10-17')->assertOk()->json('data');
+
+        $this->assertSame(9412, $days[0]['activity']['steps']);
+        $this->assertNull($days[0]['sleep']);
+        $this->assertNull($days[1]['activity']['active_minutes'], 'missing measurements stay null');
+        $this->assertSame(444, $days[1]['sleep']['duration_min']);
+        $this->assertSame('2026-10-16T23:42:00+06:00', $days[1]['sleep']['start_at']);
+        $this->assertSame(['resting_bpm' => 57, 'min_bpm' => 61, 'max_bpm' => 121, 'avg_bpm' => 86, 'sample_count' => 4, 'source' => 'my-bridge'], $days[1]['heart_rate']);
+    }
+
+    public function test_reuploading_cumulative_totals_replaces_instead_of_adding(): void
+    {
+        $user = $this->asIngestClient();
+        $payload = $this->sample();
+        $this->postJson('/api/ingest', $payload)->assertOk();
+        $this->postJson('/api/ingest', $payload)->assertOk();
+
+        $payload['activity'] = [['date' => '2026-10-17', 'steps' => 7800]];
+        $this->postJson('/api/ingest', $payload)->assertOk();
+
+        $this->assertDatabaseCount('activity_days', 2);
+        $this->assertDatabaseCount('heart_rate_samples', 4);
+        $this->assertDatabaseHas('activity_days', ['user_id' => $user->id, 'date' => '2026-10-17', 'steps' => 7800, 'distance_m' => 2990]);
+    }
+
+    public function test_samples_get_local_dates_and_utc_instants(): void
+    {
+        $this->asIngestClient();
+        $payload = $this->sample();
+        // 23:59 local on the 17th is 17:59 UTC; 00:30 local on the 18th is still the 17th in UTC.
+        $payload['heart_rate']['samples'][] = ['at' => '2026-10-17T18:30:00Z', 'bpm' => 70];
+        $this->postJson('/api/ingest', $payload)->assertOk();
+
+        $this->assertDatabaseHas('heart_rate_samples', ['measured_at' => '2026-10-17 17:59:00', 'date' => '2026-10-17']);
+        $this->assertDatabaseHas('heart_rate_samples', ['measured_at' => '2026-10-17 18:30:00', 'date' => '2026-10-18']);
+    }
+
+    public function test_invalid_payloads_are_rejected_with_field_errors(): void
+    {
+        $this->asIngestClient();
+        $payload = $this->sample();
+        $payload['source']['key'] = 'Not Valid!';
+        $payload['activity'][0]['steps'] = -5;
+        $payload['activity'][1]['date'] = '2026-10-16';
+        $payload['sleep'][0]['end_at'] = '2026-10-16T22:00:00+06:00';
+        $payload['heart_rate']['samples'][0]['at'] = '2026-10-17T08:00:00';
+
+        $this->postJson('/api/ingest', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['source.key', 'activity.0.steps', 'activity.1.date', 'sleep.0.end_at', 'heart_rate.samples.0.at']);
+
+        $this->postJson('/api/ingest', ['source' => ['key' => 'x', 'name' => 'X']])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['activity']);
+
+        $this->assertDatabaseCount('data_sources', 0);
+    }
+
+    public function test_ingest_requires_an_ingest_token(): void
+    {
+        $this->postJson('/api/ingest', $this->sample())->assertUnauthorized();
+
+        Sanctum::actingAs(User::factory()->create(), ['app']);
+        $this->postJson('/api/ingest', $this->sample())->assertForbidden();
+    }
+
+    public function test_ingest_tokens_cannot_read_data(): void
+    {
+        $this->asIngestClient();
+        $this->getJson('/api/fitness/days')->assertForbidden();
+    }
+
+    public function test_issued_ingest_token_works_end_to_end(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user, ['app']);
+        $token = $this->postJson('/api/ingest-tokens', ['name' => 'bridge'])->assertCreated()->json('data.token');
+        $this->getJson('/api/ingest-tokens')->assertJsonCount(1, 'data')->assertJsonMissingPath('data.0.token');
+
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)->postJson('/api/ingest', $this->sample())->assertOk();
+        $this->assertDatabaseHas('data_sources', ['user_id' => $user->id, 'key' => 'my-bridge']);
+    }
+}

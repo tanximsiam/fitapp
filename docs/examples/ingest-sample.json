@@ -1,0 +1,26 @@
+{
+  "source": { "key": "my-bridge", "name": "My export bridge" },
+  "timezone": "Asia/Dhaka",
+  "activity": [
+    { "date": "2026-10-16", "steps": 9412, "distance_m": 6870, "active_kcal": 486, "active_minutes": 58 },
+    { "date": "2026-10-17", "steps": 4120, "distance_m": 2990, "active_kcal": 201, "active_minutes": null }
+  ],
+  "sleep": [
+    {
+      "date": "2026-10-17",
+      "start_at": "2026-10-16T23:42:00+06:00",
+      "end_at": "2026-10-17T07:06:00+06:00",
+      "score": 81,
+      "stages": { "deep_min": 82, "light_min": 228, "rem_min": 96, "awake_min": 38 }
+    }
+  ],
+  "heart_rate": {
+    "resting": [{ "date": "2026-10-17", "bpm": 57 }],
+    "samples": [
+      { "at": "2026-10-17T08:00:00+06:00", "bpm": 68 },
+      { "at": "2026-10-17T12:30:00+06:00", "bpm": 92 },
+      { "at": "2026-10-17T18:15:00+06:00", "bpm": 121 },
+      { "at": "2026-10-17T23:59:00+06:00", "bpm": 61 }
+    ]
+  }
+}
