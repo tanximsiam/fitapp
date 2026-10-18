@@ -48,12 +48,12 @@
           />
         </PanelSection>
 
-        <PanelSection title="About these readings">
+        <AboutNote>
           <ul class="max-w-prose list-disc space-y-1.5 pl-5 text-sm text-ink-2">
             <li>Wrist readings are estimates and are affected by movement, fit and skin contact.</li>
             <li>FitApp shows the values as recorded. It does not flag or interpret them, and a watch is not a medical device.</li>
           </ul>
-        </PanelSection>
+        </AboutNote>
       </div>
     </DataState>
   </AppShell>
@@ -61,6 +61,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import DataState from '@/components/DataState.vue'

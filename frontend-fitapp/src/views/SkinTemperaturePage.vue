@@ -32,12 +32,12 @@
           />
         </PanelSection>
 
-        <PanelSection title="About these readings">
+        <AboutNote>
           <ul class="max-w-prose list-disc space-y-1.5 pl-5 text-sm text-ink-2">
             <li>The watch measures skin temperature at the wrist overnight and reports the difference from your own baseline, not your body temperature.</li>
             <li>Room temperature, bedding and how the watch is worn all change it. FitApp shows the values as recorded and does not interpret them.</li>
           </ul>
-        </PanelSection>
+        </AboutNote>
       </div>
     </DataState>
   </AppShell>
@@ -45,6 +45,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import DataState from '@/components/DataState.vue'

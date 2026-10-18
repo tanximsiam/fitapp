@@ -10,16 +10,13 @@
 
     <!-- Demo: explain what the real flow looks like; nothing here contacts Zepp. -->
     <template v-if="mode.isDemo">
-      <p class="max-w-prose text-sm text-ink-2">
-        In this demo the watch is simulated. On your own FitApp server with Zepp Open Platform credentials, this is where you connect
-        your Zepp account. Zepp then sends your daily activity, sleep and workouts to FitApp automatically, and heart rate is pulled
-        every 30 minutes.
-      </p>
-      <ol class="mt-3 list-decimal space-y-1 pl-5 text-sm text-ink-2">
+      <p class="max-w-prose text-sm text-ink-2">The watch is simulated here. On your own server, you connect your Zepp account here and data then arrives automatically.</p>
+      <ol v-show="showSteps" id="zepp-steps" class="mt-3 list-decimal space-y-1 pl-5 text-sm text-ink-2">
         <li>Get partner access and a client ID and secret from the Zepp Developer Console.</li>
         <li>Put them in the backend <code class="text-xs">.env</code> and register FitApp's callback and webhook URLs with Zepp.</li>
         <li>Sign in to your FitApp and choose <span class="font-medium">Connect Zepp account</span>.</li>
       </ol>
+      <ShowMore v-model:expanded="showSteps" controls="zepp-steps" more-label="How to set it up" less-label="Hide setup steps" />
       <div class="mt-4 flex flex-wrap items-center gap-3">
         <PrimaryButton label="Connect Zepp account" disabled />
         <a :href="DOCS" target="_blank" rel="noopener" class="text-sm font-medium text-accent underline underline-offset-2">Zepp setup guide</a>
@@ -91,6 +88,7 @@ import { useRoute, useRouter } from 'vue-router'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
+import ShowMore from '@/components/ShowMore.vue'
 import StatePanel from '@/components/StatePanel.vue'
 import { errorMessage } from '@/api/client'
 import { disconnectZepp, getZeppStatus, requestZeppBackfill, startZeppConnect, type ZeppStatus } from '@/api/zepp'
@@ -118,6 +116,7 @@ const busy = ref(false)
 const error = ref<string | null>(null)
 const notice = ref<{ ok: boolean; text: string } | null>(null)
 const confirmDisconnect = ref(false)
+const showSteps = ref(false)
 
 const badge = computed(() => {
   if (mode.isDemo) return { text: 'Simulated in demo', cls: 'border-line text-muted' }

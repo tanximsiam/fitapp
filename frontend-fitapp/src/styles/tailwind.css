@@ -13,14 +13,15 @@
  */
 :root {
   color-scheme: light;
-  --page: #f6f5f1;
-  --surface: #fdfdfc;
-  --rail: #efede8;
-  --ink: #141413;
-  --ink-2: #4f4d48;
-  --muted: #6b6963;
-  --line: #e3e1da;
-  --line-strong: #cbc9c0;
+  /* Neutral light theme: near-white page, white panels, a light grey sidebar. */
+  --page: #fbfbfb;
+  --surface: #ffffff;
+  --rail: #f2f2f2;
+  --ink: #141414;
+  --ink-2: #4a4a4a;
+  --muted: #676767;
+  --line: #e6e6e6;
+  --line-strong: #cfcfcf;
   --accent: #b4213f;
   --accent-ink: #ffffff;
   --accent-soft: #f7e3e7;
@@ -42,11 +43,12 @@
   --zone-2: #36a67c;
   --zone-3: #167f5a;
   --zone-4: #0b5a40;
-  --grid: #e8e6df;
+  --grid: #ececec;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+/* Dark theme: chosen explicitly, or "System" resolved to dark (see src/composables/useTheme.ts). */
+:root[data-theme="dark"] {
+  & {
     color-scheme: dark;
     --page: #0f0f0e;
     --surface: #181817;

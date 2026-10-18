@@ -20,7 +20,10 @@
               <NavButton v-for="item in group.items" :key="item.to" :to="item.to" :label="item.label" :icon="item.icon" variant="rail" />
             </div>
           </nav>
-          <div class="mt-auto px-3 pt-4"><DataModeBadge /></div>
+          <div class="mt-auto flex flex-col items-start gap-3 px-3 pt-4">
+            <ThemeToggle />
+            <DataModeBadge />
+          </div>
         </aside>
 
         <div class="min-w-0 flex-1 pb-24 lg:pb-10">
@@ -29,7 +32,10 @@
               <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
               FitApp
             </span>
-            <DataModeBadge />
+            <div class="flex items-center gap-2">
+              <ThemeToggle />
+              <DataModeBadge />
+            </div>
           </header>
 
           <main class="mx-auto w-full max-w-5xl px-4 pt-6 sm:px-6 lg:px-10 lg:pt-10">
@@ -55,6 +61,7 @@ import { IonContent, IonIcon, IonPage } from '@ionic/vue'
 import { addOutline } from 'ionicons/icons'
 import BottomNav from '@/components/BottomNav.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import NavButton from '@/components/NavButton.vue'
 import { visibleGroups } from '@/components/navItems'
 import { useAuthStore } from '@/stores/auth'

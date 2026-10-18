@@ -23,8 +23,12 @@
           </dl>
           <p v-if="s.lastIngestedAt" class="mt-4 text-xs text-muted">Synced {{ formatAbsolute(s.lastIngestedAt) }}. Values are the latest uploaded, not live.</p>
 
-          <h3 class="mt-6 mb-2 text-sm font-semibold">Measurements</h3>
-          <ul class="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+          <h3 class="mt-6 text-sm font-semibold">
+            Measurements
+            <span class="font-normal text-muted">· {{ s.measurements.length }} of {{ MEASUREMENTS.length }} provided</span>
+          </h3>
+          <ShowMore v-model:expanded="showMeasurements" :controls="`measurements-${s.key}`" more-label="Show which" less-label="Hide list" />
+          <ul v-show="showMeasurements" :id="`measurements-${s.key}`" class="mt-2 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
             <li v-for="m in MEASUREMENTS" :key="m" class="flex items-center gap-2">
               <ion-icon
                 :icon="s.measurements.includes(m) ? checkmarkCircleOutline : removeCircleOutline"
@@ -79,6 +83,7 @@ import { IonIcon } from '@ionic/vue'
 import { checkmarkCircleOutline, removeCircleOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
 import ZeppPanel from '@/components/ZeppPanel.vue'
+import ShowMore from '@/components/ShowMore.vue'
 import DataState from '@/components/DataState.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
@@ -103,6 +108,7 @@ const SCENARIOS: { value: DemoScenario; label: string; hint: string }[] = [
 ]
 const scenario = ref<DemoScenario>(demoControls.scenario())
 const synced = ref(false)
+const showMeasurements = ref(false)
 const optionClass = (selected: boolean) => [
   'flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors duration-150',
   selected ? 'border-accent bg-accent-soft/50' : 'border-line hover:border-line-strong',

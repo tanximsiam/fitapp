@@ -344,13 +344,17 @@ export function analyse(input: AnalysisInput): Insight[] {
 }
 
 /** Short plain-language summary from the strongest supported statements. */
-export function summarise(insights: Insight[]): string[] {
+export function summarise(insights: Insight[], limit = 4): string[] {
+  return summaryInsights(insights, limit).map((i) => i.text.split(/(?<=\.)\s/)[0])
+}
+
+/** The insights the summary is built from, strongest first. */
+export function summaryInsights(insights: Insight[], limit = 4): Insight[] {
   const order = ['activity-goal', 'sleep-average', 'energy-sleep', 'mood-average', 'food-completeness', 'cycle-symptoms']
   return order
     .map((id) => insights.find((i) => i.id === id && i.status === 'ok'))
     .filter((i): i is Insight => !!i)
-    .slice(0, 4)
-    .map((i) => i.text.split(/(?<=\.)\s/)[0])
+    .slice(0, limit)
 }
 
 /** Share of days with any data per area, for the completeness strip. */

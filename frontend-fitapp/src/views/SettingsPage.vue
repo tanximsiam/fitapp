@@ -3,6 +3,13 @@
     <template #subtitle>Data source, connection status and goals</template>
 
     <div class="grid gap-4">
+      <PanelSection title="Appearance">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-ink-2">Light, dark, or follow your device.</p>
+          <ThemeToggle labels />
+        </div>
+      </PanelSection>
+
       <PanelSection title="Data source">
         <fieldset>
           <legend class="sr-only">Where FitApp reads data from</legend>
@@ -168,6 +175,7 @@ import AppShell from '@/components/AppShell.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import GoalsForm from '@/components/settings/GoalsForm.vue'
 import IngestTokens from '@/components/settings/IngestTokens.vue'
 import { formatRelative, formatShortDate } from '@/lib/format'

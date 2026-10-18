@@ -1,20 +1,5 @@
-import {
-  addCircleOutline,
-  calendarOutline,
-  ellipsisHorizontal,
-  flashOutline,
-  thermometerOutline,
-  waterOutline,
-  footstepsOutline,
-  gridOutline,
-  happyOutline,
-  listOutline,
-  moonOutline,
-  pulseOutline,
-  restaurantOutline,
-  settingsOutline,
-  watchOutline,
-} from 'ionicons/icons'
+import { addCircleOutline, ellipsisHorizontal, gridOutline, listOutline, settingsOutline, watchOutline } from 'ionicons/icons'
+import { ICONS } from '@/components/metricIcons'
 import type { TrackerPrefs } from '@/types/journal'
 
 export interface NavItem {
@@ -30,12 +15,12 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: 'Watch',
     items: [
       { to: '/overview', label: 'Overview', icon: gridOutline },
-      { to: '/activity', label: 'Activity', icon: footstepsOutline },
-      { to: '/sleep', label: 'Sleep', icon: moonOutline },
-      { to: '/heart-rate', label: 'Heart rate', icon: pulseOutline },
-      { to: '/stress', label: 'Stress', icon: flashOutline },
-      { to: '/blood-oxygen', label: 'Blood oxygen', icon: waterOutline },
-      { to: '/skin-temperature', label: 'Skin temperature', icon: thermometerOutline },
+      { to: '/activity', label: 'Activity', icon: ICONS.activity },
+      { to: '/sleep', label: 'Sleep', icon: ICONS.sleep },
+      { to: '/heart-rate', label: 'Heart rate', icon: ICONS.heartRate },
+      { to: '/stress', label: 'Stress', icon: ICONS.stress },
+      { to: '/blood-oxygen', label: 'Blood oxygen', icon: ICONS.spo2 },
+      { to: '/skin-temperature', label: 'Skin temperature', icon: ICONS.skinTemp },
       { to: '/device', label: 'Watch & sync', icon: watchOutline },
     ],
   },
@@ -43,9 +28,9 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: 'Journal',
     items: [
       { to: '/timeline', label: 'Timeline', icon: listOutline },
-      { to: '/mood', label: 'Mood', icon: happyOutline, tracker: 'mood' },
-      { to: '/food', label: 'Food & drink', icon: restaurantOutline, tracker: 'food' },
-      { to: '/cycle', label: 'Cycle', icon: calendarOutline, tracker: 'cycle' },
+      { to: '/mood', label: 'Mood', icon: ICONS.mood, tracker: 'mood' },
+      { to: '/food', label: 'Food & drink', icon: ICONS.meals, tracker: 'food' },
+      { to: '/cycle', label: 'Cycle', icon: ICONS.cycle, tracker: 'cycle' },
     ],
   },
   {
@@ -60,7 +45,7 @@ export const visibleGroups = (prefs: TrackerPrefs) =>
 /** Bottom bar on phones. `to: null` is the Quick log action; everything else is under More. */
 export const MOBILE_NAV: (NavItem | { to: null; label: string; icon: string })[] = [
   { to: '/overview', label: 'Overview', icon: gridOutline },
-  { to: '/activity', label: 'Activity', icon: footstepsOutline },
+  { to: '/activity', label: 'Activity', icon: ICONS.activity },
   { to: null, label: 'Log', icon: addCircleOutline },
   { to: '/timeline', label: 'Timeline', icon: listOutline },
   { to: '/more', label: 'More', icon: ellipsisHorizontal },

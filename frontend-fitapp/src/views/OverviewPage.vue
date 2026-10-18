@@ -12,6 +12,7 @@
           <div class="grid gap-6 sm:grid-cols-3">
             <GoalMeter
               label="Steps"
+              :icon="ICONS.steps"
               :value-text="formatInt(day?.activity?.steps)"
               :goal-text="formatInt(goals.steps)"
               :ratio="progress(day?.activity?.steps, goals.steps)"
@@ -19,6 +20,7 @@
             />
             <GoalMeter
               label="Active energy"
+              :icon="ICONS.activeEnergy"
               :value-text="day?.activity?.activeKcal == null ? EMPTY : `${formatInt(day.activity.activeKcal)} kcal`"
               :goal-text="`${formatInt(goals.activeKcal)} kcal`"
               :ratio="progress(day?.activity?.activeKcal, goals.activeKcal)"
@@ -26,6 +28,7 @@
             />
             <GoalMeter
               label="Sleep"
+              :icon="ICONS.sleep"
               :value-text="formatDuration(day?.sleep?.durationMin)"
               :goal-text="formatDuration(goals.sleepMin)"
               :ratio="progress(day?.sleep?.durationMin, goals.sleepMin)"
@@ -62,8 +65,8 @@
             </template>
             <template v-if="day?.sleep">
               <dl class="mb-4 grid grid-cols-3 gap-4">
-                <MetricItem label="Duration" :value="formatDuration(day.sleep.durationMin)" />
-                <MetricItem label="Bed – wake" :value="`${formatClock(day.sleep.startAt)}–${formatClock(day.sleep.endAt)}`" />
+                <MetricItem label="Duration" :icon="ICONS.sleep" :value="formatDuration(day.sleep.durationMin)" />
+                <MetricItem label="Bed – wake" :icon="ICONS.bedtime" :value="`${formatClock(day.sleep.startAt)}–${formatClock(day.sleep.endAt)}`" />
                 <MetricItem label="Score" :value="formatInt(day.sleep.score)" note="device" />
               </dl>
               <SleepStages :stages="day.sleep.stages" />
@@ -76,7 +79,7 @@
               <RouterLink to="/heart-rate" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Heart rate details</RouterLink>
             </template>
             <dl class="mb-3 grid grid-cols-3 gap-4">
-              <MetricItem label="This day" :value="day?.heartRate?.restingBpm == null ? EMPTY : `${day.heartRate.restingBpm} bpm`" />
+              <MetricItem label="This day" :icon="ICONS.heartRate" :value="day?.heartRate?.restingBpm == null ? EMPTY : `${day.heartRate.restingBpm} bpm`" />
               <MetricItem label="7-day average" :value="restingTrend.current == null ? EMPTY : `${Math.round(restingTrend.current)} bpm`" />
               <MetricItem label="Range" :value="rangeText" />
             </dl>
@@ -102,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed, onMounted } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
