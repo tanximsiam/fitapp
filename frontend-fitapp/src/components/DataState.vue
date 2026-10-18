@@ -10,10 +10,11 @@
   </StatePanel>
 
   <StatePanel v-else-if="!mode.isDemo && fitness.status && !fitness.status.sources.length" kind="empty" title="No data has been uploaded yet">
-    Your backend is connected, but no source has sent data. Create an ingest token in Settings and send your data to
-    <code class="rounded bg-page px-1 text-xs">POST /api/ingest</code> using the documented payload.
+    Your backend is reachable, but no watch data has arrived. Connect your Zepp account on the Watch & sync page, or send data
+    from another source to <code class="rounded bg-page px-1 text-xs">POST /api/ingest</code> with an ingest token.
     <template #actions>
-      <RouterLink to="/settings" :class="buttonClass">Set up a data source</RouterLink>
+      <RouterLink to="/device" :class="buttonClass">Connect Zepp</RouterLink>
+      <RouterLink to="/settings" :class="buttonClass">Ingest tokens</RouterLink>
     </template>
   </StatePanel>
 

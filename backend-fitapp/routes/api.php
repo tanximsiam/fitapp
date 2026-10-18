@@ -9,6 +9,8 @@ use App\Http\Controllers\Journal\HydrationController;
 use App\Http\Controllers\Journal\MealController;
 use App\Http\Controllers\Journal\MoodEntryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ZeppController;
+use App\Http\Controllers\ZeppWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Contract: docs/openapi.yaml
@@ -42,6 +44,16 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
         Route::delete('/cycle-days/{date}', [CycleDayController::class, 'destroy'])->where('date', '\d{4}-\d{2}-\d{2}');
     });
 });
+
+// Zepp Open Platform: account connection (app tokens) and public OAuth/webhook endpoints.
+Route::middleware(['auth:sanctum', 'abilities:app'])->prefix('zepp')->group(function () {
+    Route::get('/status', [ZeppController::class, 'status']);
+    Route::post('/authorize', [ZeppController::class, 'authorize']);
+    Route::delete('/connection', [ZeppController::class, 'disconnect']);
+    Route::post('/backfill', [ZeppController::class, 'backfill'])->middleware('throttle:5,60');
+});
+Route::get('/zepp/callback', [ZeppController::class, 'callback'])->middleware('throttle:20,1');
+Route::post('/zepp/webhook/{token}', ZeppWebhookController::class)->middleware('throttle:300,1');
 
 // External providers and bridges.
 Route::post('/ingest', IngestController::class)->middleware(['auth:sanctum', 'abilities:ingest', 'throttle:60,1']);
