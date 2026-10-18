@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import App from './App.vue'
 import router from './router';
 import { useAuthStore } from '@/stores/auth';
+import ripple from '@/directives/ripple';
 
 
 import { IonicVue } from '@ionic/vue';
@@ -62,6 +63,7 @@ const app = createApp(App)
 .use(IonicVue)
 .use(router)
 .use(pinia);
+app.directive('ripple', ripple)
 
 const auth = useAuthStore()
 auth.init()
