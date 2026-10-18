@@ -1,5 +1,5 @@
 <template>
-  <PanelSection title="Wellbeing overview" variant="elevated" :icon="ICONS.combined">
+  <PanelSection title="Wellbeing overview" :icon="ICONS.combined">
     <template #aside>
       <p class="text-xs text-muted">{{ fitness.rangeDays }} complete days, {{ formatShortDate(window.from) }}–{{ formatShortDate(window.to) }}</p>
     </template>

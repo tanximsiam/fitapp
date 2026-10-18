@@ -11,7 +11,7 @@
             <RouterLink to="/settings" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Edit goals</RouterLink>
           </div>
           <div class="grid gap-3 sm:grid-cols-3">
-            <div class="tone tone-activity rounded-2xl p-5">
+            <div class="tone tone-activity rounded-xl p-5">
               <GoalMeter
                 label="Steps"
                 :icon="ICONS.steps"
@@ -21,7 +21,7 @@
                 color="var(--activity)"
               />
             </div>
-            <div class="tone tone-energy rounded-2xl p-5">
+            <div class="tone tone-energy rounded-xl p-5">
               <GoalMeter
                 label="Active energy"
                 :icon="ICONS.activeEnergy"
@@ -31,7 +31,7 @@
                 color="var(--energy)"
               />
             </div>
-            <div class="tone tone-sleep rounded-2xl p-5">
+            <div class="tone tone-sleep rounded-xl p-5">
               <GoalMeter
                 label="Sleep"
                 :icon="ICONS.sleep"
@@ -66,7 +66,7 @@
         </PanelSection>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'" variant="tinted" tone="sleep" :icon="ICONS.sleep">
+          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'" tone="sleep" :icon="ICONS.sleep">
             <template #aside>
               <RouterLink to="/sleep" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Sleep details</RouterLink>
             </template>

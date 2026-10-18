@@ -29,7 +29,7 @@
           />
         </PanelSection>
 
-        <PanelSection :title="`Nightly average, last ${fitness.rangeDays} nights`" variant="plain">
+        <PanelSection :title="`Nightly average, last ${fitness.rangeDays} nights`">
           <dl class="mb-5 grid grid-cols-3 gap-4">
             <MetricItem label="Average of nights" :value="pct(mean(avgs))" />
             <MetricItem label="Lowest single reading" :value="mins.length ? pct(Math.min(...mins)) : EMPTY" />
