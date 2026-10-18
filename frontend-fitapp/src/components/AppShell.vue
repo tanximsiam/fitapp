@@ -2,18 +2,25 @@
   <ion-page>
     <ion-content>
       <div class="flex min-h-full">
-        <aside class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-line bg-rail px-3 py-5 lg:flex">
-          <RouterLink to="/overview" class="mb-6 flex items-center gap-2 px-3 text-[15px] font-semibold tracking-tight">
+        <aside class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col overflow-y-auto border-r border-line bg-rail px-3 py-5 lg:flex">
+          <RouterLink to="/overview" class="mb-5 flex items-center gap-2 px-3 text-[15px] font-semibold tracking-tight">
             <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
             FitApp
           </RouterLink>
+          <button
+            type="button"
+            class="mx-1 mb-5 flex items-center justify-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-accent-ink transition-[filter] duration-150 hover:brightness-110"
+            @click="ui.openQuickLog()"
+          >
+            <ion-icon :icon="addOutline" aria-hidden="true" class="text-lg" />Quick log
+          </button>
           <nav aria-label="Sections" class="flex flex-col gap-5">
-            <div v-for="group in NAV_GROUPS" :key="group.label" class="flex flex-col gap-0.5">
+            <div v-for="group in groups" :key="group.label" class="flex flex-col gap-0.5">
               <p class="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted">{{ group.label }}</p>
-              <NavButton v-for="item in group.items" :key="item.to" v-bind="item" variant="rail" />
+              <NavButton v-for="item in group.items" :key="item.to" :to="item.to" :label="item.label" :icon="item.icon" variant="rail" />
             </div>
           </nav>
-          <div class="mt-auto px-3"><DataModeBadge /></div>
+          <div class="mt-auto px-3 pt-4"><DataModeBadge /></div>
         </aside>
 
         <div class="min-w-0 flex-1 pb-24 lg:pb-10">
@@ -43,11 +50,27 @@
 </template>
 
 <script setup lang="ts">
-import { IonContent, IonPage } from '@ionic/vue'
+import { computed, onMounted } from 'vue'
+import { IonContent, IonIcon, IonPage } from '@ionic/vue'
+import { addOutline } from 'ionicons/icons'
 import BottomNav from '@/components/BottomNav.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
 import NavButton from '@/components/NavButton.vue'
-import { NAV_GROUPS } from '@/components/navItems'
+import { visibleGroups } from '@/components/navItems'
+import { useAuthStore } from '@/stores/auth'
+import { useJournalStore } from '@/stores/journal'
+import { useModeStore } from '@/stores/mode'
+import { useUiStore } from '@/stores/ui'
 
 defineProps<{ title: string }>()
+const ui = useUiStore()
+const journal = useJournalStore()
+const mode = useModeStore()
+const auth = useAuthStore()
+const groups = computed(() => visibleGroups(journal.prefs))
+
+// Tracker preferences drive the navigation, so load them wherever data is readable.
+onMounted(() => {
+  if (mode.isDemo || auth.user) journal.ensureLoaded()
+})
 </script>

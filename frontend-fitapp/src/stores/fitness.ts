@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { errorMessage } from '@/api/client'
 import { DEFAULT_GOALS } from '@/data/adapters'
 import { addDays, todayIn } from '@/lib/dates'
+import { useJournalStore } from './journal'
 import { useModeStore } from './mode'
 import type { DataStatus, DaySummary, Goals, ISODate } from '@/types/fitness'
 
@@ -68,7 +69,8 @@ export const useFitnessStore = defineStore('fitness', {
       const clamped = date > this.today ? this.today : date
       if (clamped === this.selectedDate) return
       this.selectedDate = clamped
-      return this.load()
+      const journal = useJournalStore()
+      return Promise.all([this.load(), journal.loaded ? journal.load() : undefined])
     },
 
     setRange(days: RangeDays) {

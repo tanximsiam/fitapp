@@ -1,7 +1,7 @@
 <template>
   <AppShell title="All sections">
     <div class="grid gap-6">
-      <section v-for="group in NAV_GROUPS" :key="group.label" :aria-label="group.label">
+      <section v-for="group in visibleGroups(journal.prefs)" :key="group.label" :aria-label="group.label">
         <h2 class="mb-2 text-xs font-medium uppercase tracking-wide text-muted">{{ group.label }}</h2>
         <ul class="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
           <li v-for="item in group.items" :key="item.to">
@@ -21,5 +21,8 @@
 import { IonIcon } from '@ionic/vue'
 import { chevronForwardOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
-import { NAV_GROUPS } from '@/components/navItems'
+import { visibleGroups } from '@/components/navItems'
+import { useJournalStore } from '@/stores/journal'
+
+const journal = useJournalStore()
 </script>
