@@ -17,6 +17,7 @@ const day = (date: string, steps: number | null): DaySummary => ({
   activity: steps === null ? null : { steps, distanceM: null, activeKcal: null, activeMinutes: null, source: 'x' },
   sleep: null,
   heartRate: null,
+  workouts: [],
 })
 
 describe('BarChart', () => {

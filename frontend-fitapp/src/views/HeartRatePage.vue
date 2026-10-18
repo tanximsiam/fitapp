@@ -5,6 +5,12 @@
 
     <DataState>
       <div class="grid gap-4">
+        <p v-if="fitness.status?.latestHeartRate" class="text-sm text-ink-2">
+          Latest reading
+          <span class="tabular text-lg font-semibold text-ink">{{ fitness.status.latestHeartRate.bpm }} bpm</span>
+          at {{ formatClock(fitness.status.latestHeartRate.at) }} on {{ formatLongDate(fitness.status.latestHeartRate.at.slice(0, 10)) }}
+          <span class="text-xs text-muted">(last value uploaded by the watch, not live)</span>
+        </p>
         <PanelSection title="Through the day">
           <template #aside>
             <p v-if="samples.length" class="text-xs text-muted">{{ samples.length }} readings</p>

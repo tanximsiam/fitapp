@@ -7,8 +7,11 @@
             <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
             FitApp
           </RouterLink>
-          <nav aria-label="Sections" class="flex flex-col gap-0.5">
-            <NavButton v-for="item in NAV_ITEMS" :key="item.to" v-bind="item" variant="rail" />
+          <nav aria-label="Sections" class="flex flex-col gap-5">
+            <div v-for="group in NAV_GROUPS" :key="group.label" class="flex flex-col gap-0.5">
+              <p class="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted">{{ group.label }}</p>
+              <NavButton v-for="item in group.items" :key="item.to" v-bind="item" variant="rail" />
+            </div>
           </nav>
           <div class="mt-auto px-3"><DataModeBadge /></div>
         </aside>
@@ -44,7 +47,7 @@ import { IonContent, IonPage } from '@ionic/vue'
 import BottomNav from '@/components/BottomNav.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
 import NavButton from '@/components/NavButton.vue'
-import { NAV_ITEMS } from '@/components/navItems'
+import { NAV_GROUPS } from '@/components/navItems'
 
 defineProps<{ title: string }>()
 </script>

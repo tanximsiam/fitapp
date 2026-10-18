@@ -8,6 +8,7 @@ use App\Models\HeartRateDay;
 use App\Models\HeartRateSample;
 use App\Models\SleepSession;
 use App\Models\User;
+use App\Models\Workout;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +30,8 @@ class IngestionService
         return DB::transaction(function () use ($user, $payload, $timezone) {
             $source = DataSource::updateOrCreate(
                 ['user_id' => $user->id, 'key' => $payload['source']['key']],
-                ['name' => $payload['source']['name']],
+                ['name' => $payload['source']['name']]
+                    + array_intersect_key($payload['source'], array_flip(['device', 'measurements'])),
             );
             $owner = ['user_id' => $user->id, 'data_source_id' => $source->id];
 
@@ -49,6 +51,19 @@ class IngestionService
                     'end_at' => $this->utc($night['end_at']),
                     'score' => $night['score'] ?? null,
                 ] + array_map(fn ($f) => $stages[$f] ?? null, array_combine(self::STAGE_FIELDS, self::STAGE_FIELDS)));
+            }
+
+            foreach ($payload['workouts'] ?? [] as $w) {
+                $round = fn (string $key) => isset($w[$key]) ? (int) round($w[$key]) : null;
+                Workout::updateOrCreate($owner + ['start_at' => $this->utc($w['start_at'])], [
+                    'date' => $w['date'],
+                    'end_at' => $this->utc($w['end_at']),
+                    'type' => $w['type'],
+                    'active_kcal' => $round('active_kcal'),
+                    'distance_m' => $round('distance_m'),
+                    'avg_bpm' => $w['avg_bpm'] ?? null,
+                    'max_bpm' => $w['max_bpm'] ?? null,
+                ]);
             }
 
             foreach ($payload['heart_rate']['resting'] ?? [] as $day) {
@@ -80,6 +95,7 @@ class IngestionService
                 'received' => [
                     'activity_days' => count($payload['activity'] ?? []),
                     'sleep_sessions' => count($payload['sleep'] ?? []),
+                    'workouts' => count($payload['workouts'] ?? []),
                     'resting_heart_rate_days' => count($payload['heart_rate']['resting'] ?? []),
                     'heart_rate_samples' => count($samples),
                 ],

@@ -40,13 +40,41 @@ export interface HeartRateDay {
   source: string | null
 }
 
+export interface Workout {
+  type: string
+  startAt: string
+  endAt: string
+  durationMin: number
+  activeKcal: number | null
+  distanceM: number | null
+  avgBpm: number | null
+  maxBpm: number | null
+  source: string | null
+}
+
 export interface DaySummary {
   date: ISODate
   activity: ActivityDay | null
   /** Main sleep that ended on this date. */
   sleep: SleepNight | null
   heartRate: HeartRateDay | null
+  workouts: Workout[]
 }
+
+/** Vocabulary shared with the ingestion contract. */
+export const MEASUREMENTS = [
+  'steps',
+  'distance',
+  'active_energy',
+  'active_minutes',
+  'workouts',
+  'sleep',
+  'sleep_stages',
+  'sleep_score',
+  'heart_rate',
+  'resting_heart_rate',
+] as const
+export type Measurement = (typeof MEASUREMENTS)[number]
 
 export interface HeartRateSample {
   at: string
@@ -63,6 +91,11 @@ export interface Goals {
 export interface DataSourceStatus {
   key: string
   name: string
+  device: string | null
+  /** What the source declares it provides. */
+  measurements: Measurement[]
+  /** Kinds of data actually received. */
+  received: string[]
   lastIngestedAt: string | null
   latestDate: ISODate | null
 }
@@ -71,6 +104,8 @@ export interface DataStatus {
   sources: DataSourceStatus[]
   lastIngestedAt: string | null
   latestDate: ISODate | null
+  /** Latest uploaded reading, not a live value. */
+  latestHeartRate: { at: string; bpm: number; source: string | null } | null
   timezone: string
 }
 
@@ -110,6 +145,17 @@ export interface DaySummaryPayload {
     sample_count: number
     source: string
   } | null
+  workouts?: {
+    type: string
+    start_at: string
+    end_at: string
+    duration_min: number
+    active_kcal: number | null
+    distance_m: number | null
+    avg_bpm: number | null
+    max_bpm: number | null
+    source: string
+  }[]
 }
 
 export interface GoalsPayload {
@@ -120,9 +166,18 @@ export interface GoalsPayload {
 }
 
 export interface StatusPayload {
-  sources: { key: string; name: string; last_ingested_at: string | null; latest_date?: string | null }[]
+  sources: {
+    key: string
+    name: string
+    device: string | null
+    measurements: Measurement[]
+    received?: string[]
+    last_ingested_at: string | null
+    latest_date?: string | null
+  }[]
   last_ingested_at: string | null
   latest_date: string | null
+  latest_heart_rate: { at: string; bpm: number; source: string | null } | null
   timezone: string
 }
 

@@ -37,7 +37,7 @@ class FitnessReadTest extends TestCase
 
         $this->getJson('/api/fitness/days?from=2026-10-01&to=2026-10-03')
             ->assertJsonCount(3, 'data')
-            ->assertJsonPath('data.0', ['date' => '2026-10-01', 'activity' => null, 'sleep' => null, 'heart_rate' => null])
+            ->assertJsonPath('data.0', ['date' => '2026-10-01', 'activity' => null, 'sleep' => null, 'heart_rate' => null, 'workouts' => []])
             ->assertJsonPath('meta.to', '2026-10-03');
     }
 

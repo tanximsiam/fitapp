@@ -7,6 +7,7 @@ use App\Models\HeartRateDay;
 use App\Models\HeartRateSample;
 use App\Models\SleepSession;
 use App\Models\User;
+use App\Models\Workout;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
@@ -30,6 +31,9 @@ class FitnessQueryService
             ->groupBy('date', 'data_source_id')
             ->selectRaw('date, data_source_id, min(bpm) as min_bpm, max(bpm) as max_bpm, avg(bpm) as avg_bpm, count(*) as sample_count, max(updated_at) as updated_at')
             ->get());
+        // Workouts of the most recently updated source per date, so two sources never double-list a session.
+        $workouts = $range(Workout::query())->orderBy('start_at')->get()->groupBy('date')
+            ->map(fn (Collection $list) => $list->where('data_source_id', $list->sortBy('updated_at')->last()->data_source_id)->values());
 
         $days = [];
         foreach (CarbonPeriod::create($from, $to) as $day) {
@@ -57,6 +61,17 @@ class FitnessQueryService
                     'sample_count' => $hr ? (int) $hr->sample_count : 0,
                     'source' => $sources[($hr ?? $r)->data_source_id] ?? null,
                 ] : null,
+                'workouts' => ($workouts->get($date) ?? collect())->map(fn (Workout $w) => [
+                    'type' => $w->type,
+                    'start_at' => $w->start_at->setTimezone($user->timezone)->toIso8601String(),
+                    'end_at' => $w->end_at->setTimezone($user->timezone)->toIso8601String(),
+                    'duration_min' => (int) $w->start_at->diffInMinutes($w->end_at),
+                    'active_kcal' => $w->active_kcal,
+                    'distance_m' => $w->distance_m,
+                    'avg_bpm' => $w->avg_bpm,
+                    'max_bpm' => $w->max_bpm,
+                    'source' => $sources[$w->data_source_id] ?? null,
+                ])->all(),
             ];
         }
 
@@ -80,14 +95,39 @@ class FitnessQueryService
             ])->all();
     }
 
-    /** Latest local date each source has delivered any data for. */
-    public function latestDates(User $user): Collection
+    /**
+     * Per source: the latest local date with any data and which kinds of data were actually received.
+     *
+     * @return Collection<int, array{latest_date: string, received: list<string>}>
+     */
+    public function coverage(User $user): Collection
     {
-        return collect([ActivityDay::class, SleepSession::class, HeartRateDay::class, HeartRateSample::class])
-            ->flatMap(fn ($model) => $model::where('user_id', $user->id)
-                ->groupBy('data_source_id')->selectRaw('data_source_id, max(date) as latest')->get())
-            ->groupBy('data_source_id')
-            ->map(fn ($rows) => $rows->max('latest'));
+        $kinds = [
+            'activity' => ActivityDay::class,
+            'workouts' => Workout::class,
+            'sleep' => SleepSession::class,
+            'resting_heart_rate' => HeartRateDay::class,
+            'heart_rate' => HeartRateSample::class,
+        ];
+
+        return collect($kinds)
+            ->flatMap(fn ($model, $kind) => $model::where('user_id', $user->id)
+                ->groupBy('data_source_id')->selectRaw('data_source_id, max(date) as latest')->get()
+                ->map(fn ($row) => ['source' => $row->data_source_id, 'kind' => $kind, 'latest' => $row->latest]))
+            ->groupBy('source')
+            ->map(fn ($rows) => ['latest_date' => $rows->max('latest'), 'received' => $rows->pluck('kind')->values()->all()]);
+    }
+
+    /** Most recent heart-rate reading from any source. This is the latest upload, not a live value. */
+    public function latestHeartRate(User $user): ?array
+    {
+        $s = HeartRateSample::where('user_id', $user->id)->orderByDesc('measured_at')->first();
+
+        return $s ? [
+            'at' => $s->measured_at->setTimezone($user->timezone)->toIso8601String(),
+            'bpm' => $s->bpm,
+            'source' => $user->dataSources()->whereKey($s->data_source_id)->value('key'),
+        ] : null;
     }
 
     private function latestPerDate(Collection $rows): Collection

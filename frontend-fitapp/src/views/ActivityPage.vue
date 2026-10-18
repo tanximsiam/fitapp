@@ -13,6 +13,19 @@
             <MetricItem label="Active time" :value="formatDuration(day.activity.activeMinutes)" />
           </dl>
           <p v-else class="text-sm text-muted">No activity was recorded on this day.</p>
+
+          <h3 class="mt-6 mb-2 text-sm font-semibold">Workouts</h3>
+          <ul v-if="day?.workouts.length" class="divide-y divide-line border-y border-line">
+            <li v-for="w in day.workouts" :key="w.startAt" class="flex flex-wrap items-baseline gap-x-6 gap-y-1 py-3 text-sm">
+              <span class="w-24 font-medium">{{ workoutLabel(w.type) }}</span>
+              <span class="tabular text-ink-2">{{ formatClock(w.startAt) }}–{{ formatClock(w.endAt) }} · {{ formatDuration(w.durationMin) }}</span>
+              <span v-if="w.distanceM != null" class="tabular text-ink-2">{{ formatKm(w.distanceM) }}</span>
+              <span v-if="w.activeKcal != null" class="tabular text-ink-2">{{ formatInt(w.activeKcal) }} kcal</span>
+              <span v-if="w.avgBpm != null" class="tabular text-ink-2">avg {{ w.avgBpm }} bpm<template v-if="w.maxBpm != null"> · max {{ w.maxBpm }}</template></span>
+            </li>
+          </ul>
+          <p v-else class="text-sm text-muted">No workouts were recorded on this day.</p>
+          <p class="mt-3 text-xs text-muted">{{ rangeWorkouts }} workouts in the last {{ fitness.rangeDays }} days.</p>
         </PanelSection>
 
         <PanelSection :title="`${metric.label}, last ${fitness.rangeDays} days`">
@@ -99,7 +112,8 @@ import PanelSection from '@/components/PanelSection.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
 import { metricBars } from '@/data/chartData'
 import { mean } from '@/data/derive'
-import { EMPTY, formatDuration, formatInt, formatKm, formatLongDate, formatShortDate, formatWeekday } from '@/lib/format'
+import { workoutLabel } from '@/data/connection'
+import { EMPTY, formatClock, formatDuration, formatInt, formatKm, formatLongDate, formatShortDate, formatWeekday } from '@/lib/format'
 import type { DaySummary } from '@/types/fitness'
 
 const { fitness, freshness, goals, rangeDaysList, selectedDay: day } = useFitnessData()
@@ -133,5 +147,6 @@ const values = computed(() => rangeDaysList.value.map((d) => metric.value.pick(d
 const measuredDays = computed(() => values.value.length)
 const rangeTotal = computed(() => (values.value.length ? values.value.reduce((a, b) => a + b, 0) : null))
 const rangeAverage = computed(() => mean(values.value))
+const rangeWorkouts = computed(() => rangeDaysList.value.reduce((n, d) => n + d.workouts.length, 0))
 const goalDays = computed(() => values.value.filter((v) => v >= metric.value.goal()).length)
 </script>

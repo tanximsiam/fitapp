@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /** An external provider or bridge that uploads data for one user, identified by its `key`. */
 class DataSource extends Model
 {
-    protected $fillable = ['user_id', 'key', 'name', 'last_ingested_at'];
+    protected $fillable = ['user_id', 'key', 'name', 'device', 'measurements', 'last_ingested_at'];
 
     protected function casts(): array
     {
-        return ['last_ingested_at' => 'datetime'];
+        return ['last_ingested_at' => 'datetime', 'measurements' => 'array'];
     }
 
     public function user(): BelongsTo
