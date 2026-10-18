@@ -166,6 +166,35 @@ paths:
                         type: array
                         items: { $ref: '#/components/schemas/HeartRateSample' }
 
+  /fitness/readings/{kind}/{date}:
+    get:
+      tags: [Fitness]
+      summary: Stress or blood-oxygen readings for one local date
+      parameters:
+        - { name: kind, in: path, required: true, schema: { type: string, enum: [stress, spo2] } }
+        - { name: date, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: Readings ordered by time (empty when none); `value` is 0–100 for stress and % for SpO₂
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      kind: { type: string }
+                      date: { type: string, format: date }
+                      samples:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            at: { type: string, format: date-time }
+                            value: { type: integer }
+        '404': { description: Unknown kind }
+
   /fitness/status:
     get:
       tags: [Fitness]
@@ -266,7 +295,7 @@ paths:
         * Sleep and resting heart rate: the record for that date is replaced.
         * Heart-rate samples: the local `date` is derived from `at` in `timezone` (default: the user's timezone).
 
-        At least one of `activity`, `workouts`, `sleep` or `heart_rate` is required. Rate limit: 60 requests/minute.
+        At least one of `activity`, `workouts`, `sleep`, `heart_rate`, `stress`, `spo2` or `skin_temperature` is required. Rate limit: 60 requests/minute.
       requestBody:
         required: true
         content:
@@ -689,11 +718,11 @@ components:
         received:
           type: array
           description: Kinds of data FitApp has actually stored from this source
-          items: { type: string, enum: [activity, workouts, sleep, resting_heart_rate, heart_rate] }
+          items: { type: string, enum: [activity, workouts, sleep, resting_heart_rate, heart_rate, stress, spo2, skin_temperature] }
 
     Measurement:
       type: string
-      enum: [steps, distance, active_energy, active_minutes, workouts, sleep, sleep_stages, sleep_score, heart_rate, resting_heart_rate]
+      enum: [steps, distance, active_energy, active_minutes, workouts, sleep, sleep_stages, sleep_score, heart_rate, resting_heart_rate, stress, spo2, skin_temperature]
 
     Workout:
       type: object
@@ -750,6 +779,26 @@ components:
           type: array
           description: Sessions from the most recently updated source for this date
           items: { $ref: '#/components/schemas/Workout' }
+        stress:
+          description: Watch-estimated stress (0–100) for the day
+          oneOf: [{ $ref: '#/components/schemas/SignalDay' }, { type: 'null' }]
+        spo2:
+          description: Blood oxygen (%) readings dated this day, usually overnight
+          oneOf: [{ $ref: '#/components/schemas/SignalDay' }, { type: 'null' }]
+        skin_temperature:
+          type: [object, 'null']
+          properties:
+            deviation_c: { type: number, description: °C relative to the wearer's baseline }
+            source: { type: string }
+
+    SignalDay:
+      type: object
+      properties:
+        avg: { type: integer }
+        min: { type: integer }
+        max: { type: integer }
+        sample_count: { type: integer }
+        source: { type: string }
 
     HeartRateSample:
       type: object
@@ -840,3 +889,38 @@ components:
                 properties:
                   at: { type: string, format: date-time, description: Must include an offset or Z }
                   bpm: { type: integer, minimum: 20, maximum: 250 }
+        stress:
+          type: object
+          description: The watch's own stress estimate. Stress a user reports belongs in mood check-ins.
+          properties:
+            samples:
+              type: array
+              maxItems: 10000
+              items:
+                type: object
+                required: [at, value]
+                properties:
+                  at: { type: string, format: date-time }
+                  value: { type: integer, minimum: 0, maximum: 100 }
+        spo2:
+          type: object
+          properties:
+            samples:
+              type: array
+              maxItems: 10000
+              items:
+                type: object
+                required: [at, percent]
+                properties:
+                  at: { type: string, format: date-time }
+                  percent: { type: integer, minimum: 70, maximum: 100 }
+        skin_temperature:
+          type: array
+          maxItems: 400
+          description: Nightly deviation from the wearer's baseline (not absolute temperature), keyed by local date.
+          items:
+            type: object
+            required: [date, deviation_c]
+            properties:
+              date: { type: string, format: date }
+              deviation_c: { type: number, minimum: -5, maximum: 5 }

@@ -3,7 +3,7 @@
     "key": "my-bridge",
     "name": "My export bridge",
     "device": "Example watch",
-    "measurements": ["steps", "distance", "active_energy", "active_minutes", "workouts", "sleep", "sleep_stages", "sleep_score", "heart_rate", "resting_heart_rate"]
+    "measurements": ["steps", "distance", "active_energy", "active_minutes", "workouts", "sleep", "sleep_stages", "sleep_score", "heart_rate", "resting_heart_rate", "stress", "spo2", "skin_temperature"]
   },
   "timezone": "Asia/Dhaka",
   "activity": [
@@ -39,5 +39,19 @@
       { "at": "2026-10-17T18:15:00+06:00", "bpm": 121 },
       { "at": "2026-10-17T23:59:00+06:00", "bpm": 61 }
     ]
-  }
+  },
+  "stress": {
+    "samples": [
+      { "at": "2026-10-17T10:00:00+06:00", "value": 42 },
+      { "at": "2026-10-17T15:00:00+06:00", "value": 67 },
+      { "at": "2026-10-17T21:00:00+06:00", "value": 25 }
+    ]
+  },
+  "spo2": {
+    "samples": [
+      { "at": "2026-10-17T02:00:00+06:00", "percent": 97 },
+      { "at": "2026-10-17T04:30:00+06:00", "percent": 95 }
+    ]
+  },
+  "skin_temperature": [{ "date": "2026-10-17", "deviation_c": -0.3 }]
 }

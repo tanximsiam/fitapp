@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\ActivityDay;
+use App\Models\BodySample;
 use App\Models\HeartRateDay;
 use App\Models\HeartRateSample;
+use App\Models\SkinTemperatureDay;
 use App\Models\SleepSession;
 use App\Models\User;
 use App\Models\Workout;
@@ -34,6 +36,20 @@ class FitnessQueryService
         // Workouts of the most recently updated source per date, so two sources never double-list a session.
         $workouts = $range(Workout::query())->orderBy('start_at')->get()->groupBy('date')
             ->map(fn (Collection $list) => $list->where('data_source_id', $list->sortBy('updated_at')->last()->data_source_id)->values());
+        $body = fn (string $kind) => $this->latestPerDate($range(BodySample::query())->where('kind', $kind)
+            ->groupBy('date', 'data_source_id')
+            ->selectRaw('date, data_source_id, min(value) as min_value, max(value) as max_value, avg(value) as avg_value, count(*) as sample_count, max(updated_at) as updated_at')
+            ->get());
+        $stress = $body('stress');
+        $spo2 = $body('spo2');
+        $skin = $this->latestPerDate($range(SkinTemperatureDay::query())->get());
+        $summary = fn ($row) => $row ? [
+            'avg' => (int) round($row->avg_value),
+            'min' => (int) $row->min_value,
+            'max' => (int) $row->max_value,
+            'sample_count' => (int) $row->sample_count,
+            'source' => $sources[$row->data_source_id] ?? null,
+        ] : null;
 
         $days = [];
         foreach (CarbonPeriod::create($from, $to) as $day) {
@@ -72,6 +88,9 @@ class FitnessQueryService
                     'max_bpm' => $w->max_bpm,
                     'source' => $sources[$w->data_source_id] ?? null,
                 ])->all(),
+                'stress' => $summary($stress->get($date)),
+                'spo2' => $summary($spo2->get($date)),
+                'skin_temperature' => ($t = $skin->get($date)) ? ['deviation_c' => $t->deviation_c, 'source' => $sources[$t->data_source_id] ?? null] : null,
             ];
         }
 
@@ -95,6 +114,17 @@ class FitnessQueryService
             ])->all();
     }
 
+    /** @return list<array{at: string, value: int}> stress or SpO₂ readings of the winning source for that date */
+    public function bodySamples(User $user, string $kind, string $date): array
+    {
+        $base = BodySample::where('user_id', $user->id)->where('kind', $kind)->where('date', $date);
+        $latest = (clone $base)->orderByDesc('updated_at')->orderByDesc('id')->first();
+
+        return $latest ? $base->where('data_source_id', $latest->data_source_id)->orderBy('measured_at')->get()
+            ->map(fn (BodySample $s) => ['at' => $s->measured_at->setTimezone($user->timezone)->toIso8601String(), 'value' => $s->value])
+            ->all() : [];
+    }
+
     /**
      * Per source: the latest local date with any data and which kinds of data were actually received.
      *
@@ -108,10 +138,14 @@ class FitnessQueryService
             'sleep' => SleepSession::class,
             'resting_heart_rate' => HeartRateDay::class,
             'heart_rate' => HeartRateSample::class,
+            'stress' => BodySample::class,
+            'spo2' => BodySample::class,
+            'skin_temperature' => SkinTemperatureDay::class,
         ];
 
         return collect($kinds)
             ->flatMap(fn ($model, $kind) => $model::where('user_id', $user->id)
+                ->when($model === BodySample::class, fn ($q) => $q->where('kind', $kind))
                 ->groupBy('data_source_id')->selectRaw('data_source_id, max(date) as latest')->get()
                 ->map(fn ($row) => ['source' => $row->data_source_id, 'kind' => $kind, 'latest' => $row->latest]))
             ->groupBy('source')

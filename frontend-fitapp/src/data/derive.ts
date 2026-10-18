@@ -17,6 +17,17 @@ export function summarizeHeartRate(samples: HeartRateSample[]) {
   }
 }
 
+/** Rounded mean, min, max and count of a reading series; null when there are no readings. */
+export function summarizeValues(values: number[]) {
+  if (!values.length) return null
+  return {
+    avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    min: Math.min(...values),
+    max: Math.max(...values),
+    sampleCount: values.length,
+  }
+}
+
 /**
  * Compares the mean of the last `period` days with the `period` days before.
  * `days` must be ordered oldest first and end at the reference date.

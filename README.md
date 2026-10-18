@@ -2,7 +2,7 @@
 
 An open-source, watch-centred health website built for **Zepp / Amazfit** watches. FitApp brings the activity, sleep and heart-rate data recorded by a watch together with the things a watch can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
 
-- **Watch first.** Overview, Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend) and a Watch & sync page with device, capabilities and freshness.
+- **Watch first.** Overview, Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
 - **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals with foods and optional nutrition values you enter, water, and an optional cycle tracker.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
 - **Zepp, ready to connect.** The backend includes a full Zepp Open Platform integration (OAuth, webhooks, FIT workouts, heart-rate pulls, backfill). Add your Zepp credentials to `.env`, register two URLs with Zepp and press **Connect Zepp account**. See [docs/zepp.md](docs/zepp.md).
@@ -14,6 +14,7 @@ An open-source, watch-centred health website built for **Zepp / Amazfit** watche
 | --- | --- | --- |
 | ![Wellbeing overview](docs/screenshots/desktop-wellbeing.png) | ![Activity](docs/screenshots/desktop-activity.png) | ![Sleep](docs/screenshots/desktop-sleep.png) |
 | ![Heart rate](docs/screenshots/desktop-heart-rate.png) | ![Watch & sync](docs/screenshots/desktop-device.png) | ![Timeline](docs/screenshots/desktop-timeline.png) |
+| ![Stress](docs/screenshots/desktop-stress.png) | ![Blood oxygen](docs/screenshots/desktop-blood-oxygen.png) | ![Skin temperature](docs/screenshots/desktop-skin-temperature.png) |
 | ![Mood](docs/screenshots/desktop-mood.png) | ![Food & drink](docs/screenshots/desktop-food.png) | ![Cycle](docs/screenshots/desktop-cycle.png) |
 
 <p>
@@ -158,8 +159,9 @@ Provider credentials (Zepp client secret, tokens) stay on the server; the websit
 ## Limitations
 
 - No real watch or Zepp partner credentials were available. The Zepp integration follows Zepp's published documentation and is tested with faked responses; the first live connection still needs checking (see [docs/zepp.md](docs/zepp.md#checking-the-first-connection)).
-- Zepp heart-rate readings use Zepp's transitional pull API; HRV, SpO₂, skin temperature, body composition and nutrition events are received but not stored.
-- The ingestion contract carries steps, distance, active energy and minutes, workouts, sleep (with stages and score), resting heart rate and heart-rate readings. Watch-measured stress, SpO₂ and skin temperature are not part of it yet.
+- Zepp heart-rate readings use Zepp's transitional pull API. Zepp delivers SpO₂ and skin temperature, but its Open Platform offers no watch-measured stress, so Zepp accounts show no stress data. HRV, body composition and nutrition events are received but not stored.
+- Stress, SpO₂ and skin temperature are shown as recorded; FitApp does not flag or interpret them medically.
+- The ingestion contract carries steps, distance, active energy and minutes, workouts, sleep (with stages and score), resting heart rate, heart-rate readings, watch-estimated stress, SpO₂ readings and nightly skin-temperature deviation. HRV is not part of it yet.
 - Food energy and nutrients are only what the user enters; there is no food database.
 - The wellbeing overview describes co-occurrence in the user's own records. It is not medical advice, and the cycle tracker makes no predictions.
 - Single-user accounts created on the server; no password reset or self-service sign-up.

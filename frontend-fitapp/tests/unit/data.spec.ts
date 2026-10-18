@@ -74,6 +74,9 @@ describe('adapters share one contract', () => {
         source: 'demo',
       },
       heart_rate: { ...snake(demo.heartRate!), source: 'demo' },
+      stress: { avg: demo.stress!.avg, min: demo.stress!.min, max: demo.stress!.max, sample_count: demo.stress!.sampleCount, source: 'demo' },
+      spo2: { avg: demo.spo2!.avg, min: demo.spo2!.min, max: demo.spo2!.max, sample_count: demo.spo2!.sampleCount, source: 'demo' },
+      skin_temperature: { deviation_c: demo.skinTemp!.deviationC, source: 'demo' },
     }
     vi.spyOn(api, 'get').mockResolvedValueOnce({ data: { data: [payload], meta: { timezone: 'Asia/Dhaka' } } })
 
@@ -82,7 +85,34 @@ describe('adapters share one contract', () => {
   })
 
   test('missing backend sections stay null', () => {
-    expect(toDaySummary({ date: '2026-10-01', activity: null, sleep: null, heart_rate: null })).toEqual({ date: '2026-10-01', activity: null, sleep: null, heartRate: null, workouts: [] })
+    expect(toDaySummary({ date: '2026-10-01', activity: null, sleep: null, heart_rate: null })).toEqual({
+      date: '2026-10-01',
+      activity: null,
+      sleep: null,
+      heartRate: null,
+      workouts: [],
+      stress: null,
+      spo2: null,
+      skinTemp: null,
+    })
+  })
+
+  test('body signal summaries agree with their readings and follow wear', () => {
+    for (const { summary, samples, readings } of window) {
+      if (summary.stress) {
+        const v = readings.stress.map((r) => r.value)
+        expect([summary.stress.min, summary.stress.max, summary.stress.sampleCount]).toEqual([Math.min(...v), Math.max(...v), v.length])
+        expect(v.every((x) => x >= 0 && x <= 100)).toBe(true)
+      }
+      // Stress needs heart data; SpO₂ and skin temperature need a recorded night.
+      if (!samples.length) expect(summary.stress).toBeNull()
+      expect(summary.spo2 === null).toBe(summary.sleep === null)
+      expect(summary.skinTemp === null).toBe(summary.sleep === null)
+      if (summary.spo2) {
+        expect(readings.spo2.every((r) => r.at.startsWith(summary.date) && r.value >= 90 && r.value <= 100)).toBe(true)
+        expect(summary.spo2.avg).toBe(Math.round(readings.spo2.reduce((a, r) => a + r.value, 0) / readings.spo2.length))
+      }
+    }
   })
 
   test('simulated connection states hide data after the last sync', async () => {

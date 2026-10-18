@@ -99,6 +99,25 @@ describe('wellbeing insights', () => {
     expect(find(analyse(input({ journal: three })), 'cycle-symptoms').text).toBe('2 of your last 3 recorded periods included cramps during the first two days.')
   })
 
+  test('body signals are summarised, and skipped when the source never provides them', () => {
+    const sig = (avg: number, min: number) => ({ avg, min, max: avg + 5, sampleCount: 10, source: 'w' })
+    const days = DATES.map((d, i) => ({
+      ...day(d, 9000, 420),
+      stress: sig(i < 7 ? 40 : 30, 10),
+      spo2: i >= 7 ? sig(96, i === 10 ? 92 : 94) : null,
+      skinTemp: i >= 7 ? { deviationC: i === 8 ? -0.4 : 0.2, source: 'w' } : null,
+    }))
+    const out = analyse(input({ days }))
+    expect(find(out, 'stress-average').text).toBe("Your watch's stress estimate averaged 30 out of 100 over 7 days, 25% lower than the previous period (40 of 100).")
+    expect(find(out, 'spo2-nights').text).toBe('Overnight blood oxygen averaged 96% over 7 nights; the lowest single reading was 92%.')
+    expect(find(out, 'skin-temperature').text).toBe('Skin temperature stayed between −0.40 °C and +0.20 °C of your baseline over 7 nights.')
+
+    const ids = analyse(input({})).map((i) => i.id)
+    expect(ids).not.toContain('stress-average')
+    expect(ids).not.toContain('spo2-nights')
+    expect(ids).not.toContain('skin-temperature')
+  })
+
   test('disabled trackers produce no statements', () => {
     const ids = analyse(input({ prefs: { mood: false, food: false, cycle: false } })).map((i) => i.area)
     expect(ids).not.toContain('mood')

@@ -31,7 +31,7 @@ class IngestionTest extends TestCase
         $this->postJson('/api/ingest', $this->sample())
             ->assertOk()
             ->assertJsonPath('data.source.key', 'my-bridge')
-            ->assertJsonPath('data.received', ['activity_days' => 2, 'sleep_sessions' => 1, 'workouts' => 1, 'resting_heart_rate_days' => 1, 'heart_rate_samples' => 4]);
+            ->assertJsonPath('data.received', ['activity_days' => 2, 'sleep_sessions' => 1, 'workouts' => 1, 'resting_heart_rate_days' => 1, 'heart_rate_samples' => 4, 'stress_samples' => 3, 'spo2_samples' => 2, 'skin_temperature_days' => 1]);
 
         Sanctum::actingAs($user, ['app']);
         $days = $this->getJson('/api/fitness/days?from=2026-10-16&to=2026-10-17')->assertOk()->json('data');
@@ -135,7 +135,41 @@ class IngestionTest extends TestCase
         $status->assertJsonPath('data.sources.0.device', 'Example watch')
             ->assertJsonPath('data.latest_heart_rate', ['at' => '2026-10-17T23:59:00+06:00', 'bpm' => 61, 'source' => 'my-bridge']);
         $this->assertContains('workouts', $status->json('data.sources.0.measurements'));
-        $this->assertEqualsCanonicalizing(['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate'], $status->json('data.sources.0.received'));
+        $this->assertEqualsCanonicalizing(
+            ['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate', 'stress', 'spo2', 'skin_temperature'],
+            $status->json('data.sources.0.received'),
+        );
+    }
+
+    public function test_stress_spo2_and_skin_temperature_are_stored_and_summarised(): void
+    {
+        $user = $this->asIngestClient();
+        $this->postJson('/api/ingest', $this->sample())->assertOk();
+        $this->postJson('/api/ingest', $this->sample())->assertOk();
+        $this->assertDatabaseCount('body_samples', 5);
+
+        Sanctum::actingAs($user, ['app']);
+        $day = $this->getJson('/api/fitness/days?from=2026-10-17&to=2026-10-17')->json('data.0');
+        $this->assertSame(['avg' => 45, 'min' => 25, 'max' => 67, 'sample_count' => 3, 'source' => 'my-bridge'], $day['stress']);
+        $this->assertSame(['avg' => 96, 'min' => 95, 'max' => 97, 'sample_count' => 2, 'source' => 'my-bridge'], $day['spo2']);
+        $this->assertEquals(['deviation_c' => -0.3, 'source' => 'my-bridge'], $day['skin_temperature']);
+
+        $this->getJson('/api/fitness/readings/spo2/2026-10-17')
+            ->assertJsonPath('data.samples', [['at' => '2026-10-17T02:00:00+06:00', 'value' => 97], ['at' => '2026-10-17T04:30:00+06:00', 'value' => 95]]);
+        $this->getJson('/api/fitness/readings/temperature/2026-10-17')->assertNotFound();
+    }
+
+    public function test_body_signal_values_are_validated(): void
+    {
+        $this->asIngestClient();
+        $payload = $this->sample();
+        $payload['stress']['samples'][0]['value'] = 140;
+        $payload['spo2']['samples'][0]['percent'] = 40;
+        $payload['skin_temperature'][0]['deviation_c'] = 9;
+
+        $this->postJson('/api/ingest', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['stress.samples.0.value', 'spo2.samples.0.percent', 'skin_temperature.0.deviation_c']);
     }
 
     public function test_workout_span_and_measurement_names_are_validated(): void
@@ -147,6 +181,6 @@ class IngestionTest extends TestCase
 
         $this->postJson('/api/ingest', $payload)
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['workouts.0.end_at', 'source.measurements.10']);
+            ->assertJsonValidationErrors(['workouts.0.end_at', 'source.measurements.13']);
     }
 }

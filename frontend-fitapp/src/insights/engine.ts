@@ -12,7 +12,7 @@ import type { JournalData, TrackerPrefs } from '@/types/journal'
  * Wording describes what the records show; it never diagnoses or implies causation.
  */
 
-export type Area = 'activity' | 'sleep' | 'heart' | 'mood' | 'food' | 'cycle' | 'combined'
+export type Area = 'activity' | 'sleep' | 'heart' | 'stress' | 'oxygen' | 'skin' | 'mood' | 'food' | 'cycle' | 'combined'
 
 export interface Insight {
   id: string
@@ -162,6 +162,66 @@ export function analyse(input: AnalysisInput): Insight[] {
     })
   }
 
+  /* Body signals. Skipped entirely when the source never provides them (e.g. stress from Zepp). */
+  {
+    const stress = values(cur, (d) => d.stress?.avg)
+    const prevStress = values(prev, (d) => d.stress?.avg)
+    if (stress.length || prevStress.length) {
+      const ok = stress.length >= need
+      const okCompare = ok && prevStress.length >= need
+      out.push({
+        id: 'stress-average',
+        area: 'stress',
+        status: ok ? 'ok' : 'insufficient',
+        text: ok
+          ? `Your watch's stress estimate averaged ${Math.round(mean(stress)!)} out of 100 over ${stress.length} days${okCompare ? `, ${describeChange(mean(stress)!, mean(prevStress)!, (v) => String(Math.round(v)), ' of 100')}` : ''}.`
+          : `A stress average needs ${need} days with readings in ${label}; found ${stress.length}.`,
+        calculation: `Mean of the watch's daily average stress (0–100) for ${label}${okCompare ? `, compared with ${prevLabel}` : ''}. Self-reported stress from check-ins is not included.`,
+        range,
+        counts: [
+          { label: `Days with readings, ${label}`, value: String(stress.length) },
+          { label: `Days with readings, ${prevLabel}`, value: String(prevStress.length) },
+        ],
+        link: '/stress',
+      })
+    }
+
+    const spo2 = cur.filter((d) => d.spo2)
+    if (spo2.length || prev.some((d) => d.spo2)) {
+      const ok = spo2.length >= need
+      out.push({
+        id: 'spo2-nights',
+        area: 'oxygen',
+        status: ok ? 'ok' : 'insufficient',
+        text: ok
+          ? `Overnight blood oxygen averaged ${Math.round(mean(spo2.map((d) => d.spo2!.avg))!)}% over ${spo2.length} nights; the lowest single reading was ${Math.min(...spo2.map((d) => d.spo2!.min))}%.`
+          : `Blood oxygen was recorded on ${spo2.length} nights in ${label}; ${need} are needed for a summary.`,
+        calculation: `Mean of nightly SpO₂ averages and the lowest single reading, nights ending ${label}. Values are shown as recorded, without interpretation.`,
+        range,
+        counts: [{ label: 'Nights with readings', value: `${spo2.length} of ${n}` }],
+        link: '/blood-oxygen',
+      })
+    }
+
+    const skin = values(cur, (d) => d.skinTemp?.deviationC)
+    if (skin.length || prev.some((d) => d.skinTemp)) {
+      const ok = skin.length >= need
+      const fmt = (c: number) => `${c > 0 ? '+' : c < 0 ? '−' : '±'}${Math.abs(c).toFixed(2)} °C`
+      out.push({
+        id: 'skin-temperature',
+        area: 'skin',
+        status: ok ? 'ok' : 'insufficient',
+        text: ok
+          ? `Skin temperature stayed between ${fmt(Math.min(...skin))} and ${fmt(Math.max(...skin))} of your baseline over ${skin.length} nights.`
+          : `Skin temperature was recorded on ${skin.length} nights in ${label}; ${need} are needed for a summary.`,
+        calculation: `Lowest and highest nightly deviation from the watch's personal baseline, nights ending ${label}.`,
+        range,
+        counts: [{ label: 'Nights with readings', value: `${skin.length} of ${n}` }],
+        link: '/skin-temperature',
+      })
+    }
+  }
+
   /* Mood. */
   if (input.prefs.mood) {
     const moodCur = dailyMoodMean(input.journal.mood.filter((e) => inRange(e.date, from, end)), (e) => e.mood)
@@ -302,6 +362,7 @@ export function completeness(days: DaySummary[], journal: JournalData, from: ISO
     { area: 'Activity', count: has((d) => !!byDate.get(d)?.activity) },
     { area: 'Sleep', count: has((d) => !!byDate.get(d)?.sleep) },
     { area: 'Heart rate', count: has((d) => !!byDate.get(d)?.heartRate) },
+    { area: 'Stress', count: has((d) => !!byDate.get(d)?.stress) },
   ]
   if (prefs.mood) rows.push({ area: 'Mood', count: has((d) => journal.mood.some((e) => e.date === d)) })
   if (prefs.food) rows.push({ area: 'Meals', count: has((d) => journal.meals.some((e) => e.date === d)) })

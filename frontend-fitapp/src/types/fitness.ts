@@ -52,6 +52,28 @@ export interface Workout {
   source: string | null
 }
 
+/** Daily summary of a reading series (watch stress 0–100 or SpO₂ %). */
+export interface SignalDay {
+  avg: number
+  min: number
+  max: number
+  sampleCount: number
+  source: string | null
+}
+
+export interface SkinTemperatureDay {
+  /** °C relative to the wearer's baseline, measured overnight. Not body temperature. */
+  deviationC: number
+  source: string | null
+}
+
+export type ReadingKind = 'stress' | 'spo2'
+
+export interface Reading {
+  at: string
+  value: number
+}
+
 export interface DaySummary {
   date: ISODate
   activity: ActivityDay | null
@@ -59,6 +81,10 @@ export interface DaySummary {
   sleep: SleepNight | null
   heartRate: HeartRateDay | null
   workouts: Workout[]
+  /** Watch-estimated stress; unrelated to stress the user reports in mood check-ins. */
+  stress: SignalDay | null
+  spo2: SignalDay | null
+  skinTemp: SkinTemperatureDay | null
 }
 
 /** Vocabulary shared with the ingestion contract. */
@@ -73,6 +99,9 @@ export const MEASUREMENTS = [
   'sleep_score',
   'heart_rate',
   'resting_heart_rate',
+  'stress',
+  'spo2',
+  'skin_temperature',
 ] as const
 export type Measurement = (typeof MEASUREMENTS)[number]
 
@@ -119,12 +148,21 @@ export interface FitnessAdapter {
   readonly kind: 'demo' | 'backend'
   getDays(from: ISODate, to: ISODate): Promise<DaysResult>
   getHeartRate(date: ISODate): Promise<HeartRateSample[]>
+  getReadings(kind: ReadingKind, date: ISODate): Promise<Reading[]>
   getStatus(): Promise<DataStatus>
   getGoals(): Promise<Goals>
   saveGoals(goals: Goals): Promise<Goals>
 }
 
 /* Backend payloads (snake_case), see docs/openapi.yaml. */
+
+export interface SignalPayload {
+  avg: number
+  min: number
+  max: number
+  sample_count: number
+  source: string
+}
 
 export interface DaySummaryPayload {
   date: string
@@ -145,6 +183,9 @@ export interface DaySummaryPayload {
     sample_count: number
     source: string
   } | null
+  stress?: SignalPayload | null
+  spo2?: SignalPayload | null
+  skin_temperature?: { deviation_c: number; source: string } | null
   workouts?: {
     type: string
     start_at: string

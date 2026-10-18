@@ -9,6 +9,10 @@ import type {
   HeartRateSample,
   IngestToken,
   ISODate,
+  Reading,
+  ReadingKind,
+  SignalDay,
+  SignalPayload,
   StatusPayload,
 } from '@/types/fitness'
 
@@ -55,7 +59,18 @@ export function toDaySummary(raw: DaySummaryPayload): DaySummary {
       maxBpm: w.max_bpm,
       source: w.source,
     })),
+    stress: toSignal(raw.stress),
+    spo2: toSignal(raw.spo2),
+    skinTemp: raw.skin_temperature ? { deviationC: raw.skin_temperature.deviation_c, source: raw.skin_temperature.source } : null,
   }
+}
+
+const toSignal = (s: SignalPayload | null | undefined): SignalDay | null =>
+  s ? { avg: s.avg, min: s.min, max: s.max, sampleCount: s.sample_count, source: s.source } : null
+
+export async function getReadings(kind: ReadingKind, date: ISODate): Promise<Reading[]> {
+  const res = await api.get<{ data: { samples: Reading[] } }>(`/fitness/readings/${kind}/${date}`)
+  return res.data.data.samples
 }
 
 export const toGoals = (g: GoalsPayload): Goals => ({

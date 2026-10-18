@@ -57,6 +57,11 @@ const payload = {
       .map(({ summary: { date, heartRate } }) => ({ date, bpm: heartRate!.restingBpm })),
     samples: generated.flatMap((d) => d.samples),
   },
+  stress: { samples: generated.flatMap((d) => d.readings.stress) },
+  spo2: { samples: generated.flatMap((d) => d.readings.spo2.map((r) => ({ at: r.at, percent: r.value }))) },
+  skin_temperature: generated
+    .filter((d) => d.summary.skinTemp)
+    .map(({ summary: { date, skinTemp } }) => ({ date, deviation_c: skinTemp!.deviationC })),
 }
 
 process.stdout.write(JSON.stringify(payload))

@@ -94,6 +94,7 @@
             />
           </PanelSection>
         </div>
+        <BodySignals />
         <JournalState><TodayEntries /></JournalState>
       </div>
     </DataState>
@@ -111,6 +112,7 @@ import GoalMeter from '@/components/GoalMeter.vue'
 import WatchStatus from '@/components/WatchStatus.vue'
 import WellbeingOverview from '@/components/WellbeingOverview.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
+import BodySignals from '@/components/BodySignals.vue'
 import JournalState from '@/components/JournalState.vue'
 import { useJournalStore } from '@/stores/journal'
 import MetricItem from '@/components/MetricItem.vue'

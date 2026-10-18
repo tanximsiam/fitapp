@@ -11,6 +11,9 @@ import SettingsPage from '@/views/SettingsPage.vue'
 import DevicePage from '@/views/DevicePage.vue'
 import MorePage from '@/views/MorePage.vue'
 import TimelinePage from '@/views/TimelinePage.vue'
+import StressPage from '@/views/StressPage.vue'
+import OxygenPage from '@/views/OxygenPage.vue'
+import SkinTemperaturePage from '@/views/SkinTemperaturePage.vue'
 import MoodPage from '@/views/MoodPage.vue'
 import FoodPage from '@/views/FoodPage.vue'
 import CyclePage from '@/views/CyclePage.vue'
@@ -31,6 +34,9 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/activity', name: 'Activity', component: ActivityPage, meta: { requiresData: true, title: 'Activity' } },
   { path: '/sleep', name: 'Sleep', component: SleepPage, meta: { requiresData: true, title: 'Sleep' } },
   { path: '/heart-rate', name: 'HeartRate', component: HeartRatePage, meta: { requiresData: true, title: 'Heart rate' } },
+  { path: '/stress', name: 'Stress', component: StressPage, meta: { requiresData: true, title: 'Stress' } },
+  { path: '/blood-oxygen', name: 'BloodOxygen', component: OxygenPage, meta: { requiresData: true, title: 'Blood oxygen' } },
+  { path: '/skin-temperature', name: 'SkinTemperature', component: SkinTemperaturePage, meta: { requiresData: true, title: 'Skin temperature' } },
   { path: '/timeline', name: 'Timeline', component: TimelinePage, meta: { requiresData: true, title: 'Timeline' } },
   { path: '/mood', name: 'Mood', component: MoodPage, meta: { requiresData: true, title: 'Mood' } },
   { path: '/food', name: 'Food', component: FoodPage, meta: { requiresData: true, title: 'Food & drink' } },
