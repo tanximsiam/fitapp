@@ -25,8 +25,8 @@ const OVERLAY_KEY = 'fitapp.demo.journal'
 const PREFS_KEY = 'fitapp.demo.trackers'
 /** The demo shows every tracker; a real account starts with the cycle tracker off. */
 const DEMO_PREFS: TrackerPrefs = { mood: true, food: true, cycle: true }
-/** Cycle history reaches further back so several completed cycles exist. */
-export const DEMO_CYCLE_DAYS = 160
+/** Cycle history covers the whole demo window, so several completed cycles exist. */
+export const DEMO_CYCLE_DAYS = DEMO_WINDOW_DAYS
 
 function rng(seed: number) {
   let a = seed >>> 0

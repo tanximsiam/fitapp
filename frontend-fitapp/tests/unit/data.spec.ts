@@ -97,6 +97,13 @@ describe('adapters share one contract', () => {
     })
   })
 
+  test('ranges months back are populated for every watch signal', () => {
+    const old = dateRange(addDays(clock.today, -170), addDays(clock.today, -141)).map((d) => generateDay(d, clock).summary)
+    for (const pick of [(d: DaySummary) => d.activity, (d: DaySummary) => d.sleep, (d: DaySummary) => d.stress, (d: DaySummary) => d.spo2, (d: DaySummary) => d.skinTemp]) {
+      expect(old.filter(pick).length).toBeGreaterThanOrEqual(24) // 30 days, minus the deliberate gaps
+    }
+  })
+
   test('body signal summaries agree with their readings and follow wear', () => {
     for (const { summary, samples, readings } of window) {
       if (summary.stress) {
