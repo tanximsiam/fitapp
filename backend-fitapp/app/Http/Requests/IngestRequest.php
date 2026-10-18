@@ -44,7 +44,7 @@ class IngestRequest extends FormRequest
             'heart_rate.resting' => ['array', 'max:400'],
             'heart_rate.resting.*.date' => self::DAY,
             'heart_rate.resting.*.bpm' => ['required', 'integer', 'between:20,250'],
-            'heart_rate.samples' => ['array', 'max:5000'],
+            'heart_rate.samples' => ['array', 'max:10000'],
             'heart_rate.samples.*.at' => self::INSTANT,
             'heart_rate.samples.*.bpm' => ['required', 'integer', 'between:20,250'],
         ];
