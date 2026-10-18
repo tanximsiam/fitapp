@@ -452,7 +452,7 @@ components:
                   bpm: { type: integer, minimum: 20, maximum: 250 }
             samples:
               type: array
-              maxItems: 5000
+              maxItems: 10000
               items:
                 type: object
                 required: [at, bpm]

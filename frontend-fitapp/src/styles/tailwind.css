@@ -1,1 +1,139 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Poppins";
+  src: url("../assets/fonts/Poppins-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/*
+ * Tokens. Light/dark follow the system setting. Chart colours were checked with the dataviz
+ * palette validator (CVD separation, contrast vs surface); the sleep ramp is ordinal awake→deep.
+ */
+:root {
+  color-scheme: light;
+  --page: #f6f5f1;
+  --surface: #fdfdfc;
+  --rail: #efede8;
+  --ink: #141413;
+  --ink-2: #4f4d48;
+  --muted: #6b6963;
+  --line: #e3e1da;
+  --line-strong: #cbc9c0;
+  --accent: #b4213f;
+  --accent-ink: #ffffff;
+  --accent-soft: #f7e3e7;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --focus: #b4213f;
+
+  --activity: #2a78d6;
+  --heart: #eb6834;
+  --sleep: #6250d6;
+  --stage-awake: #aea6f2;
+  --stage-rem: #8579e6;
+  --stage-light: #5d4bd0;
+  --stage-deep: #36278f;
+  --grid: #e8e6df;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0f0f0e;
+    --surface: #181817;
+    --rail: #131312;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #9c9a91;
+    --line: #2c2c2a;
+    --line-strong: #43423e;
+    --accent: #f0708b;
+    --accent-ink: #1a0b0f;
+    --accent-soft: #3a1820;
+    --danger: #f97066;
+    --danger-soft: #3b1714;
+    --focus: #f0708b;
+
+    --activity: #3987e5;
+    --heart: #d95926;
+    --sleep: #9085e9;
+    --stage-awake: #4a3fae;
+    --stage-rem: #6b5fd9;
+    --stage-light: #958beb;
+    --stage-deep: #c9c3fa;
+    --grid: #262624;
+  }
+}
+
+@theme inline {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-rail: var(--rail);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-activity: var(--activity);
+  --color-heart: var(--heart);
+  --color-sleep: var(--sleep);
+}
+
+@layer base {
+  html,
+  body {
+    font-family: var(--font-sans);
+    background: var(--page);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ion-content {
+    --background: var(--page);
+    --color: var(--ink);
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

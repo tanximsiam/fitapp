@@ -1,53 +1,29 @@
-<!-- components/NavButton.vue -->
 <template>
-  <ion-button
-    fill="clear"
-    class="flex flex-col items-center text-white relative"
-    :class="{ 'active-tab': isActive(path) }"
-    @click="navigate(path)"
+  <RouterLink
+    :to="to"
+    :aria-current="active ? 'page' : undefined"
+    :class="variant === 'rail' ? railClass : barClass"
   >
-    <div v-if="isActive(path)" class="indicator-bar"></div>
-    <ion-icon :icon="icon" class="nav-icon" />
-  </ion-button>
+    <ion-icon :icon="icon" aria-hidden="true" class="shrink-0" :class="variant === 'rail' ? 'text-[18px]' : 'text-[22px]'" />
+    <span :class="variant === 'bar' ? 'text-[11px] leading-none' : ''">{{ label }}</span>
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonIcon } from "@ionic/vue";
-import { useRouter, useRoute } from "vue-router";
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { IonIcon } from '@ionic/vue'
 
-defineProps<{
-  path: string;
-  icon: string;
-}>();
+const props = defineProps<{ to: string; label: string; icon: string; variant: 'rail' | 'bar' }>()
+const route = useRoute()
+const active = computed(() => route.path === props.to)
 
-const router = useRouter();
-const route = useRoute();
-
-const isActive = (targetPath: string) => route.path === targetPath;
-const navigate = (targetPath: string) => {
-  if (route.path !== targetPath) {
-    router.replace(targetPath);
-  }
-};
+const railClass = computed(() => [
+  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors duration-150',
+  active.value ? 'bg-surface text-ink font-medium shadow-[0_1px_2px_rgb(0_0_0/0.06)]' : 'text-ink-2 hover:bg-surface/60 hover:text-ink',
+])
+const barClass = computed(() => [
+  'relative flex flex-1 flex-col items-center justify-center gap-1 py-2 transition-colors duration-150',
+  active.value ? 'text-accent font-medium' : 'text-muted hover:text-ink',
+])
 </script>
-
-<style scoped>
-.nav-icon {
-  --ionicon-stroke-width: 42px;
-  font-size: 30px;
-  color: #ffffff80;
-  transition: 0.3s ease;
-}
-
-.active-tab .nav-icon {
-  color: #ffffff;
-}
-
-.indicator-bar {
-  height: 2px;
-  width: 150%;
-  background-color: white;
-  position: absolute;
-  bottom: -1px;
-}
-</style>

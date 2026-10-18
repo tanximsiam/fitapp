@@ -1,50 +1,87 @@
 <template>
+  <div class="flex items-center gap-2" role="group" aria-label="Choose a date">
+    <button type="button" :class="iconBtn" aria-label="Previous week" @click="shiftWeek(-7)">
+      <ion-icon :icon="chevronBackOutline" aria-hidden="true" />
+    </button>
 
-  <div class="grid grid-cols-7 gap-2">
-    <div
-      v-for="(day, index) in week"
-      :key="index"
-      class="py-1 m-0 text-center text-xs rounded-2xl shadow-sm"
-      :class="{
-        'bg-rose-600 text-white': day.isToday,
-        'bg-white text-slate-500': !day.isToday
-      }"
-    >
-      <p class="py-1 text-center">{{ day.date }}</p>
-      <p class="font-medium uppercase text-center">{{ day.day }}</p>
+    <div ref="strip" class="grid flex-1 grid-cols-7 gap-1" @keydown="onKeydown">
+      <button
+        v-for="day in week"
+        :key="day.date"
+        type="button"
+        :disabled="day.future"
+        :tabindex="day.date === modelValue ? 0 : -1"
+        :aria-pressed="day.date === modelValue"
+        :aria-label="`${formatLongDate(day.date)}${day.date === today ? ', today' : ''}${hasData(day.date) ? '' : ', no data'}`"
+        :data-date="day.date"
+        class="flex min-w-0 flex-col items-center gap-0.5 rounded-lg py-1.5 text-center transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-35"
+        :class="
+          day.date === modelValue
+            ? 'bg-accent text-accent-ink'
+            : 'text-ink-2 hover:enabled:bg-surface hover:enabled:text-ink'
+        "
+        @click="emit('update:modelValue', day.date)"
+      >
+        <span class="text-[11px] uppercase tracking-wide opacity-80">{{ day.weekday }}</span>
+        <span class="tabular text-sm font-medium" :class="day.date === today && day.date !== modelValue ? 'text-accent' : ''">{{ day.dayOfMonth }}</span>
+        <span
+          class="size-1 rounded-full"
+          :class="hasData(day.date) ? (day.date === modelValue ? 'bg-accent-ink' : 'bg-ink-2') : 'bg-transparent'"
+          aria-hidden="true"
+        />
+      </button>
     </div>
-  </div>
 
-  
+    <button type="button" :class="iconBtn" aria-label="Next week" :disabled="weekEnd >= today" @click="shiftWeek(7)">
+      <ion-icon :icon="chevronForwardOutline" aria-hidden="true" />
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, nextTick, ref } from 'vue'
+import { IonIcon } from '@ionic/vue'
+import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons'
+import { addDays, weekday } from '@/lib/dates'
+import { formatLongDate, formatWeekday } from '@/lib/format'
+import type { ISODate } from '@/types/fitness'
 
-function getCurrentWeek() {
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  const dayOfWeek = today.getDay(); // Sunday = 0
-  startOfWeek.setDate(today.getDate() - dayOfWeek);
+const props = defineProps<{
+  modelValue: ISODate
+  today: ISODate
+  hasData: (date: ISODate) => boolean
+}>()
+const emit = defineEmits<{ 'update:modelValue': [ISODate] }>()
 
-  const week = [];
+const strip = ref<HTMLElement | null>(null)
+const iconBtn =
+  'grid size-9 shrink-0 place-items-center rounded-lg border border-line bg-surface text-ink-2 transition-colors duration-150 hover:enabled:border-line-strong hover:enabled:text-ink disabled:opacity-35'
 
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(startOfWeek);
-    date.setDate(startOfWeek.getDate() + i);
+/** Sunday-start week containing the selected date; the current week ends at today instead of showing future days. */
+const weekStart = computed(() => {
+  const start = addDays(props.modelValue, -weekday(props.modelValue))
+  return addDays(start, 6) > props.today ? addDays(props.today, -6) : start
+})
+const weekEnd = computed(() => addDays(weekStart.value, 6))
+const week = computed(() =>
+  Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(weekStart.value, i)
+    return { date, weekday: formatWeekday(date).slice(0, 2), dayOfMonth: Number(date.slice(8)), future: date > props.today }
+  }),
+)
 
-    const isToday =
-      date.toDateString() === new Date().toDateString();
-
-    week.push({
-      date: date.getDate().toString().padStart(2, '0'),
-      day: date.toLocaleString('en-us', { weekday: 'narrow' }).toLowerCase(),
-      isToday,
-    });
-  }
-
-  return week;
+function shiftWeek(days: number) {
+  const target = addDays(props.modelValue, days)
+  emit('update:modelValue', target > props.today ? props.today : target)
 }
 
-const week = ref(getCurrentWeek());
+function onKeydown(e: KeyboardEvent) {
+  const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key]
+  if (!step) return
+  e.preventDefault()
+  const target = addDays(props.modelValue, step)
+  if (target > props.today) return
+  emit('update:modelValue', target)
+  nextTick(() => strip.value?.querySelector<HTMLElement>(`[data-date="${target}"]`)?.focus())
+}
 </script>

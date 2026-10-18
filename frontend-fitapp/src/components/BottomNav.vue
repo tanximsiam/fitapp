@@ -1,21 +1,13 @@
-<!-- components/BottomNav.vue -->
 <template>
-  <div
-    class="fixed bottom-0 left-0 right-0 z-50 h-[64px] bg-rose-700 flex justify-around"
+  <nav
+    aria-label="Sections"
+    class="fixed inset-x-0 bottom-0 z-50 flex border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
   >
-    <NavButton path="/home" :icon="homeOutline" />
-    <NavButton path="/dashboard" :icon="gridOutline" />
-    <NavButton path="/resources" :icon="bookOutline" />
-    <NavButton path="/inbox" :icon="mailOutline" />
-  </div>
+    <NavButton v-for="item in NAV_ITEMS" :key="item.to" v-bind="item" variant="bar" />
+  </nav>
 </template>
 
 <script setup lang="ts">
-import NavButton from "@/components/NavButton.vue";
-import {
-  homeOutline,
-  gridOutline,
-  bookOutline,
-  mailOutline,
-} from "ionicons/icons";
+import NavButton from '@/components/NavButton.vue'
+import { NAV_ITEMS } from '@/components/navItems'
 </script>
