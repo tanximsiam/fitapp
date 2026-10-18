@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\ActivityDay;
+use App\Models\BodySample;
 use App\Models\DataSource;
 use App\Models\HeartRateDay;
 use App\Models\HeartRateSample;
+use App\Models\SkinTemperatureDay;
 use App\Models\SleepSession;
 use App\Models\User;
 use App\Models\Workout;
@@ -88,6 +90,31 @@ class IngestionService
                 HeartRateSample::upsert($chunk, ['data_source_id', 'measured_at'], ['bpm', 'date', 'updated_at']);
             }
 
+            $bodyCounts = [];
+            foreach (['stress' => 'value', 'spo2' => 'percent'] as $kind => $field) {
+                $rows = array_map(function ($s) use ($owner, $timezone, $now, $kind, $field) {
+                    $at = CarbonImmutable::parse($s['at']);
+
+                    return $owner + [
+                        'kind' => $kind,
+                        'date' => $at->setTimezone($timezone)->toDateString(),
+                        'measured_at' => $at->utc()->format('Y-m-d H:i:s'),
+                        'value' => $s[$field],
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }, $payload[$kind]['samples'] ?? []);
+                $rows = array_values(array_column($rows, null, 'measured_at'));
+                foreach (array_chunk($rows, 500) as $chunk) {
+                    BodySample::upsert($chunk, ['data_source_id', 'kind', 'measured_at'], ['value', 'date', 'updated_at']);
+                }
+                $bodyCounts["{$kind}_samples"] = count($rows);
+            }
+
+            foreach ($payload['skin_temperature'] ?? [] as $night) {
+                SkinTemperatureDay::updateOrCreate($owner + ['date' => $night['date']], ['deviation_c' => round($night['deviation_c'], 2)]);
+            }
+
             $source->update(['last_ingested_at' => $now]);
 
             return [
@@ -98,7 +125,7 @@ class IngestionService
                     'workouts' => count($payload['workouts'] ?? []),
                     'resting_heart_rate_days' => count($payload['heart_rate']['resting'] ?? []),
                     'heart_rate_samples' => count($samples),
-                ],
+                ] + $bodyCounts + ['skin_temperature_days' => count($payload['skin_temperature'] ?? [])],
             ];
         });
     }

@@ -17,7 +17,7 @@
         <g class="text-[11px]" fill="var(--muted)">
           <g v-for="t in yTicks" :key="t">
             <line :x1="padL" :x2="width" :y1="y(t)" :y2="y(t)" stroke="var(--grid)" stroke-width="1" />
-            <text :x="padL - 8" :y="y(t) + 4" text-anchor="end" class="tabular">{{ Math.round(t) }}</text>
+            <text :x="padL - 8" :y="y(t) + 4" text-anchor="end" class="tabular">{{ formatY(t) }}</text>
           </g>
           <text v-for="t in xTicks" :key="t.value" :x="x(t.value)" :y="height - 6" :text-anchor="x(t.value) > width - 24 ? 'end' : 'middle'">{{ t.label }}</text>
         </g>
@@ -98,8 +98,9 @@ const props = withDefaults(
     table?: boolean
     /** Fixed y range for bounded scales (e.g. 1–5); otherwise fitted to the data. */
     yDomain?: [number, number]
+    formatY?: (n: number) => string
   }>(),
-  { maxGap: Infinity, markX: undefined, height: 200, table: true, yDomain: undefined },
+  { maxGap: Infinity, markX: undefined, height: 200, table: true, yDomain: undefined, formatY: (n: number) => String(Math.round(n)) },
 )
 
 const box = ref<HTMLElement | null>(null)

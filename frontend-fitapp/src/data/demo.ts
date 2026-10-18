@@ -1,6 +1,6 @@
 import { addDays, daysBetween, offsetString, wallMinutes, weekday } from '@/lib/dates'
-import { summarizeHeartRate } from './derive'
-import { MEASUREMENTS, type DaySummary, type HeartRateSample, type ISODate, type Workout } from '@/types/fitness'
+import { summarizeHeartRate, summarizeValues } from './derive'
+import { MEASUREMENTS, type DaySummary, type HeartRateSample, type ISODate, type Reading, type ReadingKind, type Workout } from '@/types/fitness'
 
 /**
  * Deterministic sample data. Each calendar date has its own seed, so a date always produces the same
@@ -83,11 +83,16 @@ function profile(date: ISODate) {
 export interface DemoDay {
   summary: DaySummary
   samples: HeartRateSample[]
+  readings: Record<ReadingKind, Reading[]>
 }
 
 export function generateDay(date: ISODate, clock: DemoClock): DemoDay {
   const age = daysBetween(date, clock.today)
-  const empty = { summary: { date, activity: null, sleep: null, heartRate: null, workouts: [] }, samples: [] }
+  const empty: DemoDay = {
+    summary: { date, activity: null, sleep: null, heartRate: null, workouts: [], stress: null, spo2: null, skinTemp: null },
+    samples: [],
+    readings: { stress: [], spo2: [] },
+  }
   if (age < 0 || age >= DEMO_WINDOW_DAYS) return empty
 
   const p = profile(date)
@@ -165,5 +170,43 @@ export function generateDay(date: ISODate, clock: DemoClock): DemoDay {
     })
   }
 
-  return { summary: { date, activity, sleep, heartRate, workouts }, samples }
+  /* Body signals. Generated after everything above so earlier values stay the same. */
+  const shortNight = p.sleepEnd - p.sleepStart < 390
+
+  // Watch stress every 15 minutes while awake and not exercising; it relies on heart data.
+  const stress: Reading[] = []
+  if (!p.noHeart) {
+    const nextNightStart = profile(addDays(date, 1)).sleepStart + 1440
+    for (let m = 0; m < endMinute; m += 15) {
+      if (m < p.sleepEnd || m >= nextNightStart) continue
+      if (p.workout && m >= 18 * 60 && m < 19 * 60 + 30) continue
+      const workHours = !p.weekend && m >= 9 * 60 && m < 17 * 60 ? 14 : 0
+      const spike = r() < 0.05 ? 30 : 0
+      const value = (p.weekend ? 20 : 28) + workHours + (shortNight ? 8 : 0) + (r() - 0.5) * 16 + spike
+      stress.push({ at: instant(date, m, clock.offset), value: Math.round(clamp(value, 3, 96)) })
+    }
+  }
+
+  // Blood oxygen every 30 minutes during last night's sleep after midnight (the readings dated today).
+  const spo2: Reading[] = []
+  if (sleep) {
+    for (let m = Math.max(0, Math.ceil(p.sleepStart / 30) * 30); m < p.sleepEnd; m += 30) {
+      const value = 96.5 + (r() - 0.5) * 3 - (r() < 0.04 ? 3 : 0)
+      spo2.push({ at: instant(date, m, clock.offset), value: Math.round(clamp(value, 90, 100)) })
+    }
+  }
+
+  // Nightly skin temperature as a deviation from the wearer's baseline.
+  const skinTemp = sleep ? { deviationC: Math.round(((r() - 0.5) * 0.9 + (shortNight ? 0.15 : 0)) * 100) / 100, source: DEMO_SOURCE } : null
+
+  const signal = (readings: Reading[]) => {
+    const s = summarizeValues(readings.map((x) => x.value))
+    return s && { ...s, source: DEMO_SOURCE }
+  }
+
+  return {
+    summary: { date, activity, sleep, heartRate, workouts, stress: signal(stress), spo2: signal(spo2), skinTemp },
+    samples,
+    readings: { stress, spo2 },
+  }
 }

@@ -20,10 +20,13 @@ Watch ──Bluetooth──► Zepp app ──► Zepp cloud ──webhooks─�
 | Sleep (duration, stages, score) | `sleeps` event pushed to the webhook | the night, keyed by the local date it ended |
 | Workouts | `activityFiles` ping → FitApp downloads the FIT file from `callbackURL` | workout (type, start/end, distance, kcal, avg/max bpm) |
 | Heart-rate readings | `GET /users/-/heartrates` (Zepp: "transitional"), pulled every 30 min | heart-rate samples |
+| Blood oxygen (SpO₂) | `pulseOx` event pushed to the webhook (offset → value map) | SpO₂ readings |
+| Skin temperature | `skinTemp` event pushed to the webhook (`avgDeviationCelsius`) | nightly deviation from baseline |
+| Stress | not offered by the Zepp Open Platform | nothing; Watch & sync lists stress as not provided |
 | User revoked access in Zepp | `authorizationChange` event | connection marked revoked, tokens deleted |
 | History | `GET /wellness-api/rest/backfill/{sleeps,activities}` (max 30 days) → redelivered via webhooks | as above |
 
-Everything Zepp sends is converted into FitApp's normal [ingestion contract](integration.md) and validated, under the source key `zepp`. Re-deliveries are safe: days, nights and samples are upserted, and activity files are remembered by `summaryId`. HRV, SpO₂, skin temperature, body composition and nutrition events are acknowledged but not stored yet.
+Everything Zepp sends is converted into FitApp's normal [ingestion contract](integration.md) and validated, under the source key `zepp`. Re-deliveries are safe: days, nights and samples are upserted, and activity files are remembered by `summaryId`. HRV, body composition, nutrition and Hybrid Charge events are acknowledged but not stored yet.
 
 ## 1. Get Zepp partner access
 

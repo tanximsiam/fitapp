@@ -33,6 +33,15 @@ class FitnessController extends Controller
         ]);
     }
 
+    /** Stress (0–100) or SpO₂ (%) readings for one local date. */
+    public function readings(Request $request, string $kind, string $date): JsonResponse
+    {
+        return response()->json([
+            'data' => ['kind' => $kind, 'date' => $date, 'samples' => $this->query->bodySamples($request->user(), $kind, $date)],
+            'meta' => ['timezone' => $request->user()->timezone],
+        ]);
+    }
+
     public function status(Request $request): JsonResponse
     {
         $user = $request->user();

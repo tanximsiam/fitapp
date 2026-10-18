@@ -60,6 +60,9 @@ Validation errors return `422` with field paths such as `activity.0.steps`; a to
 | Main sleep | `sleep[]` | `start_at`/`end_at` with offset; stage minutes | `date` is the local date the sleep **ended**. Max 24 h. |
 | Resting heart rate | `heart_rate.resting[]` | bpm per local date | |
 | Heart-rate readings | `heart_rate.samples[]` | `at` with offset, bpm | Up to 10,000 per request; duplicates of the same instant keep the last value. |
+| Watch-estimated stress | `stress.samples[]` | `at` with offset, `value` 0–100 | The watch's own estimate. Stress a user reports belongs in mood check-ins, never here. |
+| Blood oxygen | `spo2.samples[]` | `at` with offset, `percent` 70–100 | Spot or overnight readings. |
+| Skin temperature | `skin_temperature[]` | `date`, `deviation_c` (−5 to 5 °C) | Nightly deviation from the wearer's baseline, not absolute temperature. |
 
 Rules that keep data correct:
 

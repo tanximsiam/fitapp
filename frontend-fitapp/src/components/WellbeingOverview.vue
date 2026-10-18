@@ -7,7 +7,7 @@
     <p v-if="summary.length" class="max-w-prose text-[15px] leading-relaxed text-ink">{{ summary.join(' ') }}</p>
     <p v-else class="text-sm text-muted">There are not enough records in this period for a summary yet. Each area below says what is missing.</p>
 
-    <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-5" aria-label="Data completeness">
+    <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-6" aria-label="Data completeness">
       <div v-for="c in coverage" :key="c.area" class="min-w-0">
         <dt class="text-xs text-muted">{{ c.area }}</dt>
         <dd class="tabular mt-0.5 text-sm font-medium">{{ c.count }} / {{ c.total }} days</dd>
@@ -56,7 +56,7 @@ import { formatShortDate } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 
-const AREA_LABELS: Record<Area, string> = { activity: 'Activity', sleep: 'Sleep', heart: 'Heart rate', mood: 'Mood', food: 'Food', cycle: 'Cycle', combined: 'Combined' }
+const AREA_LABELS: Record<Area, string> = { activity: 'Activity', sleep: 'Sleep', heart: 'Heart rate', stress: 'Stress', oxygen: 'Oxygen', skin: 'Skin temp', mood: 'Mood', food: 'Food', cycle: 'Cycle', combined: 'Combined' }
 
 const fitness = useFitnessStore()
 const journal = useJournalStore()

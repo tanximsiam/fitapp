@@ -77,6 +77,41 @@ class ZeppMapper
         return $out ? ['sleep' => $out] : [];
     }
 
+    /**
+     * Pulse Ox events: `timeOffsetPulseOxValues` maps seconds after `startTimeInSeconds` to SpO₂ %.
+     * Spot readings have a single "0" entry.
+     */
+    public function pulseOx(array $records): array
+    {
+        $samples = [];
+        foreach ($records as $r) {
+            if (! isset($r['startTimeInSeconds']) || ! is_array($r['timeOffsetPulseOxValues'] ?? null)) {
+                continue;
+            }
+            $offset = (int) ($r['startTimeOffsetInSeconds'] ?? 0);
+            foreach ($r['timeOffsetPulseOxValues'] as $seconds => $percent) {
+                if (is_numeric($percent) && $percent >= 70 && $percent <= 100) {
+                    $samples[] = ['at' => $this->local((int) $r['startTimeInSeconds'] + (int) $seconds, $offset)->toIso8601String(), 'percent' => (int) $percent];
+                }
+            }
+        }
+
+        return $samples ? ['spo2' => ['samples' => $samples]] : [];
+    }
+
+    /** Skin temperature events: `avgDeviationCelsius` is the deviation from the wearer's baseline. */
+    public function skinTemperature(array $records): array
+    {
+        $nights = [];
+        foreach ($records as $r) {
+            if (! empty($r['calendarDate']) && is_numeric($r['avgDeviationCelsius'] ?? null) && abs($r['avgDeviationCelsius']) <= 5) {
+                $nights[] = ['date' => $r['calendarDate'], 'deviation_c' => round((float) $r['avgDeviationCelsius'], 2)];
+            }
+        }
+
+        return $nights ? ['skin_temperature' => $nights] : [];
+    }
+
     /** Readings from GET /users/-/heartrates. */
     public function heartRates(array $items, string $timezone): array
     {

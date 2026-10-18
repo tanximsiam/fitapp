@@ -38,7 +38,7 @@
           <p v-if="!s.measurements.length" class="mt-2 text-xs text-muted">
             This source has not declared its measurements. FitApp has received: {{ s.received.join(', ').replace(/_/g, ' ') || 'nothing yet' }}.
           </p>
-          <p class="mt-3 text-xs text-muted">Not part of FitApp's data contract yet: {{ NOT_IN_CONTRACT.join(', ') }}.</p>
+          <p v-if="s.key === 'zepp'" class="mt-3 text-xs text-muted">The Zepp Open Platform does not offer watch-measured stress, so Zepp accounts show no stress data.</p>
         </PanelSection>
 
         <PanelSection v-if="mode.isDemo" title="Simulation controls">
@@ -85,7 +85,7 @@ import PanelSection from '@/components/PanelSection.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
 import { demoControls, type DemoScenario } from '@/data/adapters'
-import { MEASUREMENT_LABELS, NOT_IN_CONTRACT, SYNC_LABELS, syncState } from '@/data/connection'
+import { MEASUREMENT_LABELS, SYNC_LABELS, syncState } from '@/data/connection'
 import { EMPTY, formatClock, formatRelative, formatShortDate } from '@/lib/format'
 import { MEASUREMENTS } from '@/types/fitness'
 

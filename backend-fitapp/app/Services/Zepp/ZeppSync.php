@@ -19,8 +19,13 @@ class ZeppSync
 {
     public const SOURCE_KEY = 'zepp';
 
-    /** What a Zepp account can provide through the documented events and APIs. */
-    public const MEASUREMENTS = ['steps', 'distance', 'active_energy', 'workouts', 'sleep', 'sleep_stages', 'sleep_score', 'heart_rate', 'resting_heart_rate'];
+    /**
+     * What a Zepp account can provide through the documented events and APIs. Watch-measured stress
+     * is not offered by the Zepp Open Platform, so it is not declared.
+     */
+    public const MEASUREMENTS = ['steps', 'distance', 'active_energy', 'workouts', 'sleep', 'sleep_stages', 'sleep_score', 'heart_rate', 'resting_heart_rate', 'spo2', 'skin_temperature'];
+
+    private const EVENT_KINDS = ['dailies', 'sleeps', 'activityFiles', 'pulseOx', 'skinTemp'];
 
     public function __construct(private ZeppClient $client, private ZeppMapper $mapper, private IngestionService $ingestion) {}
 
@@ -32,7 +37,7 @@ class ZeppSync
      */
     public function handleWebhook(string $body): array
     {
-        $counts = ['dailies' => 0, 'sleeps' => 0, 'activityFiles' => 0, 'authorizationChange' => 0, 'ignored' => 0];
+        $counts = array_fill_keys([...self::EVENT_KINDS, 'authorizationChange', 'ignored'], 0);
         $outer = json_decode($body, true);
         if (! is_array($outer)) {
             throw new \InvalidArgumentException('Webhook body is not a JSON array.');
@@ -56,7 +61,7 @@ class ZeppSync
                 continue;
             }
 
-            foreach (['dailies', 'sleeps', 'activityFiles'] as $kind) {
+            foreach (self::EVENT_KINDS as $kind) {
                 foreach ($event[$kind] ?? [] as $record) {
                     $connection = $this->connectionFor($record['userId'] ?? null);
                     if (! $connection) {
@@ -68,14 +73,16 @@ class ZeppSync
                     match ($kind) {
                         'dailies' => $this->ingest($connection, $this->mapper->dailies([$record])),
                         'sleeps' => $this->ingest($connection, $this->mapper->sleeps([$record])),
+                        'pulseOx' => $this->ingest($connection, $this->mapper->pulseOx([$record])),
+                        'skinTemp' => $this->ingest($connection, $this->mapper->skinTemperature([$record])),
                         // Pull later: Zepp expects a fast 2xx, and the download URL stays valid for 24 h.
                         'activityFiles' => FetchZeppActivityFile::dispatch($connection->id, $record),
                     };
                     $counts[$kind]++;
                 }
             }
-            // HRV, Pulse Ox, skin temperature, nutrition and other events are not part of FitApp's contract yet.
-            if (! array_intersect(array_keys($event), ['dailies', 'sleeps', 'activityFiles'])) {
+            // HRV, body composition, nutrition and other events are not part of FitApp's contract yet.
+            if (! array_intersect(array_keys($event), self::EVENT_KINDS)) {
                 $counts['ignored']++;
             }
         }
@@ -130,7 +137,7 @@ class ZeppSync
     /** Validates against the public ingestion contract, then stores. */
     public function ingest(ZeppConnection $connection, array $part, ?string $device = null): void
     {
-        if (! array_intersect(array_keys($part), ['activity', 'sleep', 'heart_rate', 'workouts'])) {
+        if (! array_intersect(array_keys($part), ['activity', 'sleep', 'heart_rate', 'workouts', 'stress', 'spo2', 'skin_temperature'])) {
             return;
         }
         $source = ['key' => self::SOURCE_KEY, 'name' => 'Zepp', 'measurements' => self::MEASUREMENTS];

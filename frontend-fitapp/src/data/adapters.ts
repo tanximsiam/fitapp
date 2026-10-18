@@ -60,6 +60,9 @@ export function createDemoAdapter(now: () => Date = () => new Date()): FitnessAd
     async getHeartRate(date) {
       return generateDay(date, syncedClock()).samples
     },
+    async getReadings(kind, date) {
+      return generateDay(date, syncedClock()).readings[kind]
+    },
     async getStatus() {
       const synced = demoSyncTime(now())
       const clock = clockFrom(synced)
@@ -72,7 +75,7 @@ export function createDemoAdapter(now: () => Date = () => new Date()): FitnessAd
             name: 'FitApp demo',
             device: DEMO_DEVICE,
             measurements: DEMO_MEASUREMENTS,
-            received: ['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate'],
+            received: ['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate', 'stress', 'spo2', 'skin_temperature'],
             lastIngestedAt: synced.toISOString(),
             latestDate: clock.today,
           },
@@ -104,6 +107,7 @@ export function createBackendAdapter(): FitnessAdapter {
     kind: 'backend',
     getDays: fitnessApi.getDays,
     getHeartRate: fitnessApi.getHeartRate,
+    getReadings: fitnessApi.getReadings,
     getStatus: fitnessApi.getStatus,
     getGoals: fitnessApi.getGoals,
     saveGoals: fitnessApi.saveGoals,

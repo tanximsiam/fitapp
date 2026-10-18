@@ -53,6 +53,7 @@ import EntryBadge from '@/components/EntryBadge.vue'
 import JournalState from '@/components/JournalState.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { workoutLabel } from '@/data/connection'
+import { formatDeviation } from '@/data/signals'
 import { enteredEnergy } from '@/data/journalDerive'
 import { formatClock, formatDuration, formatInt, formatKm, formatLongDate } from '@/lib/format'
 
@@ -83,6 +84,9 @@ const timeline = computed(() => {
       if (d.activity) rows.push({ time: null, area: 'Activity', text: `${formatInt(d.activity.steps)} steps · ${formatKm(d.activity.distanceM)} · ${formatInt(d.activity.activeKcal)} kcal active`, source: watch, to: '/activity' })
       for (const w of d.workouts) rows.push({ time: formatClock(w.startAt), area: 'Workout', text: `${workoutLabel(w.type)} · ${formatDuration(w.durationMin)}${w.avgBpm ? ` · avg ${w.avgBpm} bpm` : ''}`, source: watch, to: '/activity' })
       if (d.heartRate?.restingBpm != null) rows.push({ time: null, area: 'Heart rate', text: `Resting ${d.heartRate.restingBpm} bpm · ${d.heartRate.sampleCount} readings`, source: watch, to: '/heart-rate' })
+      if (d.spo2) rows.push({ time: null, area: 'Oxygen', text: `Overnight ${d.spo2.avg}% average · lowest ${d.spo2.min}%`, source: watch, to: '/blood-oxygen' })
+      if (d.skinTemp) rows.push({ time: null, area: 'Skin temp', text: `${formatDeviation(d.skinTemp.deviationC)} vs baseline overnight`, source: watch, to: '/skin-temperature' })
+      if (d.stress) rows.push({ time: null, area: 'Stress', text: `Watch estimate ${d.stress.avg}/100 average · ${d.stress.min}–${d.stress.max}`, source: watch, to: '/stress' })
     }
     if (filter.value !== 'watch') {
       const j = journal.onDate(d.date)

@@ -27,10 +27,10 @@ export const MEASUREMENT_LABELS: Record<Measurement, string> = {
   sleep_score: 'Sleep score',
   heart_rate: 'Heart-rate readings',
   resting_heart_rate: 'Resting heart rate',
+  stress: 'Stress (watch-estimated)',
+  spo2: 'Blood oxygen (SpO₂)',
+  skin_temperature: 'Skin temperature',
 }
-
-/** Watch measurements people expect that FitApp's ingestion contract does not carry yet. */
-export const NOT_IN_CONTRACT = ['Watch-measured stress', 'Blood oxygen (SpO₂)', 'Skin temperature']
 
 export const WORKOUT_LABELS: Record<string, string> = {
   running: 'Run',

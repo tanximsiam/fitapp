@@ -166,11 +166,33 @@ class ZeppTest extends TestCase
     public function test_unknown_users_and_unsupported_events_are_acknowledged_without_storing(): void
     {
         $this->connected();
-        $this->deliver(['dailies' => [['userId' => 'someone-else', 'calendarDate' => '2026-04-13', 'steps' => 1]]], ['pulseOx' => [['userId' => '1188969166']]])
+        $this->deliver(['dailies' => [['userId' => 'someone-else', 'calendarDate' => '2026-04-13', 'steps' => 1]]], ['hrv' => [['userId' => '1188969166']]])
             ->assertNoContent();
         $this->assertDatabaseCount('activity_days', 0);
         $this->call('POST', self::WEBHOOK, [], [], [], [], 'not json')->assertStatus(400);
         $this->call('POST', '/api/zepp/webhook/wrong-token', [], [], [], [], '[]')->assertNotFound();
+    }
+
+    public function test_pulse_ox_and_skin_temperature_events_are_ingested(): void
+    {
+        $this->connected();
+        $pulseOx = ['pulseOx' => [
+            ['userId' => '1188969166', 'summaryId' => 'pulseOx-1776100000', 'calendarDate' => '2026-04-14', 'startTimeInSeconds' => 1776100000,
+                'startTimeOffsetInSeconds' => 28800, 'durationInSeconds' => 3600, 'timeOffsetPulseOxValues' => ['0' => 97, '1800' => 95, '3600' => 12], 'onDemand' => false],
+            ['userId' => '1188969166', 'summaryId' => 'pulseOx-1776150000', 'calendarDate' => '2026-04-14', 'startTimeInSeconds' => 1776150000,
+                'startTimeOffsetInSeconds' => 28800, 'durationInSeconds' => 0, 'timeOffsetPulseOxValues' => ['0' => 98], 'onDemand' => true],
+        ]];
+        $skin = ['skinTemp' => [['userId' => '1188969166', 'summaryId' => 'skinTemp-1776100000', 'calendarDate' => '2026-04-14',
+            'avgDeviationCelsius' => -0.42, 'durationInSeconds' => 0, 'startTimeInSeconds' => 1776100000, 'startTimeOffsetInSeconds' => 28800]]];
+
+        $this->deliver($pulseOx, $skin)->assertNoContent();
+        $this->deliver($pulseOx, $skin)->assertNoContent();
+
+        // 12 % is outside the plausible range and dropped; the rest are stored once.
+        $this->assertDatabaseCount('body_samples', 3);
+        $this->assertDatabaseHas('body_samples', ['kind' => 'spo2', 'measured_at' => '2026-04-13 17:36:40', 'date' => '2026-04-14', 'value' => 95]);
+        $this->assertDatabaseHas('skin_temperature_days', ['date' => '2026-04-14', 'deviation_c' => -0.42]);
+        $this->assertDatabaseMissing('body_samples', ['kind' => 'stress']);
     }
 
     public function test_authorization_change_revokes_the_connection(): void

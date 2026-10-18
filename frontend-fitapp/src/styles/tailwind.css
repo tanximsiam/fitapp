@@ -35,6 +35,13 @@
   --stage-rem: #8579e6;
   --stage-light: #5d4bd0;
   --stage-deep: #36278f;
+  --stress: #12936a;
+  --spo2: #e34948;
+  /* Watch stress zones, ordinal ramp relaxed → high (validated). */
+  --zone-1: #6dc39f;
+  --zone-2: #36a67c;
+  --zone-3: #167f5a;
+  --zone-4: #0b5a40;
   --grid: #e8e6df;
 }
 
@@ -63,6 +70,12 @@
     --stage-rem: #6b5fd9;
     --stage-light: #958beb;
     --stage-deep: #c9c3fa;
+    --stress: #199e70;
+    --spo2: #e66767;
+    --zone-1: #0f5a40;
+    --zone-2: #1a8f66;
+    --zone-3: #45c091;
+    --zone-4: #9fe6c9;
     --grid: #262624;
   }
 }

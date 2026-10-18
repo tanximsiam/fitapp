@@ -25,6 +25,7 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
 
     Route::get('/fitness/days', [FitnessController::class, 'days']);
     Route::get('/fitness/heart-rate/{date}', [FitnessController::class, 'heartRate'])->where('date', '\d{4}-\d{2}-\d{2}');
+    Route::get('/fitness/readings/{kind}/{date}', [FitnessController::class, 'readings'])->whereIn('kind', ['stress', 'spo2'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/status', [FitnessController::class, 'status']);
 
     Route::get('/ingest-tokens', [IngestTokenController::class, 'index']);

@@ -12,7 +12,7 @@ class IngestRequest extends FormRequest
     /** ISO 8601 instant with an explicit offset; naive local times are ambiguous and rejected. */
     private const INSTANT = ['required', 'date', 'regex:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/'];
 
-    public const MEASUREMENTS = ['steps', 'distance', 'active_energy', 'active_minutes', 'workouts', 'sleep', 'sleep_stages', 'sleep_score', 'heart_rate', 'resting_heart_rate'];
+    public const MEASUREMENTS = ['steps', 'distance', 'active_energy', 'active_minutes', 'workouts', 'sleep', 'sleep_stages', 'sleep_score', 'heart_rate', 'resting_heart_rate', 'stress', 'spo2', 'skin_temperature'];
 
     private const DAY = ['required', 'date_format:Y-m-d', 'distinct'];
 
@@ -27,7 +27,7 @@ class IngestRequest extends FormRequest
             'source.measurements.*' => ['distinct', 'in:'.implode(',', self::MEASUREMENTS)],
             'timezone' => ['nullable', 'timezone:all'],
 
-            'activity' => ['array', 'max:400', 'required_without_all:sleep,heart_rate,workouts'],
+            'activity' => ['array', 'max:400', 'required_without_all:sleep,heart_rate,workouts,stress,spo2,skin_temperature'],
             'activity.*.date' => self::DAY,
             'activity.*.steps' => ['nullable', 'integer', 'between:0,200000'],
             'activity.*.distance_m' => ['nullable', 'numeric', 'between:0,500000'],
@@ -62,6 +62,22 @@ class IngestRequest extends FormRequest
             'heart_rate.samples' => ['array', 'max:10000'],
             'heart_rate.samples.*.at' => self::INSTANT,
             'heart_rate.samples.*.bpm' => ['required', 'integer', 'between:20,250'],
+
+            // Watch-estimated stress, 0–100 (not the stress users report in mood check-ins).
+            'stress' => ['array'],
+            'stress.samples' => ['array', 'max:10000'],
+            'stress.samples.*.at' => self::INSTANT,
+            'stress.samples.*.value' => ['required', 'integer', 'between:0,100'],
+
+            'spo2' => ['array'],
+            'spo2.samples' => ['array', 'max:10000'],
+            'spo2.samples.*.at' => self::INSTANT,
+            'spo2.samples.*.percent' => ['required', 'integer', 'between:70,100'],
+
+            // Nightly deviation from the wearer's baseline in °C, keyed by the local date.
+            'skin_temperature' => ['array', 'max:400'],
+            'skin_temperature.*.date' => self::DAY,
+            'skin_temperature.*.deviation_c' => ['required', 'numeric', 'between:-5,5'],
         ];
     }
 
