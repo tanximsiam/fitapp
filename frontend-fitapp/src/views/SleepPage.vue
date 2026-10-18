@@ -8,9 +8,9 @@
         <PanelSection title="This night">
           <template v-if="day?.sleep">
             <dl class="mb-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-              <MetricItem label="In bed" :value="formatDuration(day.sleep.durationMin)" />
-              <MetricItem label="Asleep" :value="formatDuration(asleepMin)" />
-              <MetricItem label="Bedtime – wake" :value="`${formatClock(day.sleep.startAt)}–${formatClock(day.sleep.endAt)}`" />
+              <MetricItem label="In bed" :icon="ICONS.bedtime" :value="formatDuration(day.sleep.durationMin)" />
+              <MetricItem label="Asleep" :icon="ICONS.sleep" :value="formatDuration(asleepMin)" />
+              <MetricItem label="Bedtime – wake" :icon="ICONS.bedtime" :value="`${formatClock(day.sleep.startAt)}–${formatClock(day.sleep.endAt)}`" />
               <MetricItem label="Sleep score" :value="formatInt(day.sleep.score)" note="reported by device" />
             </dl>
             <SleepStages v-if="day.sleep.stages" :stages="day.sleep.stages" />
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'

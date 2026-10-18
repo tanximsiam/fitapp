@@ -5,61 +5,56 @@
     </template>
 
     <p v-if="summary.length" class="max-w-prose text-[15px] leading-relaxed text-ink">{{ summary.join(' ') }}</p>
-    <p v-else class="text-sm text-muted">There are not enough records in this period for a summary yet. Each area below says what is missing.</p>
+    <p v-else class="text-sm text-muted">There are not enough records in this period for a summary yet.</p>
 
-    <dl class="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-6" aria-label="Data completeness">
-      <div v-for="c in coverage" :key="c.area" class="min-w-0">
-        <dt class="text-xs text-muted">{{ c.area }}</dt>
-        <dd class="tabular mt-0.5 text-sm font-medium">{{ c.count }} / {{ c.total }} days</dd>
-        <div class="mt-1 h-1 rounded-full bg-line" aria-hidden="true">
-          <div class="h-full rounded-full bg-ink-2" :style="{ width: `${(c.count / c.total) * 100}%` }" />
-        </div>
-      </div>
-    </dl>
-
-    <ul class="mt-6 divide-y divide-line border-y border-line">
-      <li v-for="i in insights" :key="i.id" class="py-3">
-        <div class="flex flex-wrap items-start gap-x-4 gap-y-1">
-          <span class="w-24 shrink-0 text-xs font-medium uppercase tracking-wide" :class="i.status === 'ok' ? 'text-ink-2' : 'text-muted'">{{ AREA_LABELS[i.area] }}</span>
-          <p class="min-w-0 flex-1 text-sm" :class="i.status === 'ok' ? 'text-ink' : 'text-muted'">{{ i.text }}</p>
-        </div>
-        <details class="mt-1 sm:ml-28">
-          <summary class="cursor-pointer text-xs text-muted select-none hover:text-ink">How this is calculated</summary>
-          <div class="mt-2 rounded-lg bg-page p-3 text-xs text-ink-2">
-            <p>{{ i.calculation }}</p>
-            <p class="mt-1">Period: {{ formatShortDate(i.range.from) }}–{{ formatShortDate(i.range.to) }}</p>
-            <table v-if="i.counts.length" class="mt-2">
-              <tbody>
-                <tr v-for="c in i.counts" :key="c.label">
-                  <th scope="row" class="pr-4 text-left font-normal text-muted">{{ c.label }}</th>
-                  <td class="tabular text-ink">{{ c.value }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <RouterLink :to="i.link" class="mt-2 inline-block font-medium text-accent underline underline-offset-2">View the records</RouterLink>
-          </div>
-        </details>
-      </li>
+    <ul class="mt-5 divide-y divide-line border-y border-line">
+      <InsightRow v-for="i in shown" :key="i.id" :insight="i" />
     </ul>
-    <p class="mt-3 text-xs text-muted">
-      Calculated in your browser from the records shown, with fixed rules and minimum amounts of data. These are observations, not medical advice.
-    </p>
+
+    <div v-show="expanded" id="wellbeing-more">
+      <ul class="divide-y divide-line border-b border-line">
+        <InsightRow v-for="i in hidden" :key="i.id" :insight="i" />
+      </ul>
+      <h3 class="mt-5 mb-2 text-xs font-medium uppercase tracking-wide text-muted">Data coverage</h3>
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div v-for="c in coverage" :key="c.area" class="min-w-0">
+          <dt class="text-xs text-muted">{{ c.area }}</dt>
+          <dd class="tabular mt-0.5 text-sm font-medium">{{ c.count }} / {{ c.total }} days</dd>
+          <div class="mt-1 h-1 rounded-full bg-line" aria-hidden="true">
+            <div class="h-full rounded-full bg-ink-2" :style="{ width: `${(c.count / c.total) * 100}%` }" />
+          </div>
+        </div>
+      </dl>
+      <p class="mt-4 text-xs text-muted">Calculated in your browser from the records shown, with fixed rules and minimum amounts of data. Observations, not medical advice.</p>
+    </div>
+
+    <ShowMore
+      v-if="hidden.length"
+      v-model:expanded="expanded"
+      controls="wellbeing-more"
+      :more-label="`Show all ${insights.length} observations and data coverage`"
+    />
   </PanelSection>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import InsightRow from '@/components/InsightRow.vue'
 import PanelSection from '@/components/PanelSection.vue'
-import { analyse, completeness, summarise, type Area } from '@/insights/engine'
+import ShowMore from '@/components/ShowMore.vue'
+import { analyse, completeness, summarise, summaryInsights } from '@/insights/engine'
 import { addDays } from '@/lib/dates'
 import { formatShortDate } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 
-const AREA_LABELS: Record<Area, string> = { activity: 'Activity', sleep: 'Sleep', heart: 'Heart rate', stress: 'Stress', oxygen: 'Oxygen', skin: 'Skin temp', mood: 'Mood', food: 'Food', cycle: 'Cycle', combined: 'Combined' }
+/** Shown before "Show all": the statements a person checks first. */
+const LEAD = ['activity-goal', 'sleep-average', 'energy-sleep', 'mood-average', 'stress-average', 'resting-hr']
+const VISIBLE = 3
 
 const fitness = useFitnessStore()
 const journal = useJournalStore()
+const expanded = ref(false)
 
 // A partly finished today would distort averages, so analysis ends at the last complete day.
 const window = computed(() => {
@@ -69,6 +64,16 @@ const window = computed(() => {
 const insights = computed(() =>
   analyse({ days: fitness.days, journal: journal.data, goals: fitness.goals, prefs: journal.prefs, end: window.value.to, windowDays: fitness.rangeDays }),
 )
-const summary = computed(() => summarise(insights.value))
+/** Supported statements first, in lead order; withheld ones last. */
+const ordered = computed(() => {
+  const rank = (id: string) => (LEAD.includes(id) ? LEAD.indexOf(id) : LEAD.length)
+  return [...insights.value].sort((a, b) => Number(a.status !== 'ok') - Number(b.status !== 'ok') || rank(a.id) - rank(b.id))
+})
+const SUMMARY = 2
+const summary = computed(() => summarise(insights.value, SUMMARY))
+/** Rows skip what the summary already says; those stay available, with their calculations, under "Show all". */
+const summarisedIds = computed(() => new Set(summaryInsights(insights.value, SUMMARY).map((i) => i.id)))
+const shown = computed(() => ordered.value.filter((i) => !summarisedIds.value.has(i.id)).slice(0, VISIBLE))
+const hidden = computed(() => ordered.value.filter((i) => !shown.value.includes(i)))
 const coverage = computed(() => completeness(fitness.days, journal.data, window.value.from, window.value.to, journal.prefs))
 </script>

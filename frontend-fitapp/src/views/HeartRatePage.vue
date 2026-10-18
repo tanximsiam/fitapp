@@ -16,7 +16,7 @@
             <p v-if="samples.length" class="text-xs text-muted">{{ samples.length }} readings</p>
           </template>
           <dl class="mb-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-            <MetricItem label="Resting" :value="bpm(hr?.restingBpm)" />
+            <MetricItem label="Resting" :icon="ICONS.heartRate" :value="bpm(hr?.restingBpm)" />
             <MetricItem label="Average" :value="bpm(hr?.avgBpm)" />
             <MetricItem label="Lowest" :value="bpm(hr?.minBpm)" />
             <MetricItem label="Highest" :value="bpm(hr?.maxBpm)" />
@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed, ref, watch } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import LineChart from '@/components/charts/LineChart.vue'

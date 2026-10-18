@@ -7,10 +7,10 @@
       <div class="grid gap-4">
         <PanelSection :title="fitness.isToday ? 'So far today' : 'This day'">
           <dl v-if="day?.activity" class="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-            <MetricItem label="Steps" :value="formatInt(day.activity.steps)" />
-            <MetricItem label="Distance" :value="formatKm(day.activity.distanceM)" />
-            <MetricItem label="Active energy" :value="day.activity.activeKcal == null ? EMPTY : `${formatInt(day.activity.activeKcal)} kcal`" />
-            <MetricItem label="Active time" :value="formatDuration(day.activity.activeMinutes)" />
+            <MetricItem label="Steps" :icon="ICONS.steps" :value="formatInt(day.activity.steps)" />
+            <MetricItem label="Distance" :icon="ICONS.distance" :value="formatKm(day.activity.distanceM)" />
+            <MetricItem label="Active energy" :icon="ICONS.activeEnergy" :value="day.activity.activeKcal == null ? EMPTY : `${formatInt(day.activity.activeKcal)} kcal`" />
+            <MetricItem label="Active time" :icon="ICONS.activeTime" :value="formatDuration(day.activity.activeMinutes)" />
           </dl>
           <p v-else class="text-sm text-muted">No activity was recorded on this day.</p>
 
@@ -64,7 +64,7 @@
 
         <PanelSection title="History">
           <div class="-mx-4 overflow-x-auto sm:mx-0">
-            <table class="w-full min-w-[34rem] text-left text-sm">
+            <table id="activity-history" class="w-full min-w-[34rem] text-left text-sm">
               <thead>
                 <tr class="text-xs text-muted">
                   <th scope="col" class="px-4 py-2 font-medium sm:pl-0">Date</th>
@@ -76,7 +76,7 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="d in [...rangeDaysList].reverse()"
+                  v-for="d in historyRows"
                   :key="d.date"
                   class="border-t border-line"
                   :class="d.date === fitness.selectedDate ? 'bg-accent-soft/60' : ''"
@@ -94,6 +94,12 @@
               </tbody>
             </table>
           </div>
+          <ShowMore
+            v-if="rangeDaysList.length > 7"
+            v-model:expanded="showAllHistory"
+            controls="activity-history"
+            :more-label="`Show all ${rangeDaysList.length} days`"
+          />
         </PanelSection>
       </div>
     </DataState>
@@ -101,8 +107,10 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed, ref } from 'vue'
 import AppShell from '@/components/AppShell.vue'
+import ShowMore from '@/components/ShowMore.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import { compactNumber } from '@/components/charts/scale'
 import DataState from '@/components/DataState.vue'
@@ -147,6 +155,11 @@ const values = computed(() => rangeDaysList.value.map((d) => metric.value.pick(d
 const measuredDays = computed(() => values.value.length)
 const rangeTotal = computed(() => (values.value.length ? values.value.reduce((a, b) => a + b, 0) : null))
 const rangeAverage = computed(() => mean(values.value))
+const showAllHistory = ref(false)
+const historyRows = computed(() => {
+  const rows = [...rangeDaysList.value].reverse()
+  return showAllHistory.value ? rows : rows.slice(0, 7)
+})
 const rangeWorkouts = computed(() => rangeDaysList.value.reduce((n, d) => n + d.workouts.length, 0))
 const goalDays = computed(() => values.value.filter((v) => v >= metric.value.goal()).length)
 </script>

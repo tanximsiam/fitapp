@@ -4,10 +4,10 @@
       <RouterLink to="/timeline" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Timeline</RouterLink>
     </template>
     <dl class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
-      <MetricItem v-if="journal.prefs.mood" label="Mood" :value="mood" />
-      <MetricItem v-if="journal.prefs.food" label="Meals" :value="String(day.meals.length)" />
-      <MetricItem v-if="journal.prefs.food" label="Water" :value="water ? `${formatInt(water)} ml` : EMPTY" />
-      <MetricItem v-if="journal.prefs.cycle" label="Cycle" :value="cycle" />
+      <MetricItem v-if="journal.prefs.mood" label="Mood" :icon="ICONS.mood" :value="mood" />
+      <MetricItem v-if="journal.prefs.food" label="Meals" :icon="ICONS.meals" :value="String(day.meals.length)" />
+      <MetricItem v-if="journal.prefs.food" label="Water" :icon="ICONS.water" :value="water ? `${formatInt(water)} ml` : EMPTY" />
+      <MetricItem v-if="journal.prefs.cycle" label="Cycle" :icon="ICONS.cycle" :value="cycle" />
     </dl>
     <div v-if="fitness.isToday" class="mt-4 flex flex-wrap gap-2">
       <PrimaryButton v-if="journal.prefs.mood" variant="secondary" label="Log mood" @click="ui.openQuickLog('mood')" />
@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { ICONS } from '@/components/metricIcons'
 import { computed } from 'vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'

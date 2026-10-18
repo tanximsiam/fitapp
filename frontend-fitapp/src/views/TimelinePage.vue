@@ -21,8 +21,8 @@
     <DateToolbar />
     <DataState>
       <JournalState>
-        <ol class="grid gap-6">
-          <li v-for="day in timeline" :key="day.date">
+        <ol id="timeline-days" class="grid gap-6">
+          <li v-for="day in timeline.slice(0, visibleDays)" :key="day.date">
             <h2 class="mb-2 text-sm font-semibold">
               <button type="button" class="underline-offset-2 hover:underline" @click="fitness.selectDate(day.date)">{{ formatLongDate(day.date) }}</button>
             </h2>
@@ -30,7 +30,9 @@
               <li v-for="(row, i) in day.rows" :key="i">
                 <RouterLink :to="row.to" class="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-2.5 text-sm transition-colors duration-150 hover:bg-page" @click="fitness.selectDate(day.date)">
                   <span class="tabular w-12 shrink-0 text-ink-2">{{ row.time ?? '' }}</span>
-                  <span class="w-20 shrink-0 font-medium">{{ row.area }}</span>
+                  <span class="flex w-28 shrink-0 items-center gap-1.5 font-medium">
+                    <ion-icon :icon="AREA_ICONS[row.area]" aria-hidden="true" class="shrink-0 text-ink-2" />{{ row.area }}
+                  </span>
                   <span class="min-w-0 flex-1 text-ink-2">{{ row.text }}</span>
                   <EntryBadge :kind="row.source" />
                 </RouterLink>
@@ -39,14 +41,27 @@
             <p v-else class="rounded-xl border border-dashed border-line-strong px-4 py-3 text-sm text-muted">Nothing recorded{{ filter === 'all' ? '' : ' for this filter' }}.</p>
           </li>
         </ol>
+        <button
+          v-if="visibleDays < timeline.length"
+          type="button"
+          aria-controls="timeline-days"
+          class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent transition-transform duration-150 ease-out active:scale-[0.97]"
+          @click="visibleDays += 7"
+        >
+          Show earlier days
+          <ion-icon :icon="chevronDownOutline" aria-hidden="true" />
+        </button>
       </JournalState>
     </DataState>
   </AppShell>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { IonIcon } from '@ionic/vue'
+import { chevronDownOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
+import { ICONS } from '@/components/metricIcons'
 import DataState from '@/components/DataState.vue'
 import DateToolbar from '@/components/DateToolbar.vue'
 import EntryBadge from '@/components/EntryBadge.vue'
@@ -74,6 +89,24 @@ const FILTERS = [
 const filter = ref<(typeof FILTERS)[number]['value']>('all')
 
 const { fitness, journal, mode, rangeDaysList } = useJournalData()
+
+const AREA_ICONS: Record<string, string> = {
+  Sleep: ICONS.sleep,
+  Activity: ICONS.steps,
+  Workout: ICONS.workouts,
+  'Heart rate': ICONS.heartRate,
+  Oxygen: ICONS.spo2,
+  'Skin temp': ICONS.skinTemp,
+  Stress: ICONS.stress,
+  Mood: ICONS.mood,
+  Meal: ICONS.meals,
+  Water: ICONS.water,
+  Cycle: ICONS.cycle,
+}
+
+/** Show a few days first; older ones on request. */
+const visibleDays = ref(5)
+watch([() => fitness.selectedDate, () => fitness.rangeDays, filter], () => (visibleDays.value = 5))
 
 const timeline = computed(() => {
   const watch: Source = mode.isDemo ? 'simulated-watch' : 'watch'

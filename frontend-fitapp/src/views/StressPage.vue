@@ -59,7 +59,7 @@
           />
         </PanelSection>
 
-        <PanelSection title="About these readings">
+        <AboutNote>
           <ul class="max-w-prose list-disc space-y-1.5 pl-5 text-sm text-ink-2">
             <li>The watch estimates stress from heart-rate variability while you are still. It is not measured during sleep or exercise.</li>
             <li>
@@ -69,7 +69,7 @@
             </li>
             <li>FitApp shows the readings as recorded and does not interpret them medically.</li>
           </ul>
-        </PanelSection>
+        </AboutNote>
       </div>
     </DataState>
   </AppShell>
@@ -77,6 +77,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AboutNote from '@/components/AboutNote.vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import DataState from '@/components/DataState.vue'
