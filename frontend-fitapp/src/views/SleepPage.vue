@@ -5,7 +5,7 @@
 
     <DataState>
       <div class="grid gap-4">
-        <PanelSection title="This night" tone="sleep" :icon="ICONS.sleep">
+        <PanelSection title="This night" tone="sleep">
           <template v-if="day?.sleep">
             <dl class="mb-5 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
               <MetricItem label="In bed" :icon="ICONS.bedtime" :value="formatDuration(day.sleep.durationMin)" />

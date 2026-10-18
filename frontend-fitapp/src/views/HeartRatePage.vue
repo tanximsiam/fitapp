@@ -11,7 +11,7 @@
           at {{ formatClock(fitness.status.latestHeartRate.at) }} on {{ formatLongDate(fitness.status.latestHeartRate.at.slice(0, 10)) }}
           <span class="text-xs text-muted">(last value uploaded by the watch, not live)</span>
         </p>
-        <PanelSection title="Through the day" :icon="ICONS.heartRate">
+        <PanelSection title="Through the day">
           <template #aside>
             <p v-if="samples.length" class="text-xs text-muted">{{ samples.length }} readings</p>
           </template>
