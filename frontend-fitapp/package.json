@@ -45,5 +45,5 @@
     "vitest": "^0.34.6",
     "vue-tsc": "^2.1.10"
   },
-  "description": "An Ionic project"
+  "description": "FitApp website: watch-centred health dashboard with a browser-only demo"
 }

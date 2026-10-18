@@ -17,7 +17,7 @@ export const useFitnessStore = defineStore('fitness', {
   state: () => ({
     today: todayIn() as ISODate,
     selectedDate: todayIn() as ISODate,
-    rangeDays: 30 as RangeDays,
+    rangeDays: 14 as RangeDays,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     /** Oldest first, ending at selectedDate. */
     days: [] as DaySummary[],
