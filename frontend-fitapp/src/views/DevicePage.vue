@@ -1,7 +1,8 @@
 <template>
   <AppShell title="Watch & connection">
-    <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Sources that upload watch data to your FitApp backend' }}</template>
+    <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Your Zepp account and other sources that send watch data' }}</template>
 
+    <ZeppPanel class="mb-4" />
     <DataState>
       <div class="grid gap-4">
         <PanelSection v-for="s in sources" :key="s.key" :title="s.device ?? s.name">
@@ -77,6 +78,7 @@ import { computed, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { checkmarkCircleOutline, removeCircleOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
+import ZeppPanel from '@/components/ZeppPanel.vue'
 import DataState from '@/components/DataState.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'

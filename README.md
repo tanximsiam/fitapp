@@ -1,11 +1,12 @@
 # FitApp
 
-An open-source, watch-centred health website. FitApp brings the activity, sleep and heart-rate data recorded by a watch together with the things a watch can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
+An open-source, watch-centred health website built for **Zepp / Amazfit** watches. FitApp brings the activity, sleep and heart-rate data recorded by a watch together with the things a watch can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
 
 - **Watch first.** Overview, Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend) and a Watch & sync page with device, capabilities and freshness.
 - **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals with foods and optional nutrition values you enter, water, and an optional cycle tracker.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
-- **Works without hardware.** A complete simulated-watch demo runs entirely in the browser. A Laravel backend stores real data, and any provider or bridge can feed it through a documented ingestion API.
+- **Zepp, ready to connect.** The backend includes a full Zepp Open Platform integration (OAuth, webhooks, FIT workouts, heart-rate pulls, backfill). Add your Zepp credentials to `.env`, register two URLs with Zepp and press **Connect Zepp account**. See [docs/zepp.md](docs/zepp.md).
+- **Works without hardware.** A complete simulated-watch demo runs entirely in the browser. Any other provider or bridge can feed the backend through the documented ingestion API.
 
 ![Overview on desktop](docs/screenshots/desktop-overview.png)
 
@@ -28,10 +29,10 @@ Screenshots are from the demo. All values in them are simulated.
 | Area | Status |
 | --- | --- |
 | Demo mode (simulated watch, journal fixtures, local edits, Reset demo) | Works offline in the browser; unit-tested and checked in Chromium at phone and desktop sizes |
-| FitApp backend: auth, fitness read API, journal CRUD, ingestion | Implemented; 31 feature tests; checked end to end against a local server with `curl` and the website |
+| FitApp backend: auth, fitness read API, journal CRUD, ingestion | Implemented; feature tests; checked end to end against a local server with `curl` and the website |
 | Ingestion of a third-party source | Contract implemented and tested with representative payloads (`docs/examples/ingest-sample.json` and a 30-day generated payload) |
-| A real watch or vendor cloud | **Not tested.** No physical device or vendor account was used |
-| Zepp cloud integration | **Not implemented.** Requires approved Zepp Open Platform credentials; see [docs/integration.md](docs/integration.md#zepp) |
+| Zepp integration (OAuth, webhooks, FIT workouts, heart-rate pull, backfill, disconnect) | **Implemented to Zepp's published docs.** Tested with faked Zepp responses and Zepp-shaped webhooks posted to a local server. **Not verified against a live Zepp account** (no partner credentials available) |
+| A real watch | **Not tested.** No physical device was used |
 
 ## Repository layout
 
@@ -101,20 +102,33 @@ curl -X POST http://localhost:8000/api/ingest \
 
 For 30 realistic days, generate a payload from the demo generator with `npx vite-node scripts/demo-payload.ts > /tmp/demo.json` (in `frontend-fitapp`) and post that instead. It is labelled as FitApp sample data.
 
+## Connect your Zepp watch
+
+Short version (full guide: **[docs/zepp.md](docs/zepp.md)**):
+
+1. Get partner access on the [Zepp Open Platform](https://devopen.zepp.com/docs/getting-started/introduction) and a client ID and secret.
+2. Fill the placeholders in `backend-fitapp/.env`: `ZEPP_CLIENT_ID`, `ZEPP_CLIENT_SECRET`, `ZEPP_REDIRECT_URI`, `ZEPP_WEBHOOK_TOKEN` (and `APP_URL`, `FRONTEND_URL`).
+3. Deploy the backend on public HTTPS, run `php artisan migrate --force`, a queue worker (`php artisan queue:work`) and the scheduler (`php artisan schedule:run` every minute).
+4. Register `…/api/zepp/callback` and `…/api/zepp/webhook/<ZEPP_WEBHOOK_TOKEN>` in the Zepp Developer Console.
+5. In FitApp open **Watch & sync → Connect Zepp account**.
+
+Until the credentials are set, Watch & sync shows Zepp as "Not configured" and lists exactly what is missing.
+
 ## API
 
 - Contract: [`docs/openapi.yaml`](docs/openapi.yaml) (OpenAPI 3.1). Open it in any OpenAPI viewer.
 - Website endpoints use a token from `POST /api/login` (`app` ability): `/api/user`, `/api/fitness/days`, `/api/fitness/heart-rate/{date}`, `/api/fitness/status`, `/api/journal/{mood,meals,hydration,cycle-days}`, `/api/ingest-tokens`.
 - Sources use an ingest-only token: `POST /api/ingest`.
+- Zepp: `/api/zepp/{status,authorize,connection,backfill}` for the signed-in user, plus the public `GET /api/zepp/callback` (OAuth) and `POST /api/zepp/webhook/{token}` (events).
 - Units: metres, kilocalories (active energy only), minutes, bpm, millilitres. Local calendar dates are `YYYY-MM-DD`; instants carry an offset, are stored in UTC and returned in the user's timezone. Missing values are `null`.
 - Journal edits may send the `updated_at` they last saw; if the record changed since, the API answers `409` instead of overwriting it. Notes are encrypted at rest.
 
-How to connect your own provider or bridge, including field mapping and the Zepp situation: **[docs/integration.md](docs/integration.md)**.
+How to connect another provider or bridge, including field mapping: **[docs/integration.md](docs/integration.md)**.
 
 ## Tests
 
 ```bash
-cd backend-fitapp && php artisan test          # auth, ownership, ingestion, journal, dates
+cd backend-fitapp && php artisan test          # auth, ownership, ingestion, journal, dates, Zepp (faked)
 cd frontend-fitapp && npx vitest run            # demo data, adapters, cycle, insights, components
 cd frontend-fitapp && npm run build             # type-check (vue-tsc) and production build
 ```
@@ -137,12 +151,14 @@ Any host with PHP 8.2+ works (a small VPS, or a PaaS that runs Laravel). In prod
 3. Serve `backend-fitapp/public` over HTTPS behind Nginx/Apache (or `php artisan serve` only for testing).
 4. Build the website with `VITE_BACKEND_URI=https://your-api.example` and host `frontend-fitapp/dist` anywhere static.
 5. Create accounts with `php artisan fitapp:create-user`. There is no public sign-up.
+6. For Zepp: run a queue worker and the scheduler (cron `* * * * * php artisan schedule:run`), then follow [docs/zepp.md](docs/zepp.md).
 
-Keep provider credentials on the server side of your bridge; the website never needs them.
+Provider credentials (Zepp client secret, tokens) stay on the server; the website never sees them.
 
 ## Limitations
 
-- No real watch, vendor account or Zepp credentials were available; device connectivity is demonstrated only by the simulation.
+- No real watch or Zepp partner credentials were available. The Zepp integration follows Zepp's published documentation and is tested with faked responses; the first live connection still needs checking (see [docs/zepp.md](docs/zepp.md#checking-the-first-connection)).
+- Zepp heart-rate readings use Zepp's transitional pull API; HRV, SpO₂, skin temperature, body composition and nutrition events are received but not stored.
 - The ingestion contract carries steps, distance, active energy and minutes, workouts, sleep (with stages and score), resting heart rate and heart-rate readings. Watch-measured stress, SpO₂ and skin temperature are not part of it yet.
 - Food energy and nutrients are only what the user enters; there is no food database.
 - The wellbeing overview describes co-occurrence in the user's own records. It is not medical advice, and the cycle tracker makes no predictions.

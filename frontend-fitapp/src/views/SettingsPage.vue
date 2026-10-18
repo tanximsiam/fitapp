@@ -133,20 +133,22 @@
         <ul class="divide-y divide-line border-y border-line text-sm">
           <li class="flex flex-wrap items-start justify-between gap-2 py-3">
             <div class="max-w-prose">
+              <p class="font-medium">Zepp</p>
+              <p class="text-ink-2">
+                Connect your Zepp account through the Zepp Open Platform. Needs your own approved Zepp credentials in the server's
+                <code class="text-xs">.env</code>; built to Zepp's published documentation, not yet verified against a live account.
+              </p>
+            </div>
+            <RouterLink to="/device" class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-2 hover:border-line-strong">
+              {{ mode.isDemo ? 'Simulated in demo' : 'Set up on Watch & sync' }}
+            </RouterLink>
+          </li>
+          <li class="flex flex-wrap items-start justify-between gap-2 py-3">
+            <div class="max-w-prose">
               <p class="font-medium">Your own source</p>
               <p class="text-ink-2">Any exporter, bridge or script that maps its output to the documented ingestion payload.</p>
             </div>
             <span class="rounded-full border border-line px-2 py-0.5 text-xs text-ink-2">Supported</span>
-          </li>
-          <li class="flex flex-wrap items-start justify-between gap-2 py-3">
-            <div class="max-w-prose">
-              <p class="font-medium">Zepp cloud</p>
-              <p class="text-ink-2">
-                Not built. Official access goes through the Zepp Open Platform and needs approved credentials, which this project
-                does not have. Nothing here talks to Zepp.
-              </p>
-            </div>
-            <span class="rounded-full border border-line px-2 py-0.5 text-xs text-muted">Not configured</span>
           </li>
         </ul>
       </PanelSection>

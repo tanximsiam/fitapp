@@ -13,7 +13,7 @@ There are three different connections, and FitApp treats them separately:
 | --- | --- | --- |
 | Website → FitApp API | The Vue frontend reads `/api/fitness/*` and `/api/journal/*` with a signed-in user's token. | Implemented and tested. |
 | Provider or bridge → FitApp ingestion API | Anything that can send HTTPS JSON uploads data with an **ingest-only** token. | Implemented and tested with representative payloads. No real device has been connected. |
-| Provider-specific integration (e.g. Zepp cloud) | Code that authorises with a vendor and receives its data. | **Not implemented.** See [Zepp](#zepp) below. |
+| Zepp Open Platform | OAuth connection, webhooks and pulls from Zepp's cloud, mapped into the same contract. | Implemented to Zepp's published docs and tested with faked responses; **not verified against a live Zepp account.** See [zepp.md](zepp.md). |
 
 A successful upload proves that *a source* reached FitApp. It does not prove which watch recorded the data, and the website never labels it as a verified watch connection.
 
@@ -84,6 +84,6 @@ Zepp has two separate developer offerings:
 - **Zepp OS** ([docs.zepp.com](https://docs.zepp.com/)) is for building mini programs that run on the watch. FitApp does not include a watch app.
 - **Zepp Thirdparty Open Platform** ([devopen.zepp.com](https://devopen.zepp.com/docs/getting-started/introduction)) is a cloud API. According to its documentation, a partner must register, complete enterprise verification, register an application and be granted data permissions before receiving a client ID and secret. Users then authorise access through OAuth 2.0. Activity is delivered as FIT files that the partner pulls after a notification, and sleep and health summaries are pushed to the partner's callback URL.
 
-FitApp has **no Zepp integration**. Nothing in this repository has been tested against Zepp, and no OAuth flow, webhook receiver or FIT parser is included. The Settings page lists Zepp as "Not configured".
+FitApp ships a built-in Zepp Open Platform integration: OAuth connection, webhook receiver (dailies, sleeps, activity files, authorisation changes), FIT workout parsing, heart-rate pulls and history backfill, all mapped into the contract above under the source key `zepp`. It is inactive until you add your own Zepp credentials. Setup, the data mapping and its verification status are in **[zepp.md](zepp.md)**.
 
-If you have approved credentials, a Zepp bridge would: keep the client secret on a server, run the OAuth flow for your account, receive Zepp's callbacks, convert FIT activity files and summaries into the fields above, and post them to `/api/ingest` with an ingest token. Check Zepp's current documentation for field names, units and delivery details before writing one.
+The built-in integration is also a worked example for other vendors: [`ZeppMapper`](../backend-fitapp/app/Services/Zepp/ZeppMapper.php) shows how a vendor's payloads become `activity`, `sleep`, `workouts` and `heart_rate` entries.
