@@ -42,7 +42,7 @@
       <h3 class="mb-2 text-xs font-medium text-muted">Mood this week</h3>
       <ol class="grid grid-cols-7 gap-1 text-center" :aria-label="weekLabel">
         <li v-for="w in week" :key="w.date" class="flex flex-col items-center gap-1">
-          <ChoiceGlyph v-if="w.level" kind="face" :level="w.level" :color="MOOD_CHOICES[w.level - 1].color" class="size-7" />
+          <ChoiceGlyph v-if="w.level" kind="face" :level="w.level" :color="MOOD_CHOICES[w.level - 1].color" class="size-7" still />
           <span v-else class="size-7 rounded-full border border-dashed border-line-strong" aria-hidden="true" />
           <span class="text-[11px]" :class="w.date === fitness.selectedDate ? 'font-semibold text-ink' : 'text-muted'" aria-hidden="true">{{ w.day }}</span>
         </li>

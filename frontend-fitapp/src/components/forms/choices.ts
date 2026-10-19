@@ -14,7 +14,7 @@ export interface Choice<T> {
 const scale = (kind: GlyphKind, labels: string[], colors: string[]): Choice<number>[] =>
   labels.map((label, i) => ({ value: i + 1, label, color: colors[i], glyph: { kind, level: i + 1 } }))
 
-export const MOOD_CHOICES = scale('face', ['Very low', 'Low', 'Okay', 'Good', 'Great'], ['#7c8db5', '#93a8d4', '#d9b44a', '#f2a03d', '#ef7b45'])
+export const MOOD_CHOICES = scale('face', ['Very low', 'Low', 'Okay', 'Good', 'Great'], ['#E23D18', '#EE7420', '#F9AC1B', '#1988E3', '#248C37'])
 export const ENERGY_CHOICES = scale('battery', ['Drained', 'Low', 'Steady', 'Good', 'High'], ['#e5534b', '#f08c3a', '#f2c230', '#8acb4d', '#34b56a'])
 export const STRESS_CHOICES = scale('gauge', ['None', 'Mild', 'Some', 'High', 'Very high'], ['#34b56a', '#8acb4d', '#f2c230', '#f08c3a', '#e5534b'])
 
