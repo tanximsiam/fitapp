@@ -29,6 +29,16 @@
   --danger: #b42318;
   --danger-soft: #fdecea;
   --focus: #0f766e;
+  /* Module heroes: a deep shade of each module's colour, white type at 7:1 or more. */
+  --activity-deep: #1e4fa3;
+  --energy-deep: #92400e;
+  --sleep-deep: #3f2fa0;
+  --heart-deep: #9a3412;
+  --stress-deep: #065f46;
+  --spo2-deep: #991b1b;
+  --skin-deep: #334155;
+  --mood-deep: #9d174d;
+  --cycle-deep: #9f1239;
   /* The overview hero: solid teal with white type (Tailwind teal 700; teal 800 in dark mode). */
   --hero: #0f766e;
 
@@ -165,6 +175,30 @@
   .stagger > :nth-child(4) { animation-delay: 120ms; }
   .stagger > :nth-child(5) { animation-delay: 160ms; }
   .stagger > :nth-child(n + 6) { animation-delay: 200ms; }
+  /*
+   * A solid teal section with white type (Radix solid-step guidance; every text colour >= 4.5:1).
+   * Actions inside invert to white pills with teal text.
+   */
+  .hero-panel {
+    background: var(--hero);
+    color: var(--ink);
+    --ink: #ffffff;
+    --ink-2: #e3f4f1;
+    --muted: #c9e8e3;
+    --line: rgb(255 255 255 / 0.2);
+    --page: var(--hero);
+    --chip: rgb(255 255 255 / 0.14);
+    --track: rgb(255 255 255 / 0.16);
+    --accent: #ffffff;
+    --accent-ink: var(--hero);
+    --focus: #ffffff;
+    box-shadow: var(--card-shadow);
+  }
+  /* Module heroes tint their secondary text from their own colour (>= 4.5:1 on every deep shade). */
+  .hero-module {
+    --ink-2: color-mix(in srgb, #ffffff 82%, var(--hero));
+    --muted: color-mix(in srgb, #ffffff 76%, var(--hero));
+  }
   .tone {
     background: var(--tone-soft);
     box-shadow: var(--card-shadow);

@@ -1,5 +1,5 @@
 <template>
-  <section aria-label="Today at a glance" class="hero relative flex flex-col gap-6 rounded-3xl p-5 sm:p-7 lg:flex-row lg:items-center lg:py-9">
+  <section aria-label="Today at a glance" class="hero hero-panel relative flex flex-col gap-6 rounded-3xl p-5 sm:p-7 lg:flex-row lg:items-center lg:py-9">
     <div class="@container flex min-w-0 flex-1 flex-col">
       <p class="text-[clamp(1.875rem,1.25rem+2.2cqi,2.75rem)] leading-none font-semibold tracking-tight">{{ greeting }}</p>
       <p class="mt-3 max-w-md text-[15px] leading-relaxed text-ink-2">{{ message }}</p>
@@ -126,30 +126,12 @@ const message = computed(() => {
 </script>
 
 <style scoped>
-/*
- * A solid teal section (the brand colour at full strength) takes white type, following the Radix
- * Colors guidance for solid steps. Secondary text uses solid near-white tints (at least 4.5:1).
- */
+/* Ring colours on the teal hero (shared hero tokens live in .hero-panel). */
 .hero {
-  background: var(--hero);
-  color: var(--ink);
-  --ink: #ffffff;
-  --ink-2: #e3f4f1;
-  --muted: #c9e8e3;
-  --page: var(--hero);
-  --chip: rgb(255 255 255 / 0.14);
-  --track: rgb(255 255 255 / 0.16);
-  /* Light mode: vivid lime, amber and cyan (Tailwind 300), each at least 3.7:1 on teal 700. */
   --ring-1: #bef264;
   --ring-2: #fcd34d;
   --ring-3: #67e8f9;
-  /* Actions on the hero invert: white pill, teal text. */
-  --accent: #ffffff;
-  --accent-ink: var(--hero);
-  --focus: #ffffff;
-  box-shadow: var(--card-shadow);
 }
-/* Dark mode: one teal family on the deep teal. */
 :root[data-theme='dark'] .hero {
   --ring-1: #ffffff;
   --ring-2: #ccfbf1;

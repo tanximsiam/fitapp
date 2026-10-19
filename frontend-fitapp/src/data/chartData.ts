@@ -47,3 +47,26 @@ export function dailyTicks(days: DaySummary[]) {
     .map((d, i) => ({ value: i, label: formatShortDate(d.date) }))
     .filter((_, i) => (days.length - 1 - i) % every === 0)
 }
+
+/** A floating bar per day from the lowest to the highest value (a transparent base segment lifts it). */
+export function rangeBars(
+  days: DaySummary[],
+  pick: (d: DaySummary) => { min: number; max: number } | null | undefined,
+  color: string,
+  format: (n: number) => string,
+): Bar[] {
+  return days.map((d) => {
+    const r = pick(d)
+    return {
+      key: d.date,
+      label: axisLabel(d.date, days.length),
+      title: dayTitle(d.date),
+      segments: r ? [{ value: r.min, color: 'transparent' }, { value: Math.max(0.5, r.max - r.min), color }] : null,
+      valueText: r ? `${format(r.min)}–${format(r.max)}` : 'No data',
+    }
+  })
+}
+
+/** The last `n` values ending at the newest day, for small sparklines. */
+export const lastValues = (days: DaySummary[], pick: (d: DaySummary) => number | null | undefined, n = 7) =>
+  days.slice(-n).map((d) => pick(d) ?? null)

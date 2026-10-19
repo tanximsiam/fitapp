@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading && !readings.length" class="h-[200px] animate-pulse rounded-lg bg-line/60" aria-busy="true" aria-label="Loading readings" />
+  <div v-if="loading && !readings.length" :style="{ height: `${height}px` }" class="animate-pulse rounded-lg bg-line/60" aria-busy="true" aria-label="Loading readings" />
   <StatePanel v-else-if="error" kind="error" title="Readings could not be loaded">
     {{ error }}
     <template #actions><PrimaryButton variant="secondary" label="Try again" @click="emit('retry')" /></template>
@@ -12,11 +12,16 @@
     :x-ticks="ticks"
     :max-gap="maxGap"
     :y-domain="yDomain"
+    :height="height"
     :color="color"
     :unit="unit"
     x-name="Time"
     :description="description"
-  />
+  >
+    <template v-if="legend" #legend>
+      <span class="flex items-center gap-1.5"><span class="h-0.5 w-3.5 rounded-full" :style="{ background: color }" aria-hidden="true" />{{ legend }}</span>
+    </template>
+  </LineChart>
 </template>
 
 <script setup lang="ts">
@@ -42,8 +47,11 @@ const props = withDefaults(
     maxGap?: number
     /** Show only the hours that have readings (e.g. overnight SpO₂) instead of the whole day. */
     fitToReadings?: boolean
+    height?: number
+    /** One-line legend under the chart. */
+    legend?: string
   }>(),
-  { yDomain: undefined, maxGap: 45, fitToReadings: false },
+  { yDomain: undefined, maxGap: 45, fitToReadings: false, height: 200, legend: undefined },
 )
 const emit = defineEmits<{ retry: [] }>()
 
