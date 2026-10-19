@@ -10,10 +10,6 @@
       </span>
       <span class="block truncate text-xs text-ink-2">
         {{ SYNC_LABELS[state] }}<template v-if="status?.lastIngestedAt">, {{ formatRelative(status.lastIngestedAt) }}</template>
-        <template v-if="status?.latestHeartRate">
-          · <span class="tabular font-medium text-ink">{{ status.latestHeartRate.bpm }} bpm</span> at {{ formatClock(status.latestHeartRate.at)
-          }}<template v-if="status.latestHeartRate.at.slice(0, 10) !== fitness.today">, {{ formatShortDate(status.latestHeartRate.at.slice(0, 10)) }}</template>
-        </template>
       </span>
     </span>
     <ion-icon :icon="chevronForwardOutline" aria-hidden="true" class="shrink-0 text-muted transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -25,7 +21,7 @@ import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { chevronForwardOutline, watchOutline } from 'ionicons/icons'
 import { SYNC_LABELS, syncState } from '@/data/connection'
-import { formatClock, formatRelative, formatShortDate } from '@/lib/format'
+import { formatRelative } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
 import { useModeStore } from '@/stores/mode'
 

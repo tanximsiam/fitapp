@@ -14,19 +14,16 @@
         :aria-pressed="day.date === modelValue"
         :aria-label="`${formatLongDate(day.date)}${day.date === today ? ', today' : ''}${hasData(day.date) ? '' : ', no data'}`"
         :data-date="day.date"
-        class="flex min-w-0 flex-col items-center gap-0.5 text-center transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-35"
-        :class="[
-          large ? 'rounded-xl py-2.5' : 'rounded-lg py-1.5',
+        class="flex min-w-0 flex-col items-center gap-0.5 rounded-lg py-1.5 text-center transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-35"
+        :class="
           day.date === modelValue
             ? 'bg-accent text-accent-ink'
-            : large
-              ? 'text-ink-2 hover:enabled:bg-page hover:enabled:text-ink'
-              : 'text-ink-2 hover:enabled:bg-surface hover:enabled:text-ink',
-        ]"
+            : 'text-ink-2 hover:enabled:bg-surface hover:enabled:text-ink'
+        "
         @click="emit('update:modelValue', day.date)"
       >
-        <span class="uppercase tracking-wide opacity-80" :class="large ? 'text-xs' : 'text-[11px]'">{{ day.weekday }}</span>
-        <span class="tabular font-medium" :class="[large ? 'text-xl font-semibold' : 'text-sm', day.date === today && day.date !== modelValue ? 'text-accent' : '']">{{ day.dayOfMonth }}</span>
+        <span class="text-[11px] uppercase tracking-wide opacity-80">{{ day.weekday }}</span>
+        <span class="tabular text-sm font-medium" :class="day.date === today && day.date !== modelValue ? 'text-accent' : ''">{{ day.dayOfMonth }}</span>
         <span
           class="size-1 rounded-full"
           :class="hasData(day.date) ? (day.date === modelValue ? 'bg-accent-ink' : 'bg-ink-2') : 'bg-transparent'"
@@ -53,8 +50,6 @@ const props = defineProps<{
   modelValue: ISODate
   today: ISODate
   hasData: (date: ISODate) => boolean
-  /** Bigger chips for the overview, where the strip sits in its own card. */
-  large?: boolean
 }>()
 const emit = defineEmits<{ 'update:modelValue': [ISODate] }>()
 
