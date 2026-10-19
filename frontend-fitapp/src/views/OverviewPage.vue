@@ -193,7 +193,9 @@
               </template>
             </LineChart>
           </WidgetCard>
+          <!-- At three columns skin temperature joins the graphs on the right and the wellbeing overview takes the bottom left. -->
           <WidgetCard
+            class="@4xl:order-last @[84rem]:order-none"
             title="Skin temperature"
             :icon="ICONS.skinTemp"
             tone="skin"
