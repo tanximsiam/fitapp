@@ -26,7 +26,7 @@
             <path
               v-for="(seg, j) in stack(bar.segments)"
               :key="j"
-              :d="roundedTop(cx(i) - barW / 2, seg.top, barW, seg.height, j === bar.segments.length - 1)"
+              :d="roundedTop(cx(i) - barW / 2, seg.top, barW, seg.height, j === bar.segments.length - 1, j > 0 && bar.segments[j - 1].color === 'transparent')"
               :fill="seg.color"
               :opacity="active !== null && active !== i ? 0.55 : 1"
               class="transition-opacity duration-150"
@@ -86,8 +86,8 @@
     <figcaption v-if="table || goal || $slots.legend" class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
       <slot name="legend" />
       <span v-if="goal" class="flex items-center gap-1.5"><svg width="16" height="2" aria-hidden="true"><line x1="0" x2="16" y1="1" y2="1" stroke="var(--ink-2)" stroke-dasharray="4 3" /></svg>{{ goalLabel }}</span>
-      <details v-if="table" class="ml-auto">
-        <summary class="cursor-pointer select-none hover:text-ink">Data table</summary>
+      <details v-if="table" class="ml-auto [&[open]]:ml-0 [&[open]]:basis-full">
+        <summary class="ml-auto block w-fit cursor-pointer select-none hover:text-ink">Data table</summary>
         <table class="mt-2 w-full min-w-56 text-left text-xs">
           <thead><tr class="text-muted"><th class="py-1 pr-4 font-medium">Date</th><th class="py-1 font-medium">{{ valueName }}</th></tr></thead>
           <tbody>
@@ -174,11 +174,13 @@ function stack(segs: BarSegment[]) {
   })
 }
 
-/** Rect with a fully rounded data-end (top) only. */
-function roundedTop(x: number, top: number, w: number, h: number, rounded: boolean) {
+/** Rect with a fully rounded data-end (top); floating range bars are rounded at the bottom too. */
+function roundedTop(x: number, top: number, w: number, h: number, rounded: boolean, roundBottom = false) {
   if (h <= 0) return ''
-  const r = rounded ? Math.min(w / 2, h) : 0
-  return `M${x},${top + h}V${top + r}Q${x},${top} ${x + r},${top}H${x + w - r}Q${x + w},${top} ${x + w},${top + r}V${top + h}Z`
+  const r = rounded ? Math.min(w / 2, roundBottom ? h / 2 : h) : 0
+  const b = roundBottom ? r : 0
+  const bottom = top + h
+  return `M${x},${bottom - b}V${top + r}Q${x},${top} ${x + r},${top}H${x + w - r}Q${x + w},${top} ${x + w},${top + r}V${bottom - b}Q${x + w},${bottom} ${x + w - b},${bottom}H${x + b}Q${x},${bottom} ${x},${bottom - b}Z`
 }
 
 function onKeydown(e: KeyboardEvent) {

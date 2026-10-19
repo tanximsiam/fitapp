@@ -1,12 +1,30 @@
 <template>
   <AppShell title="Cycle">
     <template #subtitle>Periods and symptoms you recorded</template>
-    <template #actions>
-      <PrimaryButton label="Log cycle day" @click="ui.openQuickLog('cycle')" />
-    </template>
-
     <TrackerGate tracker="cycle">
       <JournalState>
+        <ModuleHero
+          class="mb-4"
+          title="Cycle"
+          tone="cycle"
+          :icon="ICONS.cycle"
+          eyebrow="From the days you recorded"
+          :headline="cycleDay == null ? 'No period yet' : `Day ${cycleDay}`"
+          :headline-unit="cycleDay == null ? undefined : 'since your last period started'"
+          :headline-ratio="cycleDay == null || summary.avgCycleDays == null ? null : cycleDay / summary.avgCycleDays"
+          :sentence="heroSentence"
+          :stats="[
+            { label: 'Average cycle', icon: ICONS.cycle, value: summary.avgCycleDays == null ? EMPTY : `${Math.round(summary.avgCycleDays)} days`, note: summary.completedCycles ? `${summary.shortestCycleDays}–${summary.longestCycleDays} days` : undefined },
+            { label: 'Average period', icon: water, value: summary.avgPeriodDays == null ? EMPTY : `${summary.avgPeriodDays.toFixed(1)} days` },
+            { label: 'Recorded periods', icon: ICONS.combined, value: String(summary.recordedPeriods), note: `${summary.completedCycles} complete cycles` },
+            { label: 'Symptom days', icon: ICONS.mood, value: String(symptomDays), note: 'last 30 days' },
+          ]"
+        >
+          <template #actions>
+            <PrimaryButton label="Log cycle day" @click="ui.openQuickLog('cycle')" />
+          </template>
+        </ModuleHero>
+
         <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
           <PanelSection :title="monthTitle">
             <template #aside>
@@ -29,7 +47,7 @@
                 :disabled="cell.date > fitness.today"
                 :aria-pressed="cell.date === selected"
                 :aria-label="cell.label"
-                class="relative flex h-11 flex-col sm:h-12 items-center justify-center rounded-lg text-sm transition-colors duration-150 disabled:opacity-35"
+                class="relative flex h-11 flex-col items-center sm:h-12 lg:h-[4.25rem] justify-center rounded-lg text-sm transition-colors duration-150 disabled:opacity-35"
                 :class="[flowClass(cell.day?.flow ?? null), cell.date === selected ? 'ring-2 ring-ink ring-offset-1 ring-offset-surface' : '', cell.date === fitness.today ? 'font-semibold' : '']"
                 @click="selected = cell.date"
               >
@@ -95,17 +113,19 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
-import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons'
+import { chevronBackOutline, chevronForwardOutline, water } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
 import CycleDayForm from '@/components/forms/CycleDayForm.vue'
 import JournalState from '@/components/JournalState.vue'
+import { ICONS } from '@/components/metricIcons'
+import ModuleHero from '@/components/ModuleHero.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import TrackerGate from '@/components/TrackerGate.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { cycleSummary, deriveCycles, derivePeriods, periodDayIndex, type Period } from '@/data/cycle'
-import { addDays, weekday } from '@/lib/dates'
+import { addDays, daysBetween, weekday } from '@/lib/dates'
 import { EMPTY, formatLongDate, formatShortDate } from '@/lib/format'
 import { useUiStore } from '@/stores/ui'
 import type { Flow } from '@/types/journal'
@@ -159,6 +179,16 @@ const flowClass = (flow: Flow | null) => (flow ? FLOW_CLASS[flow] : 'text-ink-2 
 const periods = computed(() => derivePeriods(journal.data.cycleDays))
 const cycles = computed(() => deriveCycles(periods.value))
 const summary = computed(() => cycleSummary(cycles.value, periods.value))
+
+/** Days since the last recorded period started (counted from the records, never predicted). */
+const lastPeriod = computed(() => periods.value.at(-1) ?? null)
+const cycleDay = computed(() => (lastPeriod.value ? daysBetween(lastPeriod.value.start, fitness.today) + 1 : null))
+const heroSentence = computed(() =>
+  lastPeriod.value
+    ? `Your last recorded period started ${formatShortDate(lastPeriod.value.start)} and lasted ${lastPeriod.value.lengthDays} days. FitApp does not predict periods.`
+    : 'Record bleeding on a day to start tracking. FitApp does not predict periods.',
+)
+const symptomDays = computed(() => journal.data.cycleDays.filter((d) => d.symptoms.length && d.date > addDays(fitness.today, -30)).length)
 const cycleLength = (start: string) => {
   const c = cycles.value.find((x) => x.start === start)
   return c ? `${c.lengthDays} days` : null

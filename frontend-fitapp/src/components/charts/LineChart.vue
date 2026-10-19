@@ -53,8 +53,8 @@
 
     <figcaption v-if="table || $slots.legend" class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
       <slot name="legend" />
-      <details v-if="table" class="ml-auto">
-        <summary class="cursor-pointer select-none hover:text-ink">Data table</summary>
+      <details v-if="table" class="ml-auto [&[open]]:ml-0 [&[open]]:basis-full">
+        <summary class="ml-auto block w-fit cursor-pointer select-none hover:text-ink">Data table</summary>
         <div class="max-h-64 overflow-auto">
           <table class="mt-2 w-full min-w-56 text-left text-xs">
             <thead><tr class="text-muted"><th class="py-1 pr-4 font-medium">{{ xName }}</th><th class="py-1 font-medium">{{ unit }}</th></tr></thead>

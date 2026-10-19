@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { mount } from '@vue/test-utils'
 import BarChart from '@/components/charts/BarChart.vue'
-import CalendarComp from '@/components/CalendarComp.vue'
+import MonthCalendar from '@/components/MonthCalendar.vue'
 import GoalMeter from '@/components/GoalMeter.vue'
 import { metricBars } from '@/data/chartData'
 import type { DaySummary } from '@/types/fitness'
@@ -39,23 +39,27 @@ describe('BarChart', () => {
   })
 })
 
-describe('CalendarComp', () => {
+describe('MonthCalendar', () => {
   const mountAt = (modelValue: string) =>
-    mount(CalendarComp, { props: { modelValue, today: '2026-10-18', hasData: (d: string) => d !== '2026-10-14' } })
+    mount(MonthCalendar, { props: { modelValue, today: '2026-10-18', hasData: (d: string) => d !== '2026-10-14' } })
 
-  test('never offers future dates and ends the current week at today', () => {
+  test('shows the whole month, disables future days and the next month', () => {
     const wrapper = mountAt('2026-10-18')
-    const days = wrapper.findAll('[data-date]').map((b) => b.attributes('data-date'))
-    expect(days).toEqual(['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18'])
-    expect(wrapper.find('[aria-label="Next week"]').attributes('disabled')).toBeDefined()
-    expect(wrapper.find('[data-date="2026-10-14"]').attributes('aria-label')).toContain('no data')
+    expect(wrapper.findAll('[data-date]')).toHaveLength(31)
+    expect(wrapper.find('[data-date="2026-10-19"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('[data-date="2026-10-18"]').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('[aria-label="Next month"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('[data-date="2026-10-14"]').attributes('aria-label')).toContain('no watch data')
   })
 
-  test('selecting and paging emit dates', async () => {
+  test('selecting a day and keyboard moves emit dates; paging shows the previous month', async () => {
     const wrapper = mountAt('2026-10-18')
     await wrapper.find('[data-date="2026-10-15"]').trigger('click')
-    await wrapper.find('[aria-label="Previous week"]').trigger('click')
+    await wrapper.find('[role="group"]').trigger('keydown', { key: 'ArrowUp' })
+    await wrapper.find('[role="group"]').trigger('keydown', { key: 'ArrowRight' })
     expect(wrapper.emitted('update:modelValue')).toEqual([['2026-10-15'], ['2026-10-11']])
+    await wrapper.find('[aria-label="Previous month"]').trigger('click')
+    expect(wrapper.find('[data-date="2026-09-30"]').exists()).toBe(true)
   })
 })
 
