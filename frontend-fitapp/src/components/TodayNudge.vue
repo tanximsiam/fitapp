@@ -4,7 +4,7 @@
       <p class="text-3xl font-semibold tracking-tight sm:text-4xl">{{ greeting }}</p>
       <p class="mt-2 max-w-md text-[15px] leading-relaxed text-ink-2">{{ message }}</p>
       <div class="mt-5 flex flex-wrap items-center gap-2">
-        <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-white/10 py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
+        <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-[var(--chip)] py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
           <span class="grid size-7 place-items-center rounded-full bg-[#ffb33d] text-[#3a2300]">
             <ion-icon :icon="flame" aria-hidden="true" class="text-base" />
           </span>
@@ -17,7 +17,7 @@
     <div class="flex items-center gap-5">
       <svg viewBox="0 0 140 140" class="size-32 shrink-0 -rotate-90 sm:size-36" role="img" :aria-label="ringsLabel">
         <g v-for="(r, i) in rings" :key="r.label" fill="none" stroke-width="12" stroke-linecap="round">
-          <circle cx="70" cy="70" :r="RADII[i]" stroke="rgb(255 255 255 / 0.18)" />
+          <circle cx="70" cy="70" :r="RADII[i]" stroke="var(--track)" />
           <circle
             v-if="r.ratio !== null"
             cx="70"
@@ -76,16 +76,16 @@ const loggedToday = computed(() => {
   return d.mood.length + d.meals.length + d.hydration.length + (d.cycleDay ? 1 : 0) > 0
 })
 
-// Light tints of each metric's hue (Tailwind 200-300), readable on the indigo hero.
+// Light tints of each metric's hue (Tailwind 200-300); they read on the teal hero.
 const rings = computed(() => {
   const g = fitness.goals
   const a = props.day?.activity
   return [
-    { label: 'Steps', icon: ICONS.steps, color: '#7dd3fc', ratio: progress(a?.steps, g.steps), valueText: formatInt(a?.steps), goalText: formatInt(g.steps) },
+    { label: 'Steps', icon: ICONS.steps, color: 'var(--ring-1)', ratio: progress(a?.steps, g.steps), valueText: formatInt(a?.steps), goalText: formatInt(g.steps) },
     {
       label: 'Active energy',
       icon: ICONS.activeEnergy,
-      color: '#fcd34d',
+      color: 'var(--ring-2)',
       ratio: progress(a?.activeKcal, g.activeKcal),
       valueText: a?.activeKcal == null ? EMPTY : `${formatInt(a.activeKcal)} kcal`,
       goalText: `${formatInt(g.activeKcal)} kcal`,
@@ -93,7 +93,7 @@ const rings = computed(() => {
     {
       label: 'Sleep',
       icon: ICONS.sleep,
-      color: '#e9d5ff',
+      color: 'var(--ring-3)',
       ratio: progress(props.day?.sleep?.durationMin, g.sleepMin),
       valueText: formatDuration(props.day?.sleep?.durationMin),
       goalText: formatDuration(g.sleepMin),
@@ -120,14 +120,25 @@ const message = computed(() => {
 </script>
 
 <style scoped>
-/* A solid brand panel: light ink, and white pills for actions. */
+/*
+ * A solid teal section (the brand colour at full strength) takes white type, following the Radix
+ * Colors guidance for solid steps. Secondary text uses solid near-white tints (at least 4.5:1).
+ */
 .hero {
   background: var(--hero);
-  color: #ffffff;
+  color: var(--ink);
   --ink: #ffffff;
-  --ink-2: #e0e7ff;
-  --muted: #c7d2fe;
+  --ink-2: #e3f4f1;
+  --muted: #c9e8e3;
   --page: var(--hero);
+  --chip: rgb(255 255 255 / 0.14);
+  --track: rgb(255 255 255 / 0.2);
+  --ring-1: #7dd3fc;
+  --ring-2: #fcd34d;
+  --ring-3: #ddd6fe;
+  /* Actions on the hero invert: white pill, teal text. */
+  --accent: #ffffff;
+  --accent-ink: var(--hero);
   --focus: #ffffff;
   box-shadow: var(--card-shadow);
 }

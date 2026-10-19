@@ -23,14 +23,14 @@
   --muted: #676767;
   --line: #e6e6e6;
   --line-strong: #cfcfcf;
-  --accent: #4f46e5;
+  --accent: #0f766e;
   --accent-ink: #ffffff;
-  --accent-soft: #e0e7ff;
+  --accent-soft: #e0f8f3;
   --danger: #b42318;
   --danger-soft: #fdecea;
-  --focus: #4f46e5;
-  /* The overview hero: a solid brand panel (indigo 800 / 900), deep enough not to glare. */
-  --hero: #3730a3;
+  --focus: #0f766e;
+  /* The overview hero: solid teal with white type (Tailwind teal 700; teal 800 in dark mode). */
+  --hero: #0f766e;
 
   --activity: #2a78d6;
   --heart: #eb6834;
@@ -82,13 +82,13 @@
     --muted: #9c9a91;
     --line: #2c2c2a;
     --line-strong: #43423e;
-    --accent: #a5b4fc;
-    --accent-ink: #1e1b4b;
-    --accent-soft: #24224f;
+    --accent: #0d9488;
+    --accent-ink: #021a19;
+    --accent-soft: #0f2e2b;
     --danger: #f97066;
     --danger-soft: #3b1714;
-    --focus: #a5b4fc;
-    --hero: #312e81;
+    --focus: #0d9488;
+    --hero: #115e59;
 
     --activity: #3987e5;
     --heart: #d95926;

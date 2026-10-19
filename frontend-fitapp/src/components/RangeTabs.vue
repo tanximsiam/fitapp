@@ -9,7 +9,7 @@
       :aria-checked="opt === modelValue"
       :tabindex="opt === modelValue ? 0 : -1"
       class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-150"
-      :class="opt === modelValue ? 'bg-ink text-page' : 'text-ink-2 hover:text-ink'"
+      :class="opt === modelValue ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:text-ink'"
       @click="emit('update:modelValue', opt)"
     >
       {{ opt }} days

@@ -20,7 +20,7 @@ const active = computed(() => route.path === props.to)
 
 const railClass = computed(() => [
   'flex items-center gap-3 rounded-full px-3 py-2 text-sm transition-colors duration-150',
-  active.value ? 'bg-ink text-page font-medium' : 'text-ink-2 hover:bg-surface hover:text-ink',
+  active.value ? 'bg-accent text-accent-ink font-medium' : 'text-ink-2 hover:bg-surface hover:text-ink',
 ])
 const barClass = computed(() => [
   'relative flex flex-1 flex-col items-center justify-center gap-1 py-2 transition-colors duration-150',

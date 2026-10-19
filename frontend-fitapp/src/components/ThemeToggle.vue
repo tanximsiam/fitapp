@@ -11,7 +11,7 @@
       :title="opt.label"
       :tabindex="choice === opt.value ? 0 : -1"
       class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors duration-150"
-      :class="choice === opt.value ? 'bg-ink text-page' : 'text-ink-2 hover:text-ink'"
+      :class="choice === opt.value ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:text-ink'"
       @click="choice = opt.value"
     >
       <ion-icon :icon="opt.icon" aria-hidden="true" class="text-sm" />

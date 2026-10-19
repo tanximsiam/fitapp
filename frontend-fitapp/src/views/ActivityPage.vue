@@ -38,7 +38,7 @@
                 role="radio"
                 :aria-checked="m.key === metricKey"
                 class="rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-150"
-                :class="m.key === metricKey ? 'bg-ink text-page' : 'text-ink-2 hover:text-ink'"
+                :class="m.key === metricKey ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:text-ink'"
                 @click="metricKey = m.key"
               >
                 {{ m.short }}
