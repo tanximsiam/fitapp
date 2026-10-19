@@ -11,6 +11,7 @@
           <span><span class="tabular">{{ streak }}</span>-day logging streak</span>
         </span>
         <PrimaryButton v-if="journal.loaded && !loggedToday" label="Log how you feel" @click="ui.openQuickLog('choose')" />
+        <RouterLink to="/settings" class="px-2 text-sm text-ink-2 underline underline-offset-2 hover:text-ink">Edit goals</RouterLink>
       </div>
     </div>
 
@@ -46,7 +47,6 @@
           </p>
         </li>
       </ul>
-      <RouterLink to="/settings" class="mt-3 block text-center text-xs text-ink-2 underline underline-offset-2 hover:text-ink sm:text-right">Edit goals</RouterLink>
     </div>
   </section>
 </template>
