@@ -130,13 +130,18 @@
               :x-domain="[0, Math.max(1, rangeDaysList.length - 1)]"
               :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1 || i === Math.floor(a.length / 2))"
               :mark-x="rangeDaysList.length - 1"
-              :height="120"
+              :height="130"
               :table="false"
               color="var(--heart)"
               unit="bpm"
               x-name="Date"
               description="Resting heart rate by day"
-            />
+            >
+              <template #legend>
+                <span class="flex items-center gap-1.5"><span class="h-0.5 w-3.5 rounded-full" style="background: var(--heart)" aria-hidden="true" />Resting heart rate</span>
+                <span class="flex items-center gap-1.5"><svg width="14" height="2" aria-hidden="true"><line x1="0" x2="14" y1="1" y2="1" stroke="var(--accent)" stroke-dasharray="3 2" /></svg>Selected day</span>
+              </template>
+            </LineChart>
           </WidgetCard>
 
           <WidgetCard
@@ -150,13 +155,17 @@
             <BarChart
               :bars="metricBars(rangeDaysList, (d) => d.stress?.avg, 'var(--stress)', (n) => `${n} / 100`)"
               :selected-key="fitness.selectedDate"
-              :height="120"
+              :height="130"
               :table="false"
               :format-tick="(n: number) => String(n)"
               value-name="Average stress"
               description="Average watch stress per day. Use arrow keys to inspect days and Enter to select one."
               @select="fitness.selectDate"
-            />
+            >
+              <template #legend>
+                <span class="flex items-center gap-1.5"><span class="size-2 rounded-sm" style="background: var(--stress)" aria-hidden="true" />Daily average, 0–100</span>
+              </template>
+            </BarChart>
           </WidgetCard>
           <WidgetCard
             title="Blood oxygen"
@@ -172,13 +181,17 @@
               :x-domain="[0, Math.max(1, rangeDaysList.length - 1)]"
               :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1)"
               :y-domain="[86, 100]"
-              :height="120"
+              :height="130"
               :table="false"
               color="var(--spo2)"
               unit="%"
               x-name="Date"
               description="Average overnight blood oxygen by day"
-            />
+            >
+              <template #legend>
+                <span class="flex items-center gap-1.5"><span class="h-0.5 w-3.5 rounded-full" style="background: var(--spo2)" aria-hidden="true" />Overnight average</span>
+              </template>
+            </LineChart>
           </WidgetCard>
           <WidgetCard
             title="Skin temperature"
@@ -195,13 +208,17 @@
               :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1)"
               :y-domain="[-skinLimit, skinLimit]"
               :format-y="(n: number) => (n === 0 ? 'base' : `${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`)"
-              :height="120"
+              :height="130"
               :table="false"
               color="var(--ink-2)"
               unit="°C"
               x-name="Date"
               description="Overnight skin temperature versus your baseline by day"
-            />
+            >
+              <template #legend>
+                <span class="flex items-center gap-1.5"><span class="h-0.5 w-3.5 rounded-full" style="background: var(--ink-2)" aria-hidden="true" />Nightly change from your baseline</span>
+              </template>
+            </LineChart>
           </WidgetCard>
           <div class="@2xl:col-span-2"><JournalState><WellbeingOverview /></JournalState></div>
         </div>
