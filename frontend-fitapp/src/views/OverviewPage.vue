@@ -1,9 +1,9 @@
 <template>
   <AppShell :title="fitness.isToday ? 'Today' : formatLongDate(fitness.selectedDate)">
+    <template #actions><WatchStatus class="w-full sm:w-auto sm:max-w-sm" /></template>
     <template #subtitle>{{ fitness.isToday ? `${formatLongDate(fitness.today)} · ` : '' }}{{ freshness }}</template>
     <DataState>
-      <WatchStatus />
-      <DateToolbar />
+      <div class="card mb-6 p-3 sm:p-4"><DateToolbar large /></div>
       <div class="stagger grid gap-4">
         <TodayNudge v-if="fitness.isToday" :day="day" />
         <!-- Today the hero shows goal progress; other days get the tiles. -->
