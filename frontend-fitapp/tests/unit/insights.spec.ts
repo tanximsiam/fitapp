@@ -36,7 +36,7 @@ const meal = (date: string, i: number): Meal => ({
   eatenAt: `${date}T12:00:00+06:00`,
   mealType: 'lunch',
   note: null,
-  items: [{ name: 'x', quantity: null, unit: null, energyKcal: null, proteinG: null, carbsG: null, fatG: null }],
+  items: [{ name: 'x', quantity: null, unit: null, energyKcal: null, proteinG: null, carbsG: null, fatG: null, nutritionSource: null }],
 })
 const empty: JournalData = { mood: [], meals: [], hydration: [], cycleDays: [] }
 

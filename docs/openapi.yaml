@@ -610,7 +610,7 @@ components:
     MealItem:
       type: object
       required: [name]
-      description: Nutrition values are only those the user entered. FitApp does not look up or estimate them.
+      description: Nutrition values are typed by the user or calculated by the FitApp client from its built-in food list (typical per-100 g values); nutrition_source says which. The server stores them as sent and never estimates.
       properties:
         name: { type: string, maxLength: 100 }
         quantity: { type: [number, 'null'], exclusiveMinimum: 0 }
@@ -619,6 +619,10 @@ components:
         protein_g: { type: [number, 'null'], minimum: 0, maximum: 1000 }
         carbs_g: { type: [number, 'null'], minimum: 0, maximum: 1000 }
         fat_g: { type: [number, 'null'], minimum: 0, maximum: 1000 }
+        nutrition_source:
+          type: [string, 'null']
+          enum: [database, entered, null]
+          description: "database = calculated from the client food list, entered = typed by the user, null = no values."
     MealInput:
       type: object
       required: [eaten_at, meal_type, items]

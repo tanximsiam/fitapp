@@ -44,6 +44,7 @@ final class JournalResources
                 'protein_g' => $i->protein_g,
                 'carbs_g' => $i->carbs_g,
                 'fat_g' => $i->fat_g,
+                'nutrition_source' => $i->nutrition_source,
             ])->all(),
         ] + self::meta($m);
     }

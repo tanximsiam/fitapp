@@ -84,10 +84,10 @@ describe('food values', () => {
       eatenAt: '2026-10-18T12:00:00+06:00',
       mealType: 'lunch',
       note: null,
-      items: kcals.map((k, i) => ({ name: `f${i}`, quantity: null, unit: null, energyKcal: k, proteinG: null, carbsG: null, fatG: null })),
+      items: kcals.map((k, i) => ({ name: `f${i}`, quantity: null, unit: null, energyKcal: k, proteinG: null, carbsG: null, fatG: null, nutritionSource: k == null ? null : 'entered' })),
     })
-    expect(enteredEnergy([meal([200, null]), meal([150])])).toEqual({ kcal: 350, entered: 2, total: 3 })
-    expect(enteredEnergy([meal([null])])).toEqual({ kcal: null, entered: 0, total: 1 })
+    expect(enteredEnergy([meal([200, null]), meal([150])])).toEqual({ kcal: 350, entered: 2, estimated: 0, total: 3 })
+    expect(enteredEnergy([meal([null])])).toEqual({ kcal: null, entered: 0, estimated: 0, total: 1 })
   })
 })
 

@@ -4,38 +4,45 @@
     <DataState>
       <WatchStatus />
       <DateToolbar />
-      <div class="grid gap-5">
+      <div class="stagger grid gap-5">
+        <JournalState v-if="fitness.isToday"><TodayNudge :day="day" /></JournalState>
         <section aria-labelledby="goals-title">
           <div class="mb-3 flex items-baseline justify-between gap-4">
             <h2 id="goals-title" class="text-base font-semibold tracking-tight">{{ fitness.isToday ? 'Goals so far today' : 'Goals' }}</h2>
             <RouterLink to="/settings" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Edit goals</RouterLink>
           </div>
           <div class="grid gap-3 sm:grid-cols-3">
-            <div class="tone tone-activity rounded-xl p-5">
+            <div class="tone tone-activity rounded-2xl p-5">
               <GoalMeter
                 label="Steps"
                 :icon="ICONS.steps"
                 :value-text="formatInt(day?.activity?.steps)"
+                :value="day?.activity?.steps"
+                :format="(n: number) => formatInt(Math.round(n))"
                 :goal-text="formatInt(goals.steps)"
                 :ratio="progress(day?.activity?.steps, goals.steps)"
                 color="var(--activity)"
               />
             </div>
-            <div class="tone tone-energy rounded-xl p-5">
+            <div class="tone tone-energy rounded-2xl p-5">
               <GoalMeter
                 label="Active energy"
                 :icon="ICONS.activeEnergy"
                 :value-text="day?.activity?.activeKcal == null ? EMPTY : `${formatInt(day.activity.activeKcal)} kcal`"
+                :value="day?.activity?.activeKcal"
+                :format="(n: number) => `${formatInt(Math.round(n))} kcal`"
                 :goal-text="`${formatInt(goals.activeKcal)} kcal`"
                 :ratio="progress(day?.activity?.activeKcal, goals.activeKcal)"
                 color="var(--energy)"
               />
             </div>
-            <div class="tone tone-sleep rounded-xl p-5">
+            <div class="tone tone-sleep rounded-2xl p-5">
               <GoalMeter
                 label="Sleep"
                 :icon="ICONS.sleep"
                 :value-text="formatDuration(day?.sleep?.durationMin)"
+                :value="day?.sleep?.durationMin"
+                :format="(n: number) => formatDuration(Math.round(n))"
                 :goal-text="formatDuration(goals.sleepMin)"
                 :ratio="progress(day?.sleep?.durationMin, goals.sleepMin)"
                 color="var(--sleep)"
@@ -123,6 +130,7 @@ import GoalMeter from '@/components/GoalMeter.vue'
 import WatchStatus from '@/components/WatchStatus.vue'
 import WellbeingOverview from '@/components/WellbeingOverview.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
+import TodayNudge from '@/components/TodayNudge.vue'
 import BodySignals from '@/components/BodySignals.vue'
 import JournalState from '@/components/JournalState.vue'
 import { useJournalStore } from '@/stores/journal'

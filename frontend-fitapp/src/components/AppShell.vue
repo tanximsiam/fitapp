@@ -2,14 +2,14 @@
   <ion-page>
     <ion-content>
       <div class="flex min-h-full">
-        <aside class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col overflow-y-auto border-r border-line bg-rail px-3 py-5 lg:flex">
+        <aside class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col overflow-y-auto border-r border-line-strong/70 bg-rail px-3 py-5 lg:flex">
           <RouterLink to="/overview" class="mb-5 flex items-center gap-2 px-3 text-[15px] font-semibold tracking-tight">
             <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
             FitApp
           </RouterLink>
           <button
             type="button"
-            class="mx-1 mb-5 flex items-center justify-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-accent-ink transition-[filter] duration-150 hover:brightness-110"
+            class="mx-1 mb-5 flex items-center justify-center gap-2 rounded-full bg-ink px-3 py-2 text-sm font-medium text-page transition-[opacity,scale] duration-150 hover:opacity-90 active:scale-[0.97]"
             @click="ui.openQuickLog()"
           >
             <ion-icon :icon="addOutline" aria-hidden="true" class="text-lg" />Quick log
@@ -27,7 +27,7 @@
         </aside>
 
         <div class="min-w-0 flex-1 pb-24 lg:pb-10">
-          <header class="flex items-center justify-between border-b border-line bg-surface px-4 py-3 lg:hidden">
+          <header class="flex items-center justify-between border-b border-line-strong/70 bg-rail px-4 py-3 lg:hidden">
             <span class="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
               <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
               FitApp

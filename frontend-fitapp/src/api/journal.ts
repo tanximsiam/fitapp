@@ -15,7 +15,7 @@ import type {
 /* Backend payloads (snake_case), see docs/openapi.yaml. */
 type Meta = { id: number; date: string; provenance: 'manual'; updated_at: string | null }
 type MoodPayload = Meta & { recorded_at: string; mood: number; energy: number | null; stress: number | null; emotions: string[]; note: string | null }
-type ItemPayload = { name: string; quantity: number | null; unit: string | null; energy_kcal: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null }
+type ItemPayload = { name: string; quantity: number | null; unit: string | null; energy_kcal: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null; nutrition_source: 'database' | 'entered' | null }
 type MealPayload = Meta & { eaten_at: string; meal_type: Meal['mealType']; note: string | null; items: ItemPayload[] }
 type HydrationPayload = Meta & { recorded_at: string; volume_ml: number }
 type CyclePayload = Meta & { flow: CycleDay['flow']; symptoms: CycleDay['symptoms']; note: string | null }
@@ -37,7 +37,7 @@ export const toMeal = (p: MealPayload): Meal => ({
   eatenAt: p.eaten_at,
   mealType: p.meal_type,
   note: p.note,
-  items: p.items.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit, energyKcal: i.energy_kcal, proteinG: i.protein_g, carbsG: i.carbs_g, fatG: i.fat_g })),
+  items: p.items.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit, energyKcal: i.energy_kcal, proteinG: i.protein_g, carbsG: i.carbs_g, fatG: i.fat_g, nutritionSource: i.nutrition_source ?? null })),
 })
 
 export const toHydration = (p: HydrationPayload): HydrationEntry => ({ ...meta(p), recordedAt: p.recorded_at, volumeMl: p.volume_ml })
@@ -48,7 +48,7 @@ const mealBody = (m: MealInput) => ({
   eaten_at: m.eatenAt,
   meal_type: m.mealType,
   note: m.note,
-  items: m.items.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit, energy_kcal: i.energyKcal, protein_g: i.proteinG, carbs_g: i.carbsG, fat_g: i.fatG })),
+  items: m.items.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit, energy_kcal: i.energyKcal, protein_g: i.proteinG, carbs_g: i.carbsG, fat_g: i.fatG, nutrition_source: i.nutritionSource })),
 })
 
 async function save(path: string, body: object, existing?: { id: EntryId; updatedAt: string | null }) {

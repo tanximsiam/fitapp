@@ -17,7 +17,7 @@
         class="flex min-w-0 flex-col items-center gap-0.5 rounded-lg py-1.5 text-center transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-35"
         :class="
           day.date === modelValue
-            ? 'bg-accent text-accent-ink'
+            ? 'bg-ink text-page'
             : 'text-ink-2 hover:enabled:bg-surface hover:enabled:text-ink'
         "
         @click="emit('update:modelValue', day.date)"

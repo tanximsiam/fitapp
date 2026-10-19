@@ -1,31 +1,17 @@
 <template>
   <form class="grid gap-4" novalidate @submit.prevent="submit">
     <FormInput v-model="when" label="When" type="datetime-local" :error="!!whenError" :hint="whenError" />
-    <fieldset>
-      <legend class="mb-1.5 text-sm font-medium text-ink-2">Amount</legend>
-      <div class="flex flex-wrap items-end gap-2">
-        <button
-          v-for="v in [150, 250, 330, 500]"
-          :key="v"
-          type="button"
-          :aria-pressed="Number(volume) === v"
-          class="rounded-lg border px-3 py-2 text-sm font-medium transition-colors duration-150"
-          :class="Number(volume) === v ? 'border-accent bg-accent-soft' : 'border-line bg-surface hover:border-line-strong'"
-          @click="volume = String(v)"
-        >
-          {{ v }} ml
-        </button>
-        <FormInput v-model="volume" class="w-32" label="Other (ml)" type="number" inputmode="numeric" :min="10" :max="5000" :error="!!volumeError" />
-      </div>
-      <p v-if="volumeError" role="alert" class="mt-1 text-xs text-danger">{{ volumeError }}</p>
-    </fieldset>
+    <ChoiceCards v-model="preset" label="Amount" :options="DRINK_CHOICES" required />
+    <FormInput v-model="volume" class="w-40" label="Or another amount (ml)" type="number" inputmode="numeric" :min="10" :max="5000" :error="!!volumeError" :hint="volumeError" />
     <FormActions :saving="saving" :error="error" :deletable="!!existing" :cancellable="cancellable" @cancel="emit('done')" @delete="remove" />
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import FormInput from '@/components/FormInput.vue'
+import ChoiceCards from './ChoiceCards.vue'
+import { DRINK_CHOICES } from './choices'
 import FormActions from './FormActions.vue'
 import { useEntryForm } from '@/composables/useEntryForm'
 import { defaultInputFor, isoToLocalInput, localInputToIso } from '@/lib/instants'
@@ -39,6 +25,10 @@ const { saving, error, run } = useEntryForm(() => emit('done'))
 
 const when = ref(props.existing ? isoToLocalInput(props.existing.recordedAt) : defaultInputFor(props.date))
 const volume = ref(String(props.existing?.volumeMl ?? 250))
+const preset = computed({
+  get: () => DRINK_CHOICES.find((c) => c.value === Number(volume.value))?.value ?? null,
+  set: (v) => (volume.value = v == null ? '' : String(v)),
+})
 const whenError = ref<string>()
 const volumeError = ref<string>()
 

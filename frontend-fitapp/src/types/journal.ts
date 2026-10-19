@@ -29,11 +29,13 @@ export interface MealItem {
   name: string
   quantity: number | null
   unit: string | null
-  /** Values the user typed in; FitApp never fills these. */
+  /** Typed by the user, or estimated from FitApp's food list (see nutritionSource). */
   energyKcal: number | null
   proteinG: number | null
   carbsG: number | null
   fatG: number | null
+  /** "database": calculated from src/data/foods.ts; "entered": typed by the user; null: no values. */
+  nutritionSource: 'database' | 'entered' | null
 }
 
 export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const

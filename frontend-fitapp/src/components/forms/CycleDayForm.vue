@@ -1,19 +1,7 @@
 <template>
   <form class="grid gap-4" novalidate @submit.prevent="submit">
     <FormInput v-model="date" label="Date" type="date" :error="!!dateError" :hint="dateError" />
-    <fieldset>
-      <legend class="mb-1.5 text-sm font-medium text-ink-2">Bleeding</legend>
-      <div class="flex flex-wrap gap-1.5">
-        <label
-          v-for="opt in FLOW_OPTIONS"
-          :key="opt.label"
-          class="cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--focus)]"
-          :class="flow === opt.value ? 'border-accent bg-accent-soft font-medium' : 'border-line bg-surface hover:border-line-strong'"
-        >
-          <input v-model="flow" type="radio" name="flow" :value="opt.value" class="sr-only" />{{ opt.label }}
-        </label>
-      </div>
-    </fieldset>
+    <ChoiceCards v-model="flow" label="Bleeding" :options="FLOW_CHOICES" required />
     <ChipToggles v-model="symptoms" :options="SYMPTOMS" label="Symptoms" />
     <label class="grid gap-1.5 text-sm font-medium text-ink-2">
       <span>Note <span class="font-normal text-muted">(optional, private)</span></span>
@@ -28,20 +16,14 @@
 import { computed, ref } from 'vue'
 import FormInput from '@/components/FormInput.vue'
 import ChipToggles from './ChipToggles.vue'
+import ChoiceCards from './ChoiceCards.vue'
+import { FLOW_CHOICES } from './choices'
 import FormActions from './FormActions.vue'
 import { TEXTAREA } from './styles'
 import { useEntryForm } from '@/composables/useEntryForm'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import { SYMPTOMS, type Flow, type Symptom } from '@/types/journal'
-
-const FLOW_OPTIONS: { value: Flow | null; label: string }[] = [
-  { value: null, label: 'None' },
-  { value: 'spotting', label: 'Spotting' },
-  { value: 'light', label: 'Light' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'heavy', label: 'Heavy' },
-]
 
 const props = withDefaults(defineProps<{ date: string; cancellable?: boolean }>(), { cancellable: true })
 const emit = defineEmits<{ done: [] }>()

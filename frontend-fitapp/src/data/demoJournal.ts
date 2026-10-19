@@ -78,6 +78,7 @@ const item = (name: string, quantity: number | null, unit: string | null, kcal: 
   proteinG: p,
   carbsG: c,
   fatG: f,
+  nutritionSource: kcal == null && p == null ? null : 'entered',
 })
 
 /** Menus with values a person might copy from packaging; some deliberately left blank. */
