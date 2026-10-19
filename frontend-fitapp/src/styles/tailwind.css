@@ -29,8 +29,8 @@
   --danger: #b42318;
   --danger-soft: #fdecea;
   --focus: #4f46e5;
-  /* The overview hero: a solid brand panel (indigo 600 / 800). */
-  --hero: #4f46e5;
+  /* The overview hero: a solid brand panel (indigo 800 / 900), deep enough not to glare. */
+  --hero: #3730a3;
 
   --activity: #2a78d6;
   --heart: #eb6834;
@@ -88,7 +88,7 @@
     --danger: #f97066;
     --danger-soft: #3b1714;
     --focus: #a5b4fc;
-    --hero: #3730a3;
+    --hero: #312e81;
 
     --activity: #3987e5;
     --heart: #d95926;
