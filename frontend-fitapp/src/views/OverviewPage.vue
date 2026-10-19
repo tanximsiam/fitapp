@@ -57,14 +57,16 @@
           <span class="text-xs text-muted">Charts show</span>
           <RangeTabs :model-value="fitness.rangeDays" @update:model-value="fitness.setRange" />
         </div>
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <div class="flex flex-col gap-4 md:row-span-3">
+        <!-- Columns follow the space beside the sidebar (container queries), so widgets never drop below ~300px. -->
+        <div class="@container">
+        <div class="grid gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3 @[76rem]:grid-cols-4">
+          <div class="flex flex-col gap-4 @2xl:row-span-3">
             <MonthCalendar :model-value="fitness.selectedDate" :today="fitness.today" :has-data="hasData" @update:model-value="fitness.selectDate" />
             <JournalState><TodayEntries class="flex-1" /></JournalState>
           </div>
 
           <WidgetCard
-            class="md:col-span-1 lg:col-span-2"
+            class="@4xl:col-span-2"
             title="Steps"
             :icon="ICONS.steps"
             tone="activity"
@@ -194,7 +196,8 @@
               description="Overnight skin temperature versus your baseline by day"
             />
           </WidgetCard>
-          <div class="md:col-span-2"><JournalState><WellbeingOverview /></JournalState></div>
+          <div class="@2xl:col-span-2"><JournalState><WellbeingOverview /></JournalState></div>
+        </div>
         </div>
       </div>
     </DataState>

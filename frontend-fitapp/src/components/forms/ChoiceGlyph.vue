@@ -1,12 +1,7 @@
 <template>
   <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <template v-if="kind === 'face'">
-      <circle cx="24" cy="24" r="20" :fill="color" />
-      <circle cx="17" cy="20" r="2.4" :fill="INK" />
-      <circle cx="31" cy="20" r="2.4" :fill="INK" />
-      <path v-if="level === 5" d="M14 28 Q24 41 34 28 Z" :fill="INK" />
-      <path v-else :d="`M15 31 Q24 ${31 + MOUTH[level - 1] * 7} 33 31`" :stroke="INK" stroke-width="2.6" />
-    </template>
+    <!-- Mood faces: Microsoft Fluent Emoji, flat style (MIT); see src/assets/mood/LICENSE. -->
+    <image v-if="kind === 'face'" :href="MOOD_FACES[level - 1]" x="2" y="2" width="44" height="44" />
 
     <template v-else-if="kind === 'battery'">
       <rect x="5" y="14" width="34" height="20" rx="4.5" stroke="currentColor" stroke-width="2.5" class="text-ink-2" />
@@ -37,13 +32,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import mood1 from '@/assets/mood/mood-1.svg'
+import mood2 from '@/assets/mood/mood-2.svg'
+import mood3 from '@/assets/mood/mood-3.svg'
+import mood4 from '@/assets/mood/mood-4.svg'
+import mood5 from '@/assets/mood/mood-5.svg'
 
 export type GlyphKind = 'face' | 'battery' | 'gauge' | 'drops' | 'glass'
 /** level: 1–5 for face, battery and gauge; 0–4 for drops (none → heavy); millilitres for glass. */
 const props = defineProps<{ kind: GlyphKind; level: number; color: string }>()
 
-const INK = '#1d1d1f'
-const MOUTH = [-1, -0.5, 0, 0.55]
+/** Pensive, slightly frowning, neutral, slightly smiling, grinning. */
+const MOOD_FACES = [mood1, mood2, mood3, mood4, mood5]
 const DROP = 'M0 -11 C5 -4 8 0 8 4 A8 8 0 0 1 -8 4 C-8 0 -5 -4 0 -11 Z'
 /** [x, scale] per drop for each flow level. */
 const DROPS: [number, number][][] = [[], [[24, 0.6]], [[24, 1.05]], [[16, 0.9], [32, 0.9]], [[11, 0.75], [24, 0.9], [37, 0.75]]]
