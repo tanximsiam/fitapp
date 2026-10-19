@@ -1,11 +1,11 @@
 <template>
   <section aria-label="Today at a glance" class="hero relative flex flex-col gap-6 rounded-3xl p-5 sm:p-7 lg:flex-row lg:items-center lg:py-12">
-    <div class="flex min-w-0 flex-1 flex-col">
-      <p class="text-3xl leading-none font-semibold tracking-tight sm:text-4xl">{{ greeting }}</p>
-      <p class="mt-3 max-w-md text-[15px] leading-relaxed text-ink-2">{{ message }}</p>
-      <div class="mt-5 flex flex-wrap items-center gap-2">
-        <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-[var(--chip)] py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
-          <span class="grid size-7 place-items-center rounded-full bg-white text-[var(--hero)]">
+    <div class="@container flex min-w-0 flex-1 flex-col">
+      <p class="text-[clamp(1.875rem,8.5cqi,4rem)] leading-none font-semibold tracking-tight">{{ greeting }}</p>
+      <p class="mt-[clamp(0.75rem,2cqi,1.25rem)] max-w-[44ch] text-[clamp(0.9375rem,2.6cqi,1.3rem)] leading-relaxed text-ink-2">{{ message }}</p>
+      <div class="mt-[clamp(1.25rem,3.5cqi,2rem)] flex flex-wrap items-center gap-2">
+        <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-[var(--chip)] py-1.5 pr-4 pl-1.5 text-[clamp(0.875rem,2cqi,1.0625rem)] font-medium">
+          <span class="grid size-[clamp(1.75rem,4.5cqi,2.25rem)] place-items-center rounded-full bg-white text-[var(--hero)]">
             <ion-icon :icon="flame" aria-hidden="true" class="text-base" />
           </span>
           <span><span class="tabular">{{ streak }}</span>-day logging streak</span>
