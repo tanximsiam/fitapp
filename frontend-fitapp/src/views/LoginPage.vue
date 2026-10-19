@@ -2,10 +2,7 @@
   <ion-page>
     <ion-content>
       <main class="mx-auto flex min-h-full w-full max-w-sm flex-col justify-center px-4 py-12">
-        <p class="mb-8 flex items-center gap-2 text-[15px] font-semibold tracking-tight">
-          <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
-          FitApp
-        </p>
+        <BrandLogo class="mb-10 h-10 self-start" />
         <h1 class="text-2xl font-semibold tracking-tight">Sign in to your backend</h1>
         <p class="mt-2 break-all text-sm text-muted">{{ mode.backendUrl }}</p>
 
@@ -26,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import BrandLogo from '@/components/BrandLogo.vue'
 import { IonContent, IonPage } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
