@@ -1,7 +1,8 @@
 <template>
-  <div class="mb-8 flex flex-col gap-3 md:flex-row md:items-center">
+  <div class="flex flex-col gap-3 md:flex-row md:items-center" :class="large ? '' : 'mb-8'">
     <CalendarComp
-      class="md:max-w-md md:flex-1"
+      :class="large ? 'md:flex-1' : 'md:max-w-md md:flex-1'"
+      :large="large"
       :model-value="fitness.selectedDate"
       :today="fitness.today"
       :has-data="hasData"
@@ -27,6 +28,6 @@ import CalendarComp from '@/components/CalendarComp.vue'
 import RangeTabs from '@/components/RangeTabs.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
 
-withDefaults(defineProps<{ showRange?: boolean }>(), { showRange: true })
+withDefaults(defineProps<{ showRange?: boolean; large?: boolean }>(), { showRange: true, large: false })
 const { fitness, hasData } = useFitnessData()
 </script>

@@ -11,13 +11,18 @@
           <span><span class="tabular">{{ streak }}</span>-day logging streak</span>
         </span>
         <PrimaryButton v-if="journal.loaded && !loggedToday" label="Log how you feel" @click="ui.openQuickLog('choose')" />
-        <RouterLink to="/settings" class="px-2 text-sm text-ink-2 underline underline-offset-2 hover:text-ink">Edit goals</RouterLink>
       </div>
     </div>
 
     <!-- One donut per goal: the ring shows progress, the centre names it and gives the value. -->
     <div class="shrink-0">
-      <ul class="grid grid-cols-3 gap-3 sm:gap-6" aria-label="Goals today">
+      <div class="mb-3 flex items-baseline justify-between gap-4">
+        <h2 id="goals-today" class="text-sm font-semibold">Today's goals</h2>
+        <RouterLink to="/settings" class="inline-flex items-center gap-1 text-xs text-ink-2 hover:text-ink">
+          <ion-icon :icon="createOutline" aria-hidden="true" />Edit goals
+        </RouterLink>
+      </div>
+      <ul class="grid grid-cols-3 gap-3 sm:gap-6" aria-labelledby="goals-today">
         <li v-for="(r, i) in rings" :key="r.label" class="flex flex-col items-center text-center">
           <div class="relative size-[6.5rem] sm:size-36">
             <svg viewBox="0 0 120 120" class="size-full -rotate-90" aria-hidden="true">
@@ -54,7 +59,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
-import { checkmarkCircle, flame } from 'ionicons/icons'
+import { checkmarkCircle, createOutline, flame } from 'ionicons/icons'
 import { ICONS } from '@/components/metricIcons'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { progress } from '@/data/derive'
