@@ -147,12 +147,12 @@ const LEGEND: { flow: Flow; label: string }[] = [
   { flow: 'medium', label: 'Medium' },
   { flow: 'heavy', label: 'Heavy' },
 ]
-// One hue, light to dark with intensity; each day's flow is also in its accessible label.
+// One hue (the flow red), light to dark with intensity; each day's flow is also in its accessible label.
 const FLOW_CLASS: Record<Flow, string> = {
-  spotting: 'border border-dashed border-accent text-ink',
-  light: 'bg-accent-soft text-ink',
-  medium: 'bg-accent/55 text-ink',
-  heavy: 'bg-accent text-accent-ink',
+  spotting: 'border border-dashed border-[var(--spo2)] text-ink',
+  light: 'bg-[var(--spo2-soft)] text-ink',
+  medium: 'bg-[color-mix(in_srgb,var(--spo2)_45%,transparent)] text-ink',
+  heavy: 'bg-[var(--spo2)] text-white',
 }
 const flowClass = (flow: Flow | null) => (flow ? FLOW_CLASS[flow] : 'text-ink-2 hover:bg-page')
 
