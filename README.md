@@ -168,7 +168,7 @@ Provider credentials (Zepp client secret, tokens) stay on the server; the websit
 
 ## Credits
 
-- Mood faces: [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (flat style), MIT licence, see `frontend-fitapp/src/assets/mood/LICENSE`.
+- Animated mood faces: ["Simple animating emotions"](https://codepen.io/MishaHahaha/pen/grzLJy) by Misha Heesakkers (MIT, as a public CodePen pen); the "Low" face is drawn in the same style.
 - Typical food values: rounded from [USDA FoodData Central](https://fdc.nal.usda.gov/) (public domain).
 - Icons: [Ionicons](https://ionic.io/ionicons) (MIT).
 
