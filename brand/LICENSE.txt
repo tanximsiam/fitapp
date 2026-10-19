@@ -1,0 +1,10 @@
+FitApp brand assets - all rights reserved
+
+Copyright 2025-2026 Tanzim Siam. The FitApp name, logo, symbol, wordmark,
+app icon, specifications and guidelines in this folder are the intellectual
+property of Tanzim Siam and are NOT covered by the Apache License 2.0 that
+applies to the code in this repository. Do not use them in other projects
+without written permission. See ../TRADEMARKS.md.
+
+The wordmark is outlined from Rubik Bold (SIL Open Font License 1.1); that
+licence covers the font, not this logo.
