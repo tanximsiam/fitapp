@@ -3,7 +3,6 @@
     <template #actions><WatchStatus class="w-full sm:w-auto sm:max-w-sm" /></template>
     <template #subtitle>{{ fitness.isToday ? `${formatLongDate(fitness.today)} · ` : '' }}{{ freshness }}</template>
     <DataState>
-      <div class="card mb-6 p-3 sm:p-4"><DateToolbar large /></div>
       <div class="stagger grid gap-4">
         <TodayNudge v-if="fitness.isToday" :day="day" />
         <!-- Today the hero shows goal progress; other days get the tiles. -->
@@ -52,9 +51,17 @@
           </div>
         </section>
 
-        <!-- Dashboard: a journal column beside the watch widgets, then the body signals. -->
+        <!-- Dashboard: calendar and journal on the left, the watch widgets beside them. -->
+        <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
+          <span v-if="fitness.loading && fitness.loaded" class="text-xs text-muted" role="status">Updating…</span>
+          <span class="text-xs text-muted">Charts show</span>
+          <RangeTabs :model-value="fitness.rangeDays" @update:model-value="fitness.setRange" />
+        </div>
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <div class="md:row-span-2"><JournalState><TodayEntries class="h-full" /></JournalState></div>
+          <div class="flex flex-col gap-4 md:row-span-3">
+            <MonthCalendar :model-value="fitness.selectedDate" :today="fitness.today" :has-data="hasData" @update:model-value="fitness.selectDate" />
+            <JournalState><TodayEntries class="flex-1" /></JournalState>
+          </div>
 
           <WidgetCard
             class="md:col-span-1 lg:col-span-2"
@@ -187,7 +194,7 @@
               description="Overnight skin temperature versus your baseline by day"
             />
           </WidgetCard>
-          <div class="md:col-span-2 lg:col-span-3"><JournalState><WellbeingOverview /></JournalState></div>
+          <div class="md:col-span-2"><JournalState><WellbeingOverview /></JournalState></div>
         </div>
       </div>
     </DataState>
@@ -201,7 +208,8 @@ import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import DataState from '@/components/DataState.vue'
-import DateToolbar from '@/components/DateToolbar.vue'
+import MonthCalendar from '@/components/MonthCalendar.vue'
+import RangeTabs from '@/components/RangeTabs.vue'
 import GoalMeter from '@/components/GoalMeter.vue'
 import WatchStatus from '@/components/WatchStatus.vue'
 import WellbeingOverview from '@/components/WellbeingOverview.vue'
@@ -216,7 +224,7 @@ import { progress, trend } from '@/data/derive'
 import { formatDeviation } from '@/data/signals'
 import { EMPTY, formatClock, formatDuration, formatInt, formatLongDate, formatPercentChange } from '@/lib/format'
 
-const { fitness, freshness, goals, days, rangeDaysList, selectedDay: day } = useFitnessData()
+const { fitness, freshness, goals, days, rangeDaysList, selectedDay: day, hasData } = useFitnessData()
 const journal = useJournalStore()
 onMounted(() => journal.ensureLoaded())
 
