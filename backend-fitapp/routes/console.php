@@ -1,10 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Models\ZeppConnection;
-use App\Services\Zepp\ZeppSync;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Validator;
 
 Artisan::command('fitapp:create-user {email} {--name=}', function (string $email) {
@@ -39,15 +36,3 @@ Artisan::command('fitapp:ingest-token {email} {--name=bridge}', function (string
     $this->info('Ingest token (shown once, store it in your bridge configuration):');
     $this->line($token);
 })->purpose('Issue a token that may only upload data to POST /api/ingest');
-
-Artisan::command('fitapp:zepp-sync', function (ZeppSync $sync) {
-    $connections = ZeppConnection::with('user')->where('status', 'connected')->get();
-    foreach ($connections as $connection) {
-        $count = $sync->pullHeartRates($connection);
-        $this->line("Zepp connection #{$connection->id}: {$count} heart-rate readings.");
-    }
-    $this->info("Synced {$connections->count()} Zepp connection(s).");
-})->purpose('Refresh Zepp tokens and pull recent heart-rate readings');
-
-// Dailies, sleep and activity files arrive by webhook; heart rate is pulled (Zepp: transitional API).
-Schedule::command('fitapp:zepp-sync')->everyThirtyMinutes()->withoutOverlapping();
