@@ -17,7 +17,7 @@
   --page: #f1f2f5;
   --surface: #ffffff;
   --rail: #e7e9ed;
-  --card-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 10px 28px -14px rgb(16 24 40 / 0.12);
+  --card-shadow: 0 1px 2px rgb(16 24 40 / 0.05), 0 12px 32px -12px rgb(16 24 40 / 0.14);
   --ink: #141414;
   --ink-2: #4a4a4a;
   --muted: #676767;
@@ -48,21 +48,21 @@
 
   /* Metric regions: a soft surface tint and a readable ink derived from the same hue. */
   --energy: #c27a00;
-  --activity-soft: #eaf2fc;
+  --activity-soft: #dce9fb;
   --activity-ink: #1d4f8c;
-  --energy-soft: #fdf3e1;
+  --energy-soft: #fbe8c4;
   --energy-ink: #7a4a00;
-  --sleep-soft: #efedfb;
+  --sleep-soft: #e4e0fa;
   --sleep-ink: #43369e;
-  --heart-soft: #fdeee6;
+  --heart-soft: #fbe0d3;
   --heart-ink: #9a3a12;
-  --stress-soft: #e4f4ec;
+  --stress-soft: #d5efe2;
   --stress-ink: #0d6a4c;
-  --spo2-soft: #fdecec;
+  --spo2-soft: #fadcdc;
   --spo2-ink: #a32a2a;
-  --skin-soft: #f0f0ef;
+  --skin-soft: #e6e7ea;
   --skin-ink: #474747;
-  --mood-soft: #fbeef3;
+  --mood-soft: #f8dfe9;
   --mood-ink: #8f2f55;
 
 }
@@ -164,9 +164,14 @@
   .stagger > :nth-child(n + 6) { animation-delay: 200ms; }
   .tone {
     background: var(--tone-soft);
+    box-shadow: var(--card-shadow);
     --ink-2: var(--tone-ink);
     --muted: var(--tone-ink);
     --line: color-mix(in srgb, var(--tone-ink) 18%, transparent);
+  }
+  /* Only tints that sit on the canvas are lifted; tints inside a card stay flat. */
+  :is(.card, .tone) .tone {
+    box-shadow: none;
   }
   .tone-activity { --tone-soft: var(--activity-soft); --tone-ink: var(--activity-ink); --tone: var(--activity); }
   .tone-energy { --tone-soft: var(--energy-soft); --tone-ink: var(--energy-ink); --tone: var(--energy); }
