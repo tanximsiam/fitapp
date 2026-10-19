@@ -59,11 +59,11 @@
         </div>
         <!-- Columns follow the space beside the sidebar (container queries), so widgets never drop below ~300px. -->
         <div class="@container">
-        <!-- Cards keep their natural height (items-start); only the calendar and journal column stretches. -->
-        <div class="grid items-start gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3 @[84rem]:grid-cols-4">
-          <div class="flex flex-col gap-4 self-stretch @2xl:row-span-3">
+        <!-- Cards keep their natural height; only the journal grows, to end level with its nearest neighbour (see alignJournal). -->
+        <div ref="grid" class="grid items-start gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3 @[84rem]:grid-cols-4">
+          <div ref="leftColumn" class="flex flex-col gap-4 @2xl:row-span-3">
             <MonthCalendar :model-value="fitness.selectedDate" :today="fitness.today" :has-data="hasData" @update:model-value="fitness.selectDate" />
-            <JournalState><TodayEntries class="flex-1" /></JournalState>
+            <div ref="journalBox" class="flex flex-col"><JournalState><TodayEntries class="flex-1" /></JournalState></div>
           </div>
 
           <WidgetCard
@@ -193,7 +193,9 @@
               </template>
             </LineChart>
           </WidgetCard>
+          <!-- At three columns skin temperature joins the graphs on the right and the wellbeing overview takes the bottom left. -->
           <WidgetCard
+            class="@4xl:order-last @[84rem]:order-none"
             title="Skin temperature"
             :icon="ICONS.skinTemp"
             tone="skin"
@@ -230,7 +232,7 @@
 
 <script setup lang="ts">
 import { ICONS } from '@/components/metricIcons'
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import LineChart from '@/components/charts/LineChart.vue'
@@ -255,6 +257,44 @@ import { EMPTY, formatClock, formatDuration, formatInt, formatLongDate, formatPe
 const { fitness, freshness, goals, days, rangeDaysList, selectedDay: day, hasData } = useFitnessData()
 const journal = useJournalStore()
 onMounted(() => journal.ensureLoaded())
+
+/**
+ * The journal ends level with the nearest card beside it: the lowest card in the adjacent column that starts
+ * alongside the left column. Cards further away (like the wellbeing overview two columns over) never set it,
+ * and the journal is never cut shorter than its content.
+ */
+const grid = ref<HTMLElement | null>(null)
+const leftColumn = ref<HTMLElement | null>(null)
+const journalBox = ref<HTMLElement | null>(null)
+let frame = 0
+function alignJournal() {
+  const g = grid.value
+  const left = leftColumn.value
+  const box = journalBox.value
+  if (!g || !left || !box) return
+  box.style.minHeight = ''
+  const l = left.getBoundingClientRect()
+  if (!l.height) return // hidden Ionic page
+  const gap = parseFloat(getComputedStyle(g).columnGap) || 0
+  const beside = Array.from(g.children)
+    .filter((c) => c !== left)
+    .map((c) => c.getBoundingClientRect())
+    .filter((r) => Math.abs(r.left - (l.right + gap)) < 2 && r.top < l.bottom)
+  if (!beside.length) return
+  const extra = Math.max(...beside.map((r) => r.bottom)) - l.bottom
+  if (extra > 0) box.style.minHeight = `${box.getBoundingClientRect().height + extra}px`
+}
+const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => {
+  cancelAnimationFrame(frame)
+  frame = requestAnimationFrame(alignJournal)
+})
+onMounted(() => {
+  if (grid.value) observer?.observe(grid.value)
+})
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  cancelAnimationFrame(frame)
+})
 
 // A partly finished today would drag averages down, so trends use complete days.
 const completeDays = computed(() => (fitness.isToday ? days.value.slice(0, -1) : days.value))
