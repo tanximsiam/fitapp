@@ -4,22 +4,12 @@
 
 FitApp is a personal open-source health tracking project by Tanzim Siam. It is part of a bigger personal portfolio project that covers the whole path from brand and logo design through UI/UX to app development. FitApp is not a commercial product or a market brand.
 
-The project is planned as a set of parts under one identity: this web app, a mobile app, a promotional page and FitApp's own wearable devices, all developed in the open.
-
-| Part | Status |
-| --- | --- |
-| **Web app** (this repository: Vue frontend and Laravel backend) | In development |
-| Brand identity (logo, colours, usage) | Design direction 01 in [`brand/`](brand/) |
-| Mobile app | Planned |
-| Promotional site | Planned |
-| FitApp devices | Planned |
-
-The web app brings the activity, sleep and heart-rate data recorded by a wearable together with the things a wearable can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
+This web app brings the activity, sleep and heart-rate data recorded by a wearable together with the things a wearable can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
 
 - **Watch first.** A dashboard overview (today's goals as donuts, a month calendar, your journal and a widget per measurement), Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
 - **Personal trackers.** A step-by-step quick log (one question per step, with picture cards) for mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
-- **Open data path.** FitApp devices, and any bridge or exporter you build, send data through one documented, authenticated ingestion API. See [docs/integration.md](docs/integration.md).
+- **Open data path.** Any device, bridge or exporter you build sends data through one documented, authenticated ingestion API. See [docs/integration.md](docs/integration.md).
 - **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser.
 
 ![Overview on desktop](docs/screenshots/desktop-overview.png)
@@ -46,7 +36,7 @@ Screenshots are from the demo. All values in them are simulated.
 | Demo mode (simulated watch, journal fixtures, local edits, Reset demo) | Works offline in the browser; unit-tested and checked in Chromium at phone and desktop sizes |
 | FitApp backend: auth, fitness read API, journal CRUD, ingestion | Implemented; feature tests; checked end to end against a local server with `curl` and the website |
 | Ingestion from a device or bridge | Contract implemented and tested with representative payloads (`docs/examples/ingest-sample.json` and a 30-day generated payload) |
-| A real device | **Not tested.** No physical device was used; FitApp devices are planned |
+| A real device | **Not tested.** No physical device was used |
 
 ## Repository layout
 
@@ -155,7 +145,7 @@ Any host with PHP 8.2+ works (a small VPS, or a PaaS that runs Laravel). In prod
 
 ## Limitations
 
-- No physical device has been connected yet; FitApp devices are planned. Data so far comes from the simulated watch and representative ingestion payloads.
+- No physical device has been connected yet. Data so far comes from the simulated watch and representative ingestion payloads.
 - Stress, SpO₂ and skin temperature are shown as recorded; FitApp does not flag or interpret them medically.
 - The ingestion contract carries steps, distance, active energy and minutes, workouts, sleep (with stages and score), resting heart rate, heart-rate readings, watch-estimated stress, SpO₂ readings and nightly skin-temperature deviation. HRV is not part of it yet.
 - Food nutrients come from a built-in list of about 60 common foods with typical values per 100 g (rounded from USDA FoodData Central). They are estimates: real food varies by recipe, brand and portion. Foods outside the list have only the values the user types.
