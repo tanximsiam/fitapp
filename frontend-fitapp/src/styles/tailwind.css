@@ -23,12 +23,14 @@
   --muted: #676767;
   --line: #e6e6e6;
   --line-strong: #cfcfcf;
-  --accent: #b4213f;
+  --accent: #4f46e5;
   --accent-ink: #ffffff;
-  --accent-soft: #f7e3e7;
+  --accent-soft: #e0e7ff;
   --danger: #b42318;
   --danger-soft: #fdecea;
-  --focus: #b4213f;
+  --focus: #4f46e5;
+  /* The overview hero: a solid brand panel (indigo 600 / 800). */
+  --hero: #4f46e5;
 
   --activity: #2a78d6;
   --heart: #eb6834;
@@ -80,12 +82,13 @@
     --muted: #9c9a91;
     --line: #2c2c2a;
     --line-strong: #43423e;
-    --accent: #f0708b;
-    --accent-ink: #1a0b0f;
-    --accent-soft: #3a1820;
+    --accent: #a5b4fc;
+    --accent-ink: #1e1b4b;
+    --accent-soft: #24224f;
     --danger: #f97066;
     --danger-soft: #3b1714;
-    --focus: #f0708b;
+    --focus: #a5b4fc;
+    --hero: #3730a3;
 
     --activity: #3987e5;
     --heart: #d95926;
@@ -180,7 +183,7 @@
   .tone-stress { --tone-soft: var(--stress-soft); --tone-ink: var(--stress-ink); --tone: var(--stress); }
   .tone-spo2 { --tone-soft: var(--spo2-soft); --tone-ink: var(--spo2-ink); --tone: var(--spo2); }
   .tone-skin { --tone-soft: var(--skin-soft); --tone-ink: var(--skin-ink); --tone: var(--ink-2); }
-  .tone-mood { --tone-soft: var(--mood-soft); --tone-ink: var(--mood-ink); --tone: var(--accent); }
+  .tone-mood { --tone-soft: var(--mood-soft); --tone-ink: var(--mood-ink); --tone: var(--mood-ink); }
 }
 
 @layer base {

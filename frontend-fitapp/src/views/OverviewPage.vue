@@ -5,10 +5,11 @@
       <WatchStatus />
       <DateToolbar />
       <div class="stagger grid gap-5">
-        <JournalState v-if="fitness.isToday"><TodayNudge :day="day" /></JournalState>
-        <section aria-labelledby="goals-title">
+        <TodayNudge v-if="fitness.isToday" :day="day" />
+        <!-- Today the hero shows goal progress; other days get the tiles. -->
+        <section v-else aria-labelledby="goals-title">
           <div class="mb-3 flex items-baseline justify-between gap-4">
-            <h2 id="goals-title" class="text-base font-semibold tracking-tight">{{ fitness.isToday ? 'Goals so far today' : 'Goals' }}</h2>
+            <h2 id="goals-title" class="text-base font-semibold tracking-tight">Goals</h2>
             <RouterLink to="/settings" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Edit goals</RouterLink>
           </div>
           <div class="grid gap-3 sm:grid-cols-3">
