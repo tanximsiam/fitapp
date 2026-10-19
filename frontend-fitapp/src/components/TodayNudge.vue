@@ -1,7 +1,7 @@
 <template>
-  <section aria-label="Today at a glance" class="hero relative flex flex-col gap-6 rounded-3xl p-5 sm:p-7 lg:flex-row lg:items-center">
-    <div class="flex min-w-0 flex-1 flex-col">
-      <p class="text-3xl leading-none font-semibold tracking-tight sm:text-4xl">{{ greeting }}</p>
+  <section aria-label="Today at a glance" class="hero relative flex flex-col gap-6 rounded-3xl p-5 sm:p-7 lg:flex-row lg:items-center lg:py-9">
+    <div class="@container flex min-w-0 flex-1 flex-col">
+      <p class="text-[clamp(1.875rem,1.25rem+2.2cqi,2.75rem)] leading-none font-semibold tracking-tight">{{ greeting }}</p>
       <p class="mt-3 max-w-md text-[15px] leading-relaxed text-ink-2">{{ message }}</p>
       <div class="mt-5 flex flex-wrap items-center gap-2">
         <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-[var(--chip)] py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
@@ -16,7 +16,7 @@
 
     <!-- One donut per goal: the ring shows progress, the centre names it and gives the value. -->
     <div class="shrink-0">
-      <ul class="grid grid-cols-3 gap-3 sm:gap-6" aria-label="Goals today">
+      <ul class="grid grid-cols-3 gap-3 sm:gap-8 xl:gap-12" aria-label="Goals today">
         <li v-for="(r, i) in rings" :key="r.label" class="flex flex-col items-center text-center">
           <div class="relative size-24 sm:size-32">
             <svg viewBox="0 0 120 120" class="size-full -rotate-90" aria-hidden="true">
