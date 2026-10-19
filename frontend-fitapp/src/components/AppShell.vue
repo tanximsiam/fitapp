@@ -3,9 +3,8 @@
     <ion-content>
       <div class="flex min-h-full">
         <aside class="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col overflow-y-auto border-r border-line-strong/70 bg-rail px-3 py-5 lg:flex">
-          <RouterLink to="/overview" class="mb-5 flex items-center gap-2 px-3 text-[15px] font-semibold tracking-tight">
-            <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
-            FitApp
+          <RouterLink to="/overview" class="mb-6 flex px-3 pt-1" aria-label="FitApp overview">
+            <BrandLogo class="h-8" />
           </RouterLink>
           <button
             type="button"
@@ -28,10 +27,7 @@
 
         <div class="min-w-0 flex-1 pb-24 lg:pb-10">
           <header class="flex items-center justify-between border-b border-line-strong/70 bg-rail px-4 py-3 lg:hidden">
-            <span class="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
-              <span class="grid size-6 place-items-center rounded-md bg-accent text-[11px] font-bold text-accent-ink" aria-hidden="true">F</span>
-              FitApp
-            </span>
+            <RouterLink to="/overview" class="flex" aria-label="FitApp overview"><BrandLogo class="h-7" /></RouterLink>
             <div class="flex items-center gap-2">
               <ThemeToggle />
               <DataModeBadge />
@@ -60,6 +56,7 @@ import { computed, onMounted } from 'vue'
 import { IonContent, IonIcon, IonPage } from '@ionic/vue'
 import { addOutline } from 'ionicons/icons'
 import BottomNav from '@/components/BottomNav.vue'
+import BrandLogo from '@/components/BrandLogo.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import NavButton from '@/components/NavButton.vue'

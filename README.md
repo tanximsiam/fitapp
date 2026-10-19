@@ -1,3 +1,5 @@
+<p><img src="brand/svg/fitapp-logo-primary.svg" alt="FitApp" height="56" /></p>
+
 # FitApp
 
 An open-source, watch-centred health website built for **Zepp / Amazfit** watches. FitApp brings the activity, sleep and heart-rate data recorded by a watch together with the things a watch can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
@@ -168,6 +170,7 @@ Provider credentials (Zepp client secret, tokens) stay on the server; the websit
 
 ## Credits
 
+- FitApp logo: design direction 01, in [`brand/`](brand/) (SVG and PNG lockups, symbol, app icon, favicons and the usage guidelines PDF). The wordmark is Rubik Bold converted to outlines (SIL Open Font License 1.1).
 - Animated mood faces: ["Simple animating emotions"](https://codepen.io/MishaHahaha/pen/grzLJy) by Misha Heesakkers (MIT, as a public CodePen pen); the "Low" face is drawn in the same style.
 - Typical food values: rounded from [USDA FoodData Central](https://fdc.nal.usda.gov/) (public domain).
 - Icons: [Ionicons](https://ionic.io/ionicons) (MIT).
