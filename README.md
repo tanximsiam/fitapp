@@ -2,7 +2,9 @@
 
 # FitApp
 
-FitApp is an open-source health tracking platform. It is planned as a family of products under one brand: this web app, a mobile app, a promotional site and FitApp's own wearable devices, all developed in the open. The project is also a portfolio study that runs from brand and logo design through UI/UX to app development.
+FitApp is a personal open-source health tracking project by Tanzim Siam. It is part of a bigger personal portfolio project that covers the whole path from brand and logo design through UI/UX to app development. FitApp is not a commercial product or a market brand.
+
+The project is planned as a set of parts under one identity: this web app, a mobile app, a promotional page and FitApp's own wearable devices, all developed in the open.
 
 | Part | Status |
 | --- | --- |
@@ -167,6 +169,13 @@ Any host with PHP 8.2+ works (a small VPS, or a PaaS that runs Laravel). In prod
 - Typical food values: rounded from [USDA FoodData Central](https://fdc.nal.usda.gov/) (public domain).
 - Icons: [Ionicons](https://ionic.io/ionicons) (MIT).
 
-## License
+## License and use
 
-[MIT](LICENSE)
+The code is open source under the [Apache License 2.0](LICENSE). You can use it, change it and build any project with it, including production and commercial apps, as long as you give credit:
+
+- Keep the [NOTICE](NOTICE) file with your copy or distribution.
+- Credit the project visibly, for example "Based on FitApp by Tanzim Siam".
+
+The FitApp name, logo, app icon, everything in [`brand/`](brand/), the screenshots and other original images are **not** covered by the code licence. They are the author's intellectual property, all rights reserved. A fork must use its own name and replace the logo and icons. See [TRADEMARKS.md](TRADEMARKS.md).
+
+Third-party parts keep their own licences (see Credits and [NOTICE](NOTICE)).
