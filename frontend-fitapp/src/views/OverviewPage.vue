@@ -59,8 +59,9 @@
         </div>
         <!-- Columns follow the space beside the sidebar (container queries), so widgets never drop below ~300px. -->
         <div class="@container">
-        <div class="grid gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3 @[76rem]:grid-cols-4">
-          <div class="flex flex-col gap-4 @2xl:row-span-3">
+        <!-- Cards keep their natural height (items-start); only the calendar and journal column stretches. -->
+        <div class="grid items-start gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3 @[84rem]:grid-cols-4">
+          <div class="flex flex-col gap-4 self-stretch @2xl:row-span-3">
             <MonthCalendar :model-value="fitness.selectedDate" :today="fitness.today" :has-data="hasData" @update:model-value="fitness.selectDate" />
             <JournalState><TodayEntries class="flex-1" /></JournalState>
           </div>
@@ -80,7 +81,7 @@
               :selected-key="fitness.selectedDate"
               :goal="goals.steps"
               :goal-label="`Goal ${formatInt(goals.steps)}`"
-              :height="170"
+              :height="130"
               :table="false"
               value-name="Steps"
               description="Daily steps. Use arrow keys to inspect days and Enter to select one."
@@ -100,13 +101,19 @@
             <BarChart
               :bars="sleepBars(rangeDaysList)"
               :selected-key="fitness.selectedDate"
-              :height="150"
+              :height="130"
               :table="false"
               :format-tick="(h: number) => `${h}h`"
               value-name="Sleep"
               description="Sleep per night by stage. Use arrow keys to inspect nights and Enter to select one."
               @select="fitness.selectDate"
-            />
+            >
+              <template #legend>
+                <span v-for="s in [...SLEEP_STAGES].reverse()" :key="s.key" class="flex items-center gap-1.5">
+                  <span class="size-2 rounded-sm" :style="{ background: s.color }" aria-hidden="true" />{{ s.label }}
+                </span>
+              </template>
+            </BarChart>
           </WidgetCard>
 
           <WidgetCard
@@ -123,7 +130,7 @@
               :x-domain="[0, Math.max(1, rangeDaysList.length - 1)]"
               :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1 || i === Math.floor(a.length / 2))"
               :mark-x="rangeDaysList.length - 1"
-              :height="150"
+              :height="120"
               :table="false"
               color="var(--heart)"
               unit="bpm"
@@ -222,6 +229,7 @@ import JournalState from '@/components/JournalState.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
 import { useJournalStore } from '@/stores/journal'
 import { useFitnessData } from '@/composables/useFitnessData'
+import { SLEEP_STAGES } from '@/components/sleepStages'
 import { dailyLine, dailyTicks, metricBars, sleepBars } from '@/data/chartData'
 import { progress, trend } from '@/data/derive'
 import { formatDeviation } from '@/data/signals'

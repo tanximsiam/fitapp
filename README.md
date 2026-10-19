@@ -2,8 +2,8 @@
 
 An open-source, watch-centred health website built for **Zepp / Amazfit** watches. FitApp brings the activity, sleep and heart-rate data recorded by a watch together with the things a watch can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
 
-- **Watch first.** Overview, Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
-- **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals with foods whose nutrients are estimated from a built-in food list (or typed in yourself), water, and an optional cycle tracker.
+- **Watch first.** A dashboard overview (today's goals as donuts, a month calendar, your journal and a widget per measurement), Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
+- **Personal trackers.** A step-by-step quick log (one question per step, with picture cards) for mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
 - **Zepp, ready to connect.** The backend includes a full Zepp Open Platform integration (OAuth, webhooks, FIT workouts, heart-rate pulls, backfill). Add your Zepp credentials to `.env`, register two URLs with Zepp and press **Connect Zepp account**. See [docs/zepp.md](docs/zepp.md).
 - **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser. Any other provider or bridge can feed the backend through the documented ingestion API.
@@ -130,7 +130,7 @@ How to connect another provider or bridge, including field mapping: **[docs/inte
 
 ```bash
 cd backend-fitapp && php artisan test          # auth, ownership, ingestion, journal, dates, Zepp (faked)
-cd frontend-fitapp && npx vitest run            # demo data, adapters, cycle, insights, components
+cd frontend-fitapp && npx vitest run            # demo data, adapters, cycle, insights, food list, components
 cd frontend-fitapp && npm run build             # type-check (vue-tsc) and production build
 ```
 
@@ -162,9 +162,15 @@ Provider credentials (Zepp client secret, tokens) stay on the server; the websit
 - Zepp heart-rate readings use Zepp's transitional pull API. Zepp delivers SpO₂ and skin temperature, but its Open Platform offers no watch-measured stress, so Zepp accounts show no stress data. HRV, body composition and nutrition events are received but not stored.
 - Stress, SpO₂ and skin temperature are shown as recorded; FitApp does not flag or interpret them medically.
 - The ingestion contract carries steps, distance, active energy and minutes, workouts, sleep (with stages and score), resting heart rate, heart-rate readings, watch-estimated stress, SpO₂ readings and nightly skin-temperature deviation. HRV is not part of it yet.
-- Food energy and nutrients are only what the user enters; there is no food database.
+- Food nutrients come from a built-in list of about 60 common foods with typical values per 100 g (rounded from USDA FoodData Central). They are estimates: real food varies by recipe, brand and portion. Foods outside the list have only the values the user types.
 - The wellbeing overview describes co-occurrence in the user's own records. It is not medical advice, and the cycle tracker makes no predictions.
 - Single-user accounts created on the server; no password reset or self-service sign-up.
+
+## Credits
+
+- Mood faces: [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (flat style), MIT licence, see `frontend-fitapp/src/assets/mood/LICENSE`.
+- Typical food values: rounded from [USDA FoodData Central](https://fdc.nal.usda.gov/) (public domain).
+- Icons: [Ionicons](https://ionic.io/ionicons) (MIT).
 
 ## License
 
