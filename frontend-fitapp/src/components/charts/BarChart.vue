@@ -83,10 +83,10 @@
       </ChartTooltip>
     </div>
 
-    <figcaption class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+    <figcaption v-if="table || goal || $slots.legend" class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
       <slot name="legend" />
       <span v-if="goal" class="flex items-center gap-1.5"><svg width="16" height="2" aria-hidden="true"><line x1="0" x2="16" y1="1" y2="1" stroke="var(--ink-2)" stroke-dasharray="4 3" /></svg>{{ goalLabel }}</span>
-      <details class="ml-auto">
+      <details v-if="table" class="ml-auto">
         <summary class="cursor-pointer select-none hover:text-ink">Data table</summary>
         <table class="mt-2 w-full min-w-56 text-left text-xs">
           <thead><tr class="text-muted"><th class="py-1 pr-4 font-medium">Date</th><th class="py-1 font-medium">{{ valueName }}</th></tr></thead>
@@ -135,8 +135,10 @@ const props = withDefaults(
     goalLabel?: string
     height?: number
     formatTick?: (n: number) => string
+    /** Off in compact widgets; detail pages keep the table. */
+    table?: boolean
   }>(),
-  { height: 220, formatTick: compactNumber, selectedKey: undefined, goal: undefined, goalLabel: '' },
+  { height: 220, formatTick: compactNumber, selectedKey: undefined, goal: undefined, goalLabel: '', table: true },
 )
 const emit = defineEmits<{ select: [key: string] }>()
 
@@ -172,10 +174,10 @@ function stack(segs: BarSegment[]) {
   })
 }
 
-/** Rect with a 4px rounded data-end (top) only. */
+/** Rect with a fully rounded data-end (top) only. */
 function roundedTop(x: number, top: number, w: number, h: number, rounded: boolean) {
   if (h <= 0) return ''
-  const r = rounded ? Math.min(4, w / 2, h) : 0
+  const r = rounded ? Math.min(w / 2, h) : 0
   return `M${x},${top + h}V${top + r}Q${x},${top} ${x + r},${top}H${x + w - r}Q${x + w},${top} ${x + w},${top + r}V${top + h}Z`
 }
 
