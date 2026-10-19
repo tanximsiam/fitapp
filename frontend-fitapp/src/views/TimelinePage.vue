@@ -26,7 +26,7 @@
             <h2 class="mb-2 text-sm font-semibold">
               <button type="button" class="underline-offset-2 hover:underline" @click="fitness.selectDate(day.date)">{{ formatLongDate(day.date) }}</button>
             </h2>
-            <ul v-if="day.rows.length" class="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
+            <ul v-if="day.rows.length" class="divide-y divide-line card overflow-hidden">
               <li v-for="(row, i) in day.rows" :key="i">
                 <RouterLink :to="row.to" class="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-2.5 text-sm transition-colors duration-150 hover:bg-page" @click="fitness.selectDate(day.date)">
                   <span class="tabular w-12 shrink-0 text-ink-2">{{ row.time ?? '' }}</span>
@@ -69,7 +69,7 @@ import JournalState from '@/components/JournalState.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { workoutLabel } from '@/data/connection'
 import { formatDeviation } from '@/data/signals'
-import { enteredEnergy } from '@/data/journalDerive'
+import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
 import { formatClock, formatDuration, formatInt, formatKm, formatLongDate } from '@/lib/format'
 
 type Source = 'watch' | 'simulated-watch' | 'manual' | 'simulated'
@@ -129,7 +129,7 @@ const timeline = computed(() => {
       if (journal.prefs.food) {
         for (const m of j.meals) {
           const e = enteredEnergy([m])
-          rows.push({ time: formatClock(m.eatenAt), area: 'Meal', text: `${m.mealType[0].toUpperCase()}${m.mealType.slice(1)}: ${m.items.map((i) => i.name).join(', ')}${e.kcal != null ? ` · ${formatInt(e.kcal)} kcal entered` : ''}`, source: m.provenance, to: '/food' })
+          rows.push({ time: formatClock(m.eatenAt), area: 'Meal', text: `${m.mealType[0].toUpperCase()}${m.mealType.slice(1)}: ${m.items.map((i) => i.name).join(', ')}${e.kcal != null ? ` · ${formatInt(e.kcal)} kcal ${energyOrigin(e)}` : ''}`, source: m.provenance, to: '/food' })
         }
         if (j.hydration.length) rows.push({ time: null, area: 'Water', text: `${formatInt(j.hydration.reduce((a, h) => a + h.volumeMl, 0))} ml in ${j.hydration.length} drinks`, source: j.hydration[0].provenance, to: '/food' })
       }

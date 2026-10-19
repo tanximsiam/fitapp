@@ -8,7 +8,7 @@ class MealItem extends Model
 {
     public const NUTRIENTS = ['energy_kcal', 'protein_g', 'carbs_g', 'fat_g'];
 
-    protected $fillable = ['name', 'quantity', 'unit', 'energy_kcal', 'protein_g', 'carbs_g', 'fat_g'];
+    protected $fillable = ['name', 'quantity', 'unit', 'energy_kcal', 'protein_g', 'carbs_g', 'fat_g', 'nutrition_source'];
 
     protected function casts(): array
     {

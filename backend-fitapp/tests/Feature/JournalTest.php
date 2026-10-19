@@ -71,12 +71,14 @@ class JournalTest extends TestCase
             'eaten_at' => '2026-10-17T13:10:00+06:00',
             'meal_type' => 'lunch',
             'items' => [
-                ['name' => 'Rice', 'quantity' => 180, 'unit' => 'g', 'energy_kcal' => 234],
+                ['name' => 'Rice', 'quantity' => 180, 'unit' => 'g', 'energy_kcal' => 234, 'nutrition_source' => 'database'],
                 ['name' => 'Dal', 'quantity' => 1, 'unit' => 'cup'],
             ],
         ])->assertCreated()
             ->assertJsonPath('data.items.0.energy_kcal', 234)
             ->assertJsonPath('data.items.1.energy_kcal', null)
+            ->assertJsonPath('data.items.0.nutrition_source', 'database')
+            ->assertJsonPath('data.items.1.nutrition_source', null)
             ->json('data');
 
         $this->putJson("/api/journal/meals/{$meal['id']}", [

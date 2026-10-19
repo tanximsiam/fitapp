@@ -1,10 +1,10 @@
 <template>
   <form class="grid gap-4" novalidate @submit.prevent="submit">
     <FormInput v-model="when" label="When" type="datetime-local" :error="!!whenError" :hint="whenError" />
-    <ScalePicker v-model="mood" label="Mood" :labels="['Very low', 'Low', 'Okay', 'Good', 'Great']" required />
+    <ChoiceCards v-model="mood" label="Mood" :options="MOOD_CHOICES" required />
     <p v-if="moodError" role="alert" class="-mt-2 text-xs text-danger">{{ moodError }}</p>
-    <ScalePicker v-model="energy" label="Energy" :labels="['Drained', 'Low', 'Steady', 'Good', 'High']" />
-    <ScalePicker v-model="stress" label="Stress you felt" :labels="['None', 'Mild', 'Some', 'High', 'Very high']" />
+    <ChoiceCards v-model="energy" label="Energy" :options="ENERGY_CHOICES" />
+    <ChoiceCards v-model="stress" label="Stress you felt" :options="STRESS_CHOICES" />
     <p class="-mt-2 text-xs text-muted">Self-reported. Kept separate from any stress value a watch might estimate.</p>
     <ChipToggles v-model="emotions" :options="EMOTIONS" label="Emotions" />
     <label class="grid gap-1.5 text-sm font-medium text-ink-2">
@@ -20,7 +20,8 @@ import { ref, watch } from 'vue'
 import FormInput from '@/components/FormInput.vue'
 import ChipToggles from './ChipToggles.vue'
 import FormActions from './FormActions.vue'
-import ScalePicker from './ScalePicker.vue'
+import ChoiceCards from './ChoiceCards.vue'
+import { ENERGY_CHOICES, MOOD_CHOICES, STRESS_CHOICES } from './choices'
 import { TEXTAREA } from './styles'
 import { useEntryForm } from '@/composables/useEntryForm'
 import { defaultInputFor, isoToLocalInput, localInputToIso } from '@/lib/instants'

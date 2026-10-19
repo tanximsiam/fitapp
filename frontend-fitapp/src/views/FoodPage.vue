@@ -24,7 +24,7 @@
                       <li v-for="(i, k) in m.items" :key="k">
                         {{ i.name }}<template v-if="i.quantity != null"> · {{ i.quantity }} {{ i.unit ?? '' }}</template>
                         <span class="tabular text-muted">
-                          <template v-if="i.energyKcal != null"> · {{ formatInt(i.energyKcal) }} kcal entered</template>
+                          <template v-if="i.energyKcal != null"> · {{ formatInt(i.energyKcal) }} kcal {{ i.nutritionSource === 'database' ? 'estimated' : 'entered' }}</template>
                           <template v-if="i.proteinG != null"> · P {{ i.proteinG }} g</template>
                           <template v-if="i.carbsG != null"> · C {{ i.carbsG }} g</template>
                           <template v-if="i.fatG != null"> · F {{ i.fatG }} g</template>
@@ -42,7 +42,7 @@
             <div v-if="addingMeal" class="mt-4 border-t border-line pt-4"><MealForm :date="fitness.selectedDate" @done="addingMeal = false" /></div>
             <button v-else type="button" class="mt-4 text-sm font-medium text-accent underline underline-offset-2" @click="addingMeal = true">Add a meal for this day</button>
             <p class="mt-4 max-w-prose text-xs text-muted">
-              Food energy here is only what you entered. It is kept separate from the active energy your watch estimates
+              Food energy here is what you entered, or what FitApp estimated from typical values in its food list (marked “estimated”). It is kept separate from the active energy your watch estimates
               ({{ day.watchKcal == null ? 'none recorded' : `${formatInt(day.watchKcal)} kcal` }} on this day), and the two are never combined into a balance.
             </p>
           </PanelSection>
@@ -109,7 +109,7 @@ import PrimaryButton from '@/components/PrimaryButton.vue'
 import TrackerGate from '@/components/TrackerGate.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { mean } from '@/data/derive'
-import { enteredEnergy } from '@/data/journalDerive'
+import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
 import { localInputToIso, defaultInputFor } from '@/lib/instants'
 import { EMPTY, formatClock, formatInt, formatLongDate, formatShortDate, formatWeekday } from '@/lib/format'
 import { useUiStore } from '@/stores/ui'
@@ -137,7 +137,7 @@ const editingDrinkEntry = computed(() => day.value.hydration.find((h) => h.id ==
 const energyLine = computed(() => {
   const e = enteredEnergy(day.value.meals)
   if (!e.total) return ''
-  return e.kcal == null ? 'No energy values entered' : `${formatInt(e.kcal)} kcal entered for ${e.entered} of ${e.total} foods`
+  return e.kcal == null ? 'No energy values entered' : `${formatInt(e.kcal)} kcal ${energyOrigin(e)} for ${e.entered} of ${e.total} foods`
 })
 
 const range = computed(() => {

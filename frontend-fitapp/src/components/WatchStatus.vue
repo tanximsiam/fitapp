@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     to="/device"
-    class="mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm transition-colors duration-150 hover:border-line-strong"
+    class="mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 card px-4 py-3 text-sm"
     aria-label="Watch and connection details"
   >
     <span class="flex items-center gap-2 font-medium">

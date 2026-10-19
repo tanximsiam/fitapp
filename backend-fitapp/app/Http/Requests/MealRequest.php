@@ -22,6 +22,7 @@ class MealRequest extends FormRequest
             'items.*.protein_g' => ['nullable', 'numeric', 'between:0,1000'],
             'items.*.carbs_g' => ['nullable', 'numeric', 'between:0,1000'],
             'items.*.fat_g' => ['nullable', 'numeric', 'between:0,1000'],
+            'items.*.nutrition_source' => ['nullable', 'in:database,entered'],
             'updated_at' => JournalRules::SEEN,
         ];
     }

@@ -1,5 +1,5 @@
 <template>
-  <details class="group rounded-xl border border-line bg-surface px-4 py-3 sm:px-5">
+  <details class="group card px-4 py-3 sm:px-5">
     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-ink-2 select-none hover:text-ink [&::-webkit-details-marker]:hidden">
       <span class="flex items-center gap-2">
         <ion-icon :icon="informationCircleOutline" aria-hidden="true" class="text-base" />{{ title }}
