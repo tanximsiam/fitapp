@@ -9,7 +9,7 @@
           </RouterLink>
           <button
             type="button"
-            class="mx-1 mb-5 flex items-center justify-center gap-2 rounded-full bg-ink px-3 py-2 text-sm font-medium text-page transition-[opacity,scale] duration-150 hover:opacity-90 active:scale-[0.97]"
+            class="mx-1 mb-5 flex items-center justify-center gap-2 rounded-full bg-accent px-3 py-2 text-sm font-medium text-accent-ink transition-[opacity,scale] duration-150 hover:opacity-90 active:scale-[0.97]"
             @click="ui.openQuickLog()"
           >
             <ion-icon :icon="addOutline" aria-hidden="true" class="text-lg" />Quick log

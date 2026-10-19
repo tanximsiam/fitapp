@@ -10,7 +10,7 @@
           role="radio"
           :aria-checked="filter === f.value"
           class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-150"
-          :class="filter === f.value ? 'bg-ink text-page' : 'text-ink-2 hover:text-ink'"
+          :class="filter === f.value ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:text-ink'"
           @click="filter = f.value"
         >
           {{ f.label }}
