@@ -4,7 +4,7 @@
     <DataState>
       <WatchStatus />
       <DateToolbar />
-      <div class="stagger grid gap-5">
+      <div class="stagger grid gap-4">
         <TodayNudge v-if="fitness.isToday" :day="day" />
         <!-- Today the hero shows goal progress; other days get the tiles. -->
         <section v-else aria-labelledby="goals-title">
@@ -52,56 +52,67 @@
           </div>
         </section>
 
-        <JournalState>
-          <WellbeingOverview />
-        </JournalState>
+        <!-- Dashboard: a journal column beside the watch widgets, then the body signals. -->
+        <div class="grid gap-4 lg:grid-cols-3">
+          <div class="lg:row-span-2"><JournalState><TodayEntries class="h-full" /></JournalState></div>
 
-        <PanelSection :title="`Steps, last ${fitness.rangeDays} days`">
-          <template #aside>
-            <p class="text-xs text-muted">
-              7-day average {{ formatInt(stepsTrend.current) }} · {{ formatPercentChange(stepsTrend.changePct) }} vs the previous 7
-            </p>
-          </template>
-          <BarChart
-            :bars="metricBars(rangeDaysList, (d) => d.activity?.steps, 'var(--activity)', formatInt)"
-            :selected-key="fitness.selectedDate"
-            :goal="goals.steps"
-            :goal-label="`Goal ${formatInt(goals.steps)}`"
-            value-name="Steps"
-            description="Daily steps. Use arrow keys to inspect days and Enter to select one."
-            @select="fitness.selectDate"
-          />
-        </PanelSection>
+          <WidgetCard
+            class="lg:col-span-2"
+            title="Steps"
+            :icon="ICONS.steps"
+            tone="activity"
+            to="/activity"
+            label="7-day average"
+            :value="formatInt(stepsTrend.current)"
+            :note="`${formatPercentChange(stepsTrend.changePct)} vs the previous 7`"
+          >
+            <BarChart
+              :bars="metricBars(rangeDaysList, (d) => d.activity?.steps, 'var(--activity)', formatInt)"
+              :selected-key="fitness.selectedDate"
+              :goal="goals.steps"
+              :goal-label="`Goal ${formatInt(goals.steps)}`"
+              :height="170"
+              :table="false"
+              value-name="Steps"
+              description="Daily steps. Use arrow keys to inspect days and Enter to select one."
+              @select="fitness.selectDate"
+            />
+          </WidgetCard>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <PanelSection :title="fitness.isToday ? 'Last night' : 'Sleep that night'" tone="sleep">
-            <template #aside>
-              <RouterLink to="/sleep" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Sleep details</RouterLink>
-            </template>
-            <template v-if="day?.sleep">
-              <dl class="mb-4 grid grid-cols-3 gap-4">
-                <MetricItem label="Duration" :icon="ICONS.sleep" :value="formatDuration(day.sleep.durationMin)" />
-                <MetricItem label="Bed – wake" :icon="ICONS.bedtime" :value="`${formatClock(day.sleep.startAt)}–${formatClock(day.sleep.endAt)}`" />
-                <MetricItem label="Score" :value="formatInt(day.sleep.score)" note="device" />
-              </dl>
-              <SleepStages :stages="day.sleep.stages" />
-            </template>
-            <p v-else class="text-sm text-muted">No sleep was recorded for this night.</p>
-          </PanelSection>
+          <WidgetCard
+            title="Sleep"
+            :icon="ICONS.sleep"
+            tone="sleep"
+            to="/sleep"
+            :label="fitness.isToday ? 'Last night' : 'That night'"
+            :value="formatDuration(day?.sleep?.durationMin)"
+            :note="day?.sleep ? `${formatClock(day.sleep.startAt)}–${formatClock(day.sleep.endAt)}` : undefined"
+          >
+            <BarChart
+              :bars="sleepBars(rangeDaysList)"
+              :selected-key="fitness.selectedDate"
+              :height="150"
+              :table="false"
+              :format-tick="(h: number) => `${h}h`"
+              value-name="Sleep"
+              description="Sleep per night by stage. Use arrow keys to inspect nights and Enter to select one."
+              @select="fitness.selectDate"
+            />
+          </WidgetCard>
 
-          <PanelSection title="Resting heart rate">
-            <template #aside>
-              <RouterLink to="/heart-rate" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Heart rate details</RouterLink>
-            </template>
-            <dl class="mb-3 grid grid-cols-3 gap-4">
-              <MetricItem label="This day" :icon="ICONS.heartRate" :value="day?.heartRate?.restingBpm == null ? EMPTY : `${day.heartRate.restingBpm} bpm`" />
-              <MetricItem label="7-day average" :value="restingTrend.current == null ? EMPTY : `${Math.round(restingTrend.current)} bpm`" />
-              <MetricItem label="Range" :value="rangeText" />
-            </dl>
+          <WidgetCard
+            title="Resting heart rate"
+            :icon="ICONS.heartRate"
+            tone="heart"
+            to="/heart-rate"
+            label="This day"
+            :value="day?.heartRate?.restingBpm == null ? EMPTY : `${day.heartRate.restingBpm} bpm`"
+            :note="restingTrend.current == null ? undefined : `7-day average ${Math.round(restingTrend.current)} bpm`"
+          >
             <LineChart
               :points="dailyLine(rangeDaysList, (d) => d.heartRate?.restingBpm)"
               :x-domain="[0, Math.max(1, rangeDaysList.length - 1)]"
-              :x-ticks="dailyTicks(rangeDaysList)"
+              :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1 || i === Math.floor(a.length / 2))"
               :mark-x="rangeDaysList.length - 1"
               :height="150"
               :table="false"
@@ -110,10 +121,79 @@
               x-name="Date"
               description="Resting heart rate by day"
             />
-          </PanelSection>
+          </WidgetCard>
         </div>
-        <BodySignals />
-        <JournalState><TodayEntries /></JournalState>
+
+        <div class="grid gap-4 md:grid-cols-3">
+          <WidgetCard
+            title="Stress"
+            :icon="ICONS.stress"
+            tone="stress"
+            to="/stress"
+            label="Average"
+            :value="day?.stress ? `${day.stress.avg} / 100` : EMPTY"
+          >
+            <BarChart
+              :bars="metricBars(rangeDaysList, (d) => d.stress?.avg, 'var(--stress)', (n) => `${n} / 100`)"
+              :selected-key="fitness.selectedDate"
+              :height="120"
+              :table="false"
+              :format-tick="(n: number) => String(n)"
+              value-name="Average stress"
+              description="Average watch stress per day. Use arrow keys to inspect days and Enter to select one."
+              @select="fitness.selectDate"
+            />
+          </WidgetCard>
+          <WidgetCard
+            title="Blood oxygen"
+            :icon="ICONS.spo2"
+            tone="spo2"
+            to="/blood-oxygen"
+            label="Overnight"
+            :value="day?.spo2 ? `${day.spo2.avg}%` : EMPTY"
+            :note="day?.spo2 ? `lowest ${day.spo2.min}%` : undefined"
+          >
+            <LineChart
+              :points="dailyLine(rangeDaysList, (d) => d.spo2?.avg)"
+              :x-domain="[0, Math.max(1, rangeDaysList.length - 1)]"
+              :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1)"
+              :y-domain="[86, 100]"
+              :height="120"
+              :table="false"
+              color="var(--spo2)"
+              unit="%"
+              x-name="Date"
+              description="Average overnight blood oxygen by day"
+            />
+          </WidgetCard>
+          <WidgetCard
+            title="Skin temperature"
+            :icon="ICONS.skinTemp"
+            tone="skin"
+            to="/skin-temperature"
+            label="Overnight"
+            :value="day?.skinTemp ? formatDeviation(day.skinTemp.deviationC) : EMPTY"
+            :note="day?.skinTemp ? 'vs baseline' : undefined"
+          >
+            <LineChart
+              :points="dailyLine(rangeDaysList, (d) => d.skinTemp?.deviationC)"
+              :x-domain="[0, Math.max(1, rangeDaysList.length - 1)]"
+              :x-ticks="dailyTicks(rangeDaysList).filter((_, i, a) => i === 0 || i === a.length - 1)"
+              :y-domain="[-skinLimit, skinLimit]"
+              :format-y="(n: number) => (n === 0 ? 'base' : `${n > 0 ? '+' : '−'}${Math.abs(n).toFixed(1)}`)"
+              :height="120"
+              :table="false"
+              color="var(--ink-2)"
+              unit="°C"
+              x-name="Date"
+              description="Overnight skin temperature versus your baseline by day"
+            />
+          </WidgetCard>
+        </div>
+
+        <JournalState>
+          <WellbeingOverview />
+        </JournalState>
       </div>
     </DataState>
   </AppShell>
@@ -132,15 +212,13 @@ import WatchStatus from '@/components/WatchStatus.vue'
 import WellbeingOverview from '@/components/WellbeingOverview.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
 import TodayNudge from '@/components/TodayNudge.vue'
-import BodySignals from '@/components/BodySignals.vue'
 import JournalState from '@/components/JournalState.vue'
+import WidgetCard from '@/components/WidgetCard.vue'
 import { useJournalStore } from '@/stores/journal'
-import MetricItem from '@/components/MetricItem.vue'
-import PanelSection from '@/components/PanelSection.vue'
-import SleepStages from '@/components/SleepStages.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
-import { dailyLine, dailyTicks, metricBars } from '@/data/chartData'
+import { dailyLine, dailyTicks, metricBars, sleepBars } from '@/data/chartData'
 import { progress, trend } from '@/data/derive'
+import { formatDeviation } from '@/data/signals'
 import { EMPTY, formatClock, formatDuration, formatInt, formatLongDate, formatPercentChange } from '@/lib/format'
 
 const { fitness, freshness, goals, days, rangeDaysList, selectedDay: day } = useFitnessData()
@@ -151,8 +229,9 @@ onMounted(() => journal.ensureLoaded())
 const completeDays = computed(() => (fitness.isToday ? days.value.slice(0, -1) : days.value))
 const stepsTrend = computed(() => trend(completeDays.value, (d) => d.activity?.steps))
 const restingTrend = computed(() => trend(completeDays.value, (d) => d.heartRate?.restingBpm))
-const rangeText = computed(() => {
-  const vals = rangeDaysList.value.map((d) => d.heartRate?.restingBpm).filter((v): v is number => v != null)
-  return vals.length ? `${Math.min(...vals)}–${Math.max(...vals)} bpm` : EMPTY
+/** Symmetric range around the baseline, at least ±1 °C, in 0.5 steps. */
+const skinLimit = computed(() => {
+  const vals = rangeDaysList.value.map((d) => d.skinTemp?.deviationC).filter((v): v is number => v != null)
+  return Math.max(1, Math.ceil(Math.max(0, ...vals.map(Math.abs)) * 2) / 2)
 })
 </script>

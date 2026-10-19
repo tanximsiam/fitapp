@@ -5,7 +5,7 @@
       <p class="mt-2 max-w-md text-[15px] leading-relaxed text-ink-2">{{ message }}</p>
       <div class="mt-5 flex flex-wrap items-center gap-2">
         <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-[var(--chip)] py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
-          <span class="grid size-7 place-items-center rounded-full bg-[#ffb33d] text-[#3a2300]">
+          <span class="grid size-7 place-items-center rounded-full bg-white text-[var(--hero)]">
             <ion-icon :icon="flame" aria-hidden="true" class="text-base" />
           </span>
           <span><span class="tabular">{{ streak }}</span>-day logging streak</span>
@@ -76,7 +76,7 @@ const loggedToday = computed(() => {
   return d.mood.length + d.meals.length + d.hydration.length + (d.cycleDay ? 1 : 0) > 0
 })
 
-// Light tints of each metric's hue (Tailwind 200-300); they read on the teal hero.
+// One teal family on the teal hero (white, teal 100, teal 200); the legend names each ring.
 const rings = computed(() => {
   const g = fitness.goals
   const a = props.day?.activity
@@ -132,10 +132,10 @@ const message = computed(() => {
   --muted: #c9e8e3;
   --page: var(--hero);
   --chip: rgb(255 255 255 / 0.14);
-  --track: rgb(255 255 255 / 0.2);
-  --ring-1: #7dd3fc;
-  --ring-2: #fcd34d;
-  --ring-3: #ddd6fe;
+  --track: rgb(255 255 255 / 0.16);
+  --ring-1: #ffffff;
+  --ring-2: #ccfbf1;
+  --ring-3: #99f6e4;
   /* Actions on the hero invert: white pill, teal text. */
   --accent: #ffffff;
   --accent-ink: var(--hero);

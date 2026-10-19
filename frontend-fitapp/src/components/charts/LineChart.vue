@@ -51,7 +51,7 @@
       </ChartTooltip>
     </div>
 
-    <figcaption class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+    <figcaption v-if="table || $slots.legend" class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
       <slot name="legend" />
       <details v-if="table" class="ml-auto">
         <summary class="cursor-pointer select-none hover:text-ink">Data table</summary>
