@@ -1,11 +1,38 @@
 <template>
   <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- A rounded 3D emoticon: lit from the top left, with a gloss, eye glints and a soft ground shadow. -->
     <template v-if="kind === 'face'">
-      <circle cx="24" cy="24" r="20" :fill="color" />
-      <circle cx="17" cy="20" r="2.4" :fill="INK" />
-      <circle cx="31" cy="20" r="2.4" :fill="INK" />
-      <path v-if="level === 5" d="M14 28 Q24 41 34 28 Z" :fill="INK" />
-      <path v-else :d="`M15 31 Q24 ${31 + MOUTH[level - 1] * 7} 33 31`" :stroke="INK" stroke-width="2.6" />
+      <defs>
+        <radialGradient :id="`${uid}-body`" cx="0.36" cy="0.3" r="0.78">
+          <stop offset="0" :style="{ stopColor: `color-mix(in srgb, ${color} 45%, white)` }" />
+          <stop offset="0.55" :style="{ stopColor: color }" />
+          <stop offset="1" :style="{ stopColor: `color-mix(in srgb, ${color} 72%, black)` }" />
+        </radialGradient>
+        <linearGradient :id="`${uid}-gloss`" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="0.75" />
+          <stop offset="1" stop-color="#fff" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="24" cy="45.2" rx="13" ry="1.8" fill="#000" fill-opacity="0.12" />
+      <circle cx="24" cy="23" r="20" :fill="`url(#${uid}-body)`" />
+      <ellipse cx="20.5" cy="11.5" rx="10" ry="5.5" :fill="`url(#${uid}-gloss)`" />
+      <template v-if="level >= 4">
+        <ellipse cx="13" cy="28" rx="3.6" ry="2.2" fill="#ff5d7a" fill-opacity="0.32" />
+        <ellipse cx="35" cy="28" rx="3.6" ry="2.2" fill="#ff5d7a" fill-opacity="0.32" />
+      </template>
+      <template v-if="level === 1">
+        <path d="M13 17.5 L19.5 15" :stroke="INK" stroke-width="2" />
+        <path d="M35 17.5 L28.5 15" :stroke="INK" stroke-width="2" />
+      </template>
+      <ellipse cx="17" cy="21" rx="2.4" ry="3.1" :fill="INK" />
+      <ellipse cx="31" cy="21" rx="2.4" ry="3.1" :fill="INK" />
+      <circle cx="17.8" cy="19.8" r="0.9" fill="#fff" />
+      <circle cx="31.8" cy="19.8" r="0.9" fill="#fff" />
+      <template v-if="level === 5">
+        <path d="M14.5 28 Q24 41.5 33.5 28 Z" :fill="INK" />
+        <path d="M19 34.6 Q24 31.6 29 34.6 Q24 38.2 19 34.6 Z" fill="#ff7a8f" />
+      </template>
+      <path v-else :d="`M15.5 31.5 Q24 ${31.5 + MOUTH[level - 1] * 7} 32.5 31.5`" :stroke="INK" stroke-width="2.6" />
     </template>
 
     <template v-else-if="kind === 'battery'">
@@ -36,13 +63,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 export type GlyphKind = 'face' | 'battery' | 'gauge' | 'drops' | 'glass'
 /** level: 1–5 for face, battery and gauge; 0–4 for drops (none → heavy); millilitres for glass. */
 const props = defineProps<{ kind: GlyphKind; level: number; color: string }>()
 
-const INK = '#1d1d1f'
+const INK = '#2b2118'
+// Gradient ids must be unique per instance; useId can contain colons, which url() references dislike.
+const uid = `g${useId().replace(/[^a-z0-9]/gi, '')}`
 const MOUTH = [-1, -0.5, 0, 0.55]
 const DROP = 'M0 -11 C5 -4 8 0 8 4 A8 8 0 0 1 -8 4 C-8 0 -5 -4 0 -11 Z'
 /** [x, scale] per drop for each flow level. */
