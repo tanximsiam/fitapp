@@ -29,8 +29,8 @@
 
     <div v-if="latest.length" class="mt-5">
       <h3 class="mb-2 text-xs font-medium text-muted">Latest entries</h3>
-      <ul class="grid gap-2">
-        <li v-for="e in latest" :key="e.key" class="flex items-center gap-2.5 text-sm" :class="`tone-${e.tone}`">
+      <ul class="grid grid-cols-[minmax(0,1fr)] gap-2">
+        <li v-for="e in latest" :key="e.key" class="flex min-w-0 items-center gap-2.5 text-sm" :class="`tone-${e.tone}`">
           <span class="dot size-2 shrink-0 rounded-full" aria-hidden="true" />
           <span class="min-w-0 flex-1 truncate">{{ e.text }}</span>
           <span class="tabular shrink-0 text-xs text-muted">{{ e.when }}</span>
