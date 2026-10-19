@@ -53,11 +53,11 @@
         </section>
 
         <!-- Dashboard: a journal column beside the watch widgets, then the body signals. -->
-        <div class="grid gap-4 lg:grid-cols-3">
-          <div class="lg:row-span-2"><JournalState><TodayEntries class="h-full" /></JournalState></div>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div class="md:row-span-2"><JournalState><TodayEntries class="h-full" /></JournalState></div>
 
           <WidgetCard
-            class="lg:col-span-2"
+            class="md:col-span-1 lg:col-span-2"
             title="Steps"
             :icon="ICONS.steps"
             tone="activity"
@@ -122,9 +122,7 @@
               description="Resting heart rate by day"
             />
           </WidgetCard>
-        </div>
 
-        <div class="grid gap-4 md:grid-cols-3">
           <WidgetCard
             title="Stress"
             :icon="ICONS.stress"
@@ -189,11 +187,8 @@
               description="Overnight skin temperature versus your baseline by day"
             />
           </WidgetCard>
+          <div class="md:col-span-2 lg:col-span-3"><JournalState><WellbeingOverview /></JournalState></div>
         </div>
-
-        <JournalState>
-          <WellbeingOverview />
-        </JournalState>
       </div>
     </DataState>
   </AppShell>

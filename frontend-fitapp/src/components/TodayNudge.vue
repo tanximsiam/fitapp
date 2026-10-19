@@ -30,14 +30,13 @@
         </g>
       </svg>
       <div class="min-w-0">
-        <ul class="grid gap-3 text-sm" aria-hidden="true">
-          <li v-for="r in rings" :key="r.label" class="grid grid-cols-[1rem_auto] items-center gap-x-2">
-            <ion-icon :icon="r.icon" class="text-base" :style="{ color: r.color }" />
-            <span class="flex items-baseline gap-2">
-              <span class="font-semibold">{{ r.label }}</span>
-              <span class="tabular font-semibold">{{ r.ratio === null ? '–' : `${Math.round(r.ratio * 100)}%` }}</span>
+        <ul class="grid gap-3" aria-hidden="true">
+          <li v-for="r in rings" :key="r.label" class="grid grid-cols-[0.75rem_auto] items-baseline gap-x-2.5">
+            <span class="size-2.5 self-center rounded-full" :style="{ background: r.color }" />
+            <span class="tabular text-lg leading-tight font-semibold tracking-tight">{{ r.valueText }}</span>
+            <span class="tabular col-start-2 text-xs text-ink-2">
+              {{ r.label }} · <template v-if="r.ratio !== null && r.ratio >= 1">goal reached</template><template v-else>goal {{ r.goalText }}</template>
             </span>
-            <span class="tabular col-start-2 text-xs text-ink-2">{{ r.valueText }} of {{ r.goalText }}</span>
           </li>
         </ul>
         <RouterLink to="/settings" class="mt-3 inline-block text-xs text-ink-2 underline underline-offset-2 hover:text-ink">Edit goals</RouterLink>
@@ -76,7 +75,7 @@ const loggedToday = computed(() => {
   return d.mood.length + d.meals.length + d.hydration.length + (d.cycleDay ? 1 : 0) > 0
 })
 
-// One teal family on the teal hero (white, teal 100, teal 200); the legend names each ring.
+// Ring colours follow the theme (see the style block); the legend names each ring.
 const rings = computed(() => {
   const g = fitness.goals
   const a = props.day?.activity
@@ -133,14 +132,21 @@ const message = computed(() => {
   --page: var(--hero);
   --chip: rgb(255 255 255 / 0.14);
   --track: rgb(255 255 255 / 0.16);
-  --ring-1: #ffffff;
-  --ring-2: #ccfbf1;
-  --ring-3: #99f6e4;
+  /* Light mode: vivid lime, amber and cyan (Tailwind 300), each at least 3.7:1 on teal 700. */
+  --ring-1: #bef264;
+  --ring-2: #fcd34d;
+  --ring-3: #67e8f9;
   /* Actions on the hero invert: white pill, teal text. */
   --accent: #ffffff;
   --accent-ink: var(--hero);
   --focus: #ffffff;
   box-shadow: var(--card-shadow);
+}
+/* Dark mode: one teal family on the deep teal. */
+:root[data-theme='dark'] .hero {
+  --ring-1: #ffffff;
+  --ring-2: #ccfbf1;
+  --ring-3: #99f6e4;
 }
 .ring {
   animation: fill 900ms cubic-bezier(0.23, 1, 0.32, 1) both;
