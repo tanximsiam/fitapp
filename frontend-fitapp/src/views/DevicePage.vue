@@ -1,8 +1,7 @@
 <template>
   <AppShell title="Watch & connection">
-    <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Your Zepp account and other sources that send watch data' }}</template>
+    <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Devices and bridges that send data to your FitApp backend' }}</template>
 
-    <ZeppPanel class="mb-4" />
     <DataState>
       <div class="grid gap-4">
         <PanelSection v-for="s in sources" :key="s.key" :title="s.device ?? s.name">
@@ -42,7 +41,6 @@
           <p v-if="!s.measurements.length" class="mt-2 text-xs text-muted">
             This source has not declared its measurements. FitApp has received: {{ s.received.join(', ').replace(/_/g, ' ') || 'nothing yet' }}.
           </p>
-          <p v-if="s.key === 'zepp'" class="mt-3 text-xs text-muted">The Zepp Open Platform does not offer watch-measured stress, so Zepp accounts show no stress data.</p>
         </PanelSection>
 
         <PanelSection v-if="mode.isDemo" title="Simulation controls">
@@ -82,7 +80,6 @@ import { computed, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { checkmarkCircleOutline, removeCircleOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
-import ZeppPanel from '@/components/ZeppPanel.vue'
 import ShowMore from '@/components/ShowMore.vue'
 import DataState from '@/components/DataState.vue'
 import MetricItem from '@/components/MetricItem.vue'

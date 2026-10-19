@@ -6,7 +6,7 @@ info:
     FitApp's own Laravel API. Two kinds of clients use it:
 
     * **The FitApp frontend** signs in with `POST /login` and receives a token with the `app` ability.
-    * **External providers or bridges** upload data with a token that has only the `ingest` ability
+    * **FitApp devices, bridges or other sources** upload data with a token that has only the `ingest` ability
       (create one in Settings or with `php artisan fitapp:ingest-token <email>`).
 
     Conventions:
@@ -27,8 +27,6 @@ tags:
     description: Read model used by the frontend (`app` ability).
   - name: Ingestion
     description: Upload interface for external sources (`ingest` ability).
-  - name: Zepp
-    description: Built-in Zepp Open Platform integration (see zepp.md).
   - name: Journal
     description: Manually entered mood, meals, hydration and cycle records (`app` ability). Ingestion never writes these.
 
@@ -443,101 +441,6 @@ paths:
       tags: [Journal]
       summary: Delete the record for one date
       responses: { '200': { description: Deleted }, '404': { $ref: '#/components/responses/Error' } }
-
-  /zepp/status:
-    get:
-      tags: [Zepp]
-      summary: Whether Zepp is configured on this server and the user's connection state
-      responses:
-        '200':
-          description: Status (tokens are never included)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      configured: { type: boolean, description: 'ZEPP_CLIENT_ID, ZEPP_CLIENT_SECRET and ZEPP_WEBHOOK_TOKEN are set' }
-                      required_env: { type: array, items: { type: string } }
-                      redirect_uri: { type: string, description: Register this as the OAuth callback in the Zepp Developer Console }
-                      webhook_url: { type: string, description: 'Register with the real token in place of {ZEPP_WEBHOOK_TOKEN}' }
-                      connection:
-                        type: [object, 'null']
-                        properties:
-                          status: { type: string, enum: [connected, revoked, error] }
-                          zepp_user_id: { type: string, description: Masked }
-                          connected_at: { type: [string, 'null'], format: date-time }
-                          last_event_at: { type: [string, 'null'], format: date-time }
-                          last_sync_at: { type: [string, 'null'], format: date-time }
-                          last_error: { type: [string, 'null'] }
-
-  /zepp/authorize:
-    post:
-      tags: [Zepp]
-      summary: Start connecting a Zepp account
-      description: Returns Zepp's consent URL with a single-use `state` (valid 10 minutes). The browser navigates there.
-      responses:
-        '200':
-          description: Consent URL
-          content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { url: { type: string } } } } } } }
-        '409': { $ref: '#/components/responses/Error' }
-
-  /zepp/callback:
-    get:
-      tags: [Zepp]
-      security: []
-      summary: OAuth redirect target registered with Zepp
-      description: Exchanges `code` for tokens at Zepp, stores them encrypted and redirects the browser to `FRONTEND_URL/device?zepp=connected` or `?zepp=error&reason=…`.
-      parameters:
-        - { name: code, in: query, schema: { type: string } }
-        - { name: state, in: query, required: true, schema: { type: string } }
-        - { name: error, in: query, schema: { type: string } }
-      responses:
-        '302': { description: Redirect to the website }
-
-  /zepp/connection:
-    delete:
-      tags: [Zepp]
-      summary: Disconnect Zepp
-      description: Calls Zepp's unauthorize endpoint (best effort) and deletes stored tokens. Received data is kept.
-      responses:
-        '200': { description: Disconnected }
-        '404': { $ref: '#/components/responses/Error' }
-
-  /zepp/backfill:
-    post:
-      tags: [Zepp]
-      summary: Ask Zepp to re-deliver sleep and activity history
-      requestBody:
-        required: true
-        content: { application/json: { schema: { type: object, required: [days], properties: { days: { type: integer, minimum: 1, maximum: 30 } } } } }
-      responses:
-        '202': { description: Accepted by Zepp; data arrives through the webhook }
-        '409': { $ref: '#/components/responses/Error' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '502': { $ref: '#/components/responses/Error' }
-
-  /zepp/webhook/{token}:
-    post:
-      tags: [Zepp]
-      security: []
-      summary: Zepp event webhook
-      description: |
-        Receives Zepp deliveries: a `text/plain` JSON array of JSON-encoded strings containing `dailies`, `sleeps`,
-        `activityFiles` (ping; the FIT file is then downloaded in the background) or an `authorizationChange` event.
-        `token` must equal `ZEPP_WEBHOOK_TOKEN`; otherwise 404. Deliveries are idempotent.
-      parameters:
-        - { name: token, in: path, required: true, schema: { type: string } }
-      requestBody:
-        content:
-          text/plain:
-            schema: { type: string }
-      responses:
-        '204': { description: Acknowledged }
-        '400': { description: Body is not a JSON array }
-        '404': { description: Unknown token or Zepp not configured }
 
 components:
   parameters:

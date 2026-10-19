@@ -162,7 +162,7 @@ export function analyse(input: AnalysisInput): Insight[] {
     })
   }
 
-  /* Body signals. Skipped entirely when the source never provides them (e.g. stress from Zepp). */
+  /* Body signals. Skipped entirely when the source never provides them (e.g. a device without a stress sensor). */
   {
     const stress = values(cur, (d) => d.stress?.avg)
     const prevStress = values(prev, (d) => d.stress?.avg)
