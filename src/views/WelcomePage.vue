@@ -28,7 +28,7 @@
 
             <div class="grid gap-3 pt-6">
               <PrimaryButton label="Explore with sample data" @click="step = 'trackers'" />
-              <PrimaryButton v-if="mode.backendConfigured" variant="secondary" label="Sign in to your FitApp server" @click="signIn" />
+              <PrimaryButton v-if="mode.backendConfigured" variant="secondary" label="Sign in" @click="signIn" />
               <p class="text-center text-xs text-muted">Sample data is simulated on this phone and always labelled as such.</p>
             </div>
           </section>

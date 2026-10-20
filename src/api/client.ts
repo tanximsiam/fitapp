@@ -62,7 +62,7 @@ api.interceptors.request.use((config) => {
 /** Human-readable message for a failed request; never includes tokens or payloads. */
 export function errorMessage(err: unknown, fallback = 'Something went wrong.'): string {
   if (axios.isAxiosError(err)) {
-    if (!err.response) return 'Could not reach the FitApp backend. Check that it is running and the URL is correct.'
+    if (!err.response) return "Can't connect right now. Check your internet connection and try again."
     const message = (err.response.data as { message?: unknown } | undefined)?.message
     if (typeof message === 'string' && message) return message
     return `${fallback} (HTTP ${err.response.status})`

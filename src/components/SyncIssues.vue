@@ -49,7 +49,7 @@ async function resolve(id: string, choice: 'mine' | 'theirs') {
     await mode.offlineJournal?.resolve(id, choice)
     await journal.load()
   } catch {
-    error.value = 'Could not reach the server. Try again when you are online.'
+    error.value = "Can't connect right now. Try again when you're online."
   } finally {
     busy.value = null
   }

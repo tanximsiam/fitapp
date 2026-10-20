@@ -55,6 +55,6 @@ describe('auth store', () => {
     await auth.restore()
     expect(await tokenStorage.load()).toBe('old')
     expect(auth.user?.email).toBe('a@x.test')
-    expect(auth.error).toMatch(/Could not reach/)
+    expect(auth.error).toMatch(/Can't connect/)
   })
 })
