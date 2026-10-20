@@ -1,7 +1,7 @@
 <template>
   <AppShell title="Health">
-    <template #subtitle>{{ freshness }}</template>
-    <DateToolbar :show-range="false" />
+    <!-- No date controls here; arriving from a past day on Home's week strip, the subtitle names it. -->
+    <template #subtitle>{{ fitness.isToday ? freshness : `${formatLongDate(fitness.selectedDate)} · ${freshness}` }}</template>
 
     <DataState>
       <div class="stagger grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -47,14 +47,13 @@ import { IonIcon } from '@ionic/vue'
 import { chevronForward } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
 import DataState from '@/components/DataState.vue'
-import DateToolbar from '@/components/DateToolbar.vue'
 import { ICONS } from '@/components/metricIcons'
 import type { Tone } from '@/components/PanelSection.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
 import { lastValues } from '@/data/chartData'
 import { workoutLabel } from '@/data/connection'
 import { formatDeviation } from '@/data/signals'
-import { formatDuration, formatInt, formatKm } from '@/lib/format'
+import { formatDuration, formatInt, formatKm, formatLongDate } from '@/lib/format'
 import type { DaySummary } from '@/types/fitness'
 import { useHeartTrace } from '@/composables/useHeartTrace'
 

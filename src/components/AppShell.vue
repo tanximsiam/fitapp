@@ -29,8 +29,8 @@
       <ion-refresher slot="fixed" @ion-refresh="refresh">
         <ion-refresher-content />
       </ion-refresher>
-      <!-- Room below the last card for the quick-log button: 56px tall, 16px above the tab bar, plus a little air. -->
-      <main class="mx-auto w-full max-w-2xl px-4 pt-1 pb-20">
+      <!-- A short end to every page; clearFab adds room where full-width cards would end under the quick-log button. -->
+      <main class="mx-auto w-full max-w-2xl px-4 pt-1" :class="clearFab ? 'pb-20' : 'pb-8'">
         <div v-if="!hideTitle || $slots.subtitle || $slots.actions" class="mb-4">
           <h1 v-if="!parent && !hideTitle" class="text-[28px] leading-tight font-semibold tracking-tight">{{ title }}</h1>
           <p v-if="$slots.subtitle" class="mt-0.5 text-sm text-muted"><slot name="subtitle" /></p>
@@ -56,7 +56,8 @@ import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 
 /** hideTitle: the page draws its own heading (Home greets instead of showing a title). */
-defineProps<{ title: string; hideTitle?: boolean }>()
+/** clearFab: the page shows the quick-log button and ends with full-width cards. */
+defineProps<{ title: string; hideTitle?: boolean; clearFab?: boolean }>()
 const route = useRoute()
 const fitness = useFitnessStore()
 const journal = useJournalStore()

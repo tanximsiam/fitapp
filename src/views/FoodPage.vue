@@ -1,5 +1,5 @@
 <template>
-  <AppShell title="Food & drink">
+  <AppShell title="Food & drink" clear-fab>
     <template #subtitle>{{ formatLongDate(fitness.selectedDate) }} · meals and drinks you logged</template>
     <TrackerGate tracker="food">
       <DateToolbar />

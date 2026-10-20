@@ -1,5 +1,5 @@
 <template>
-  <AppShell title="Mood">
+  <AppShell title="Mood" clear-fab>
     <template #subtitle>{{ formatLongDate(fitness.selectedDate) }} · your own check-ins</template>
     <TrackerGate tracker="mood">
       <DateToolbar />
