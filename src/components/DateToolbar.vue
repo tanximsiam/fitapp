@@ -1,25 +1,27 @@
 <template>
-  <!-- A compact date button (month calendar in a bottom sheet) beside the range selector. -->
+  <!-- Day stepper, then its own calendar button (month view in a bottom sheet), then the range selector. -->
   <div class="mb-4 flex flex-wrap items-center gap-2">
-    <!-- Previous and next day beside the date; a swipe would fight chart scrubbing and the iOS back gesture. -->
+    <!-- Previous and next day around the date; a swipe would fight chart scrubbing and the iOS back gesture. -->
     <div class="inline-flex min-h-9 items-center rounded-full bg-surface shadow-[var(--card-shadow)]">
       <button type="button" class="grid size-9 place-items-center rounded-full text-ink-2" aria-label="Previous day" @click="step(-1)">
         <ion-icon :icon="chevronBack" aria-hidden="true" />
       </button>
-      <button
-        type="button"
-        class="inline-flex min-h-9 items-center gap-1.5 px-1 text-xs font-medium text-ink"
-        aria-haspopup="dialog"
-        :aria-label="`${fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate)}, ${formatLongDate(fitness.selectedDate)}. Choose a date`"
-        @click="open = true"
-      >
-        <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-sm text-ink-2" />
-        {{ fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate) }}
-      </button>
+      <span class="min-w-11 px-0.5 text-center text-xs font-medium text-ink" aria-live="polite">
+        {{ fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate) }}<span class="sr-only">, {{ formatLongDate(fitness.selectedDate) }}</span>
+      </span>
       <button type="button" class="grid size-9 place-items-center rounded-full text-ink-2 disabled:opacity-30" aria-label="Next day" :disabled="fitness.isToday" @click="step(1)">
         <ion-icon :icon="chevronForward" aria-hidden="true" />
       </button>
     </div>
+    <button
+      type="button"
+      class="grid size-9 place-items-center rounded-full bg-surface text-ink-2 shadow-[var(--card-shadow)]"
+      aria-haspopup="dialog"
+      aria-label="Choose a date"
+      @click="open = true"
+    >
+      <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-[17px]" />
+    </button>
     <button
       v-if="!fitness.isToday"
       type="button"
