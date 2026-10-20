@@ -1,40 +1,46 @@
 <template>
   <!--
-    The greeting sits on the page itself. Below it, one slot: the mood question once per part of the day,
-    otherwise a daily reminder. Both are the same kind of card, so the page does not jump when one replaces the other.
+    The greeting sits on the page itself. Below it, one slot that is the page's single hero: the mood check-in once
+    per part of the day, otherwise the daily reminder. Solid brand teal with white type (teal 800 in dark mode),
+    the only coloured surface on Home, so it is where the eye lands first.
   -->
   <section aria-labelledby="greeting">
     <h1 id="greeting" class="text-[30px] leading-tight font-semibold tracking-tight">{{ part.greeting }}</h1>
 
     <Transition name="swap" mode="out-in">
-      <div v-if="ask" key="ask" class="card mt-5 p-4">
-        <h2 class="text-[15px] font-semibold">How are you feeling {{ part.phrase }}?</h2>
-        <ul class="mt-4 grid grid-cols-5 gap-1" aria-label="Choose a mood">
+      <div v-if="ask" key="ask" class="hero-panel mt-5 rounded-3xl px-5 pt-5 pb-4">
+        <p class="text-[12px] font-medium tracking-wide text-ink-2 uppercase">{{ CHECK_IN[part.key] }}</p>
+        <h2 class="mt-1.5 text-[20px] leading-snug font-semibold tracking-tight">How are you feeling {{ part.phrase }}?</h2>
+        <ul class="mt-5 grid grid-cols-5 gap-1.5" aria-label="Choose a mood">
           <li v-for="c in MOOD_CHOICES" :key="c.value">
             <button
               type="button"
-              class="flex w-full flex-col items-center gap-1.5 rounded-xl py-1 transition-[scale] duration-150 ease-out active:scale-[0.94] disabled:opacity-50"
+              class="group flex w-full flex-col items-center gap-2 rounded-2xl py-1.5 disabled:opacity-60"
               :disabled="saving"
               :aria-label="`${c.label}: log this mood`"
-              @click="log(c.value as number)"
+              @click="log(c.value)"
             >
-              <ChoiceGlyph kind="face" :level="c.value as number" :color="c.color" class="size-11" />
-              <span class="text-[11px] text-ink-2">{{ c.label }}</span>
+              <!-- A light plate lifts each face off the teal; the face rises a little under the finger. -->
+              <span class="grid size-[52px] place-items-center rounded-full bg-white/90 transition-[translate,scale] duration-200 ease-out group-active:-translate-y-1 group-active:scale-105">
+                <ChoiceGlyph kind="face" :level="c.value" :color="c.color" class="size-10" />
+              </span>
+              <span class="text-[11px] font-medium text-ink-2">{{ c.label }}</span>
             </button>
           </li>
         </ul>
-        <p v-if="error" role="alert" class="mt-3 text-[13px] text-danger">{{ error }}</p>
+        <p v-if="error" role="alert" class="mt-3 rounded-xl bg-black/20 px-3 py-2 text-[13px]">{{ error }}</p>
       </div>
 
-      <div v-else key="reminder" class="card mt-5 flex gap-3 p-4">
-        <span class="grid size-9 shrink-0 place-items-center rounded-full bg-accent-soft text-accent" aria-hidden="true">
-          <ion-icon :icon="sparklesOutline" class="text-lg" />
-        </span>
-        <div class="min-w-0">
-          <p class="text-[11px] font-medium tracking-wide text-muted uppercase">Daily reminder</p>
-          <p class="mt-1 text-[15px] leading-snug font-medium">{{ reminder }}</p>
-          <p v-if="nudge" class="mt-1.5 text-[13px] text-ink-2">{{ nudge }}</p>
-        </div>
+      <div v-else key="reminder" class="hero-panel relative mt-5 overflow-hidden rounded-3xl p-5">
+        <!-- Typographic accent, not decoration: a large faint quotation mark behind the reminder. -->
+        <span class="pointer-events-none absolute -top-6 right-3 font-serif text-[140px] leading-none text-white/15 select-none" aria-hidden="true">&ldquo;</span>
+        <p class="flex items-center gap-1.5 text-[12px] font-medium tracking-wide text-ink-2 uppercase">
+          <ion-icon :icon="sparklesOutline" aria-hidden="true" class="text-sm" />Daily reminder
+        </p>
+        <p class="relative mt-2 pr-6 text-[22px] leading-snug font-semibold tracking-tight">{{ reminder }}</p>
+        <p v-if="nudge" class="mt-4 flex items-center gap-2 border-t border-white/20 pt-3 text-[13px] text-ink-2">
+          <ion-icon :icon="nudge.icon" aria-hidden="true" class="shrink-0 text-base" />{{ nudge.text }}
+        </p>
       </div>
     </Transition>
   </section>
@@ -43,7 +49,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
-import { sparklesOutline } from 'ionicons/icons'
+import { checkmarkCircleOutline, flameOutline, footstepsOutline, sparklesOutline } from 'ionicons/icons'
 import ChoiceGlyph from '@/components/forms/ChoiceGlyph.vue'
 import { MOOD_CHOICES } from '@/components/forms/choices'
 import { progress } from '@/data/derive'
@@ -65,6 +71,8 @@ const REMINDERS = [
   'Stand up and stretch for a minute.',
   "Showing up is the hardest part, and you're here.",
 ]
+
+const CHECK_IN = { morning: 'Morning check-in', afternoon: 'Afternoon check-in', evening: 'Evening check-in', night: 'Night check-in' } as const
 
 const props = defineProps<{ day: DaySummary | null | undefined }>()
 const fitness = useFitnessStore()
@@ -119,14 +127,14 @@ const nudge = computed(() => {
   const reached = [progress(a?.steps, g.steps), progress(a?.activeKcal, g.activeKcal), progress(props.day?.sleep?.durationMin, g.sleepMin)].filter(
     (r) => r != null && r >= 1,
   ).length
-  if (reached === 3) return 'All three goals reached today.'
+  if (reached === 3) return { icon: checkmarkCircleOutline, text: 'All three goals reached today.' }
   if (a?.steps != null && a.steps < g.steps) {
     const left = Math.ceil((g.steps - a.steps) / 100) * 100
     // ~100 steps a minute is a typical walking cadence.
-    return `${formatInt(left)} steps to your goal, about a ${Math.max(5, Math.round(left / 100 / 5) * 5)}-minute walk.`
+    return { icon: footstepsOutline, text: `${formatInt(left)} steps to your goal, about a ${Math.max(5, Math.round(left / 100 / 5) * 5)}-minute walk.` }
   }
   const streak = loggingStreak(journal.data, fitness.today)
-  return streak > 2 ? `${streak} days of logging in a row.` : null
+  return streak > 2 ? { icon: flameOutline, text: `${streak} days of logging in a row.` } : null
 })
 </script>
 
