@@ -89,7 +89,8 @@
 
             <WidgetCard title="Workouts" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(day?.workouts.length ?? 0)" :note="`${rangeWorkouts} in the last ${fitness.rangeDays} days`">
               <!-- This day's workouts first, then the most recent ones in the period. -->
-              <ul v-if="recentWorkouts.length" class="divide-y divide-line overflow-y-auto" :style="{ height: `${AREA}px` }">
+              <!-- Scrolls inside the card, so it takes keyboard focus to be scrollable without touch. -->
+              <ul v-if="recentWorkouts.length" class="divide-y divide-line overflow-y-auto" tabindex="0" aria-label="Recent workouts" :style="{ height: `${AREA}px` }">
                 <li v-for="w in recentWorkouts" :key="w.startAt" class="flex items-center gap-3 py-2 text-sm first:pt-0">
                   <span class="tabular w-14 shrink-0 text-xs text-muted">{{ w.startAt.slice(0, 10) === fitness.selectedDate ? formatClock(w.startAt) : formatShortDate(w.startAt.slice(0, 10)) }}</span>
                   <span class="min-w-0 flex-1 truncate font-medium">{{ workoutLabel(w.type) }}</span>

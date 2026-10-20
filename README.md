@@ -18,7 +18,7 @@ Built with Ionic Vue 3, TypeScript, Capacitor 7, Pinia and Tailwind CSS 4. It ta
 
 ## Status
 
-Phases 1 to 4 (foundation, mobile features, backend and data, native health integration) of the mobile specification. Screens were checked in a browser at phone size on demo data and against a local FitApp backend; nothing has run on a phone yet.
+Phases 1 to 5 of the mobile specification (foundation, mobile features, backend and data, native health integration, quality and release). Screens were checked in a browser at phone size on demo data and against a local FitApp backend; nothing has run on a phone yet.
 
 | Area | State |
 |---|---|
@@ -41,7 +41,11 @@ Phases 1 to 4 (foundation, mobile features, backend and data, native health inte
 | Offline journal entries: queued, shown as "waiting to sync", sent when back online | Working; covered by unit and contract tests |
 | Edit conflicts: a change refused by the server waits for "keep mine" or "keep the other version" | Working; covered by contract tests |
 | Sign-out removes the token, the cached copy, unsent entries (after a warning) and the encryption key | Implemented |
-| API contract tests against a real backend | 8 tests, passing (see below) |
+| API contract tests against a real backend | 9 tests, passing (see below) |
+| App icons and splash screens (Android adaptive, iOS, light and dark) from the brand files | Generated |
+| Accessibility: axe WCAG 2.2 AA on every screen in light and dark; system text size; reduced motion | No remaining violations in the browser (two measurement artefacts noted in the audit); screen readers not yet tried on a device |
+| Start-up size | Screens, quick log and device code load on demand; font subset to Latin WOFF2 (483 → 32 KB) |
+| Release builds and CI | Signing, versioning and store notes in [RELEASE.md](RELEASE.md); GitHub Actions runs tests and builds a debug APK (not yet run) |
 
 ## Getting started
 

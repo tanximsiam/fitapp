@@ -4,7 +4,7 @@
       <p class="text-[clamp(1.875rem,1.25rem+2.2cqi,2.75rem)] leading-none font-semibold tracking-tight">{{ greeting }}</p>
       <p class="mt-3 max-w-md text-[15px] leading-relaxed text-ink-2">{{ message }}</p>
       <div class="mt-5 flex flex-wrap items-center gap-2">
-        <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-[var(--chip)] py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
+        <span v-if="streak > 1" class="inline-flex items-center gap-2 rounded-full bg-black/15 py-1.5 pr-3.5 pl-1.5 text-sm font-medium">
           <span class="grid size-7 place-items-center rounded-full bg-white text-[var(--hero)]">
             <ion-icon :icon="flame" aria-hidden="true" class="text-base" />
           </span>
@@ -15,10 +15,11 @@
     </div>
 
     <!-- One donut per goal: the ring shows progress, the centre names it and gives the value. -->
-    <div class="shrink-0">
+    <div class="min-w-0 shrink-0">
       <ul class="grid grid-cols-3 gap-3 sm:gap-8 xl:gap-12" aria-label="Goals today">
-        <li v-for="(r, i) in rings" :key="r.label" class="flex flex-col items-center text-center">
-          <div class="relative size-24 sm:size-32">
+        <li v-for="(r, i) in rings" :key="r.label" class="flex min-w-0 flex-col items-center text-center">
+          <!-- Shrinks with its column on narrow screens or large text instead of overflowing. -->
+          <div class="relative aspect-square w-full max-w-24 sm:max-w-32">
             <svg viewBox="0 0 120 120" class="size-full -rotate-90" aria-hidden="true">
               <circle cx="60" cy="60" r="52" fill="none" stroke-width="11" stroke="var(--track)" />
               <circle

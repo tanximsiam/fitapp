@@ -26,7 +26,6 @@ import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, I
 import { add, bookOutline, bulbOutline, homeOutline, pulseOutline, watchOutline } from 'ionicons/icons'
 import { App } from '@capacitor/app'
 import { Network } from '@capacitor/network'
-import { syncAll, useAccount } from '@/sources/sync'
 import { useAuthStore } from '@/stores/auth'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
@@ -53,7 +52,7 @@ const LOG_KIND: Record<string, QuickLogView> = {
   '/journal': 'choose',
   '/journal/mood': 'mood',
   '/journal/food': 'choose',
-  '/journal/cycle': 'cycle',
+  // Not on /journal/cycle: the page edits the selected day in place, and the button would cover the calendar.
 }
 const showLog = computed(() => route.path in LOG_KIND)
 
@@ -65,6 +64,8 @@ onMounted(() => {
 /** Back online or back in the app: send queued entries (journal.load flushes first) and refresh. */
 async function refresh() {
   if (mode.isDemo || !auth.user) return
+  // Bluetooth and health-platform code loads only for a signed-in account, not at start-up.
+  const { syncAll, useAccount } = await import('@/sources/sync')
   useAccount(auth.user.id)
   // Phone sources upload first, so the reload below already includes their readings.
   await syncAll()

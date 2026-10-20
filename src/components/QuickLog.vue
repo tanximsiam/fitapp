@@ -7,7 +7,7 @@
     class="sheet"
     aria-labelledby="quick-log-title"
     @will-present="onOpen"
-    @did-dismiss="ui.closeQuickLog()"
+    @will-dismiss="ui.closeQuickLog()"
   >
     <div class="max-h-[88dvh] overflow-y-auto px-5 pt-4 pb-[max(env(safe-area-inset-bottom),20px)]">
       <div class="mb-4 flex items-center justify-between">

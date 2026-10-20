@@ -10,7 +10,7 @@
         type="button"
         class="inline-flex min-h-9 items-center gap-1.5 px-1 text-xs font-medium text-ink"
         aria-haspopup="dialog"
-        :aria-label="`Choose a date, ${formatLongDate(fitness.selectedDate)} selected`"
+        :aria-label="`${fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate)}, ${formatLongDate(fitness.selectedDate)}. Choose a date`"
         @click="open = true"
       >
         <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-sm text-ink-2" />

@@ -6,12 +6,14 @@ import { onboarding } from '@/lib/onboarding'
 
 import TabsLayout from '@/views/TabsLayout.vue'
 import HomePage from '@/views/HomePage.vue'
-import HealthPage from '@/views/HealthPage.vue'
-import JournalPage from '@/views/JournalPage.vue'
-import InsightsPage from '@/views/InsightsPage.vue'
-import DevicePage from '@/views/DevicePage.vue'
-import WelcomePage from '@/views/WelcomePage.vue'
-import LoginPage from '@/views/LoginPage.vue'
+
+// Only the shell and Home load at start-up; every other screen loads when first opened.
+const HealthPage = () => import('@/views/HealthPage.vue')
+const JournalPage = () => import('@/views/JournalPage.vue')
+const InsightsPage = () => import('@/views/InsightsPage.vue')
+const DevicePage = () => import('@/views/DevicePage.vue')
+const WelcomePage = () => import('@/views/WelcomePage.vue')
+const LoginPage = () => import('@/views/LoginPage.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {

@@ -24,7 +24,8 @@ const text = computed(
     })[props.kind],
 )
 const cls = computed(() => {
-  if (props.kind === 'watch' || props.kind === 'simulated-watch') return 'border-activity/40 text-activity'
+  // The ink shade, not the chart blue: 10px text needs 4.5:1 on cards in both themes.
+  if (props.kind === 'watch' || props.kind === 'simulated-watch') return 'border-activity/40 text-[var(--activity-ink)]'
   if (props.kind === 'conflict' || props.kind === 'rejected') return 'border-danger/40 text-danger'
   if (props.kind === 'pending') return 'border-dashed border-line-strong text-ink-2'
   return 'border-line-strong text-ink-2'
