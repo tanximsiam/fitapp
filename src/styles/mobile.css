@@ -1,0 +1,58 @@
+/*
+ * Ionic chrome on FitApp tokens (see tailwind.css): canvas-coloured toolbars, a rail-grey tab bar
+ * behind a hairline with the brand accent for the active tab, and sheets on the card surface.
+ */
+:root {
+  --ion-font-family: var(--font-sans);
+  --ion-background-color: var(--page);
+  --ion-text-color: var(--ink);
+  --ion-color-primary: var(--accent);
+  --tabbar-height: 56px;
+}
+
+ion-toolbar {
+  --background: var(--page);
+  --color: var(--ink);
+  --border-width: 0;
+  --min-height: 52px;
+}
+ion-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+ion-back-button {
+  --color: var(--ink);
+}
+
+ion-tab-bar {
+  --background: var(--rail);
+  --border: 1px solid var(--line-strong);
+  height: var(--tabbar-height);
+}
+ion-tab-button {
+  --color: var(--muted);
+  --color-selected: var(--accent);
+  --ripple-color: var(--accent);
+  font-size: 11px;
+  font-weight: 500;
+}
+ion-tab-button ion-icon {
+  font-size: 23px;
+}
+:root[data-theme='dark'] ion-tab-button {
+  --color-selected: #5eead4;
+}
+
+ion-refresher-content {
+  --color: var(--muted);
+}
+
+ion-modal.sheet {
+  --height: auto;
+  --background: var(--surface);
+  --border-radius: 24px;
+  --backdrop-opacity: 0.4;
+}
+ion-modal.sheet::part(handle) {
+  background: var(--line-strong);
+}
