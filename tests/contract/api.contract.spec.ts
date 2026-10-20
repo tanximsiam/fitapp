@@ -43,8 +43,10 @@ describe.skipIf(!URL)('FitApp API contract', () => {
 
   it('reports the ingested source in the status', async () => {
     const s = await fitnessApi.getStatus()
-    expect(s.sources).toEqual([expect.objectContaining({ key: 'my-bridge', name: 'My export bridge', device: 'Example watch' })])
-    expect(s.sources[0].measurements).toContain('heart_rate')
+    // Other tests add sources, so the suite can rerun against the same server: look for this one only.
+    const bridge = s.sources.find((x) => x.key === 'my-bridge')
+    expect(bridge).toEqual(expect.objectContaining({ name: 'My export bridge', device: 'Example watch' }))
+    expect(bridge?.measurements).toContain('heart_rate')
     expect(s.lastIngestedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
     // The account's own zone (the test user's default), not the payload's.
     expect(s.timezone).toMatch(/^(UTC|[A-Za-z_]+\/[A-Za-z_/]+)$/)
