@@ -19,10 +19,8 @@ export function useFitnessData() {
     return `Last upload ${formatRelative(s.lastIngestedAt)}${latest}`
   })
 
-  const hasData = (date: string) => {
-    const d = fitness.days.find((x) => x.date === date)
-    return !!d && (d.activity !== null || d.sleep !== null || d.heartRate !== null)
-  }
+  /** Whether watch data exists for a date, as far as any load so far has seen (not only the current window). */
+  const hasData = (date: string) => !!fitness.dataDates[date]
 
   return { fitness, mode, freshness, hasData, ...storeToRefs(fitness) }
 }

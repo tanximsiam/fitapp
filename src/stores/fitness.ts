@@ -21,6 +21,8 @@ export const useFitnessStore = defineStore('fitness', {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     /** Oldest first, ending at selectedDate. */
     days: [] as DaySummary[],
+    /** Every date seen with watch data, across loads, so the calendar keeps its marks after jumping back in time. */
+    dataDates: {} as Record<ISODate, true>,
     status: null as DataStatus | null,
     goals: DEFAULT_GOALS as Goals,
     loading: false,
@@ -52,6 +54,7 @@ export const useFitnessStore = defineStore('fitness', {
         const { days, timezone } = await adapter.getDays(addDays(this.selectedDate, 1 - FETCH_DAYS), this.selectedDate)
         if (id !== requestId) return
         this.days = days
+        for (const d of days) if (d.activity || d.sleep || d.heartRate) this.dataDates[d.date] = true
         this.timezone = timezone
         this.loaded = true
       } catch (err) {
