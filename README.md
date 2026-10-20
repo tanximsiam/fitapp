@@ -18,16 +18,18 @@ Built with Ionic Vue 3, TypeScript, Capacitor 7, Pinia and Tailwind CSS 4. It ta
 
 ## Status
 
-Phase 1 (foundation) of the mobile specification.
+Phases 1 (foundation) and 2 (mobile features) of the mobile specification. Everything below runs on demo data and was checked in a browser at phone size; nothing has run on a phone yet.
 
 | Area | State |
 |---|---|
 | App shell: 5 tabs (Home, Health, Journal, Insights, Device), quick-log button, profile | Working, verified in the browser at phone size |
 | Onboarding: welcome, data-source explanation, demo or sign-in, tracker choice | Working (demo path verified; sign-in needs a running backend) |
-| Home: watch status, goal hero, today's measurements, wellbeing, today's timeline | Working on demo data |
-| Health: module list plus Activity, Sleep, Heart rate, Stress, Blood oxygen, Skin temperature pages | Working on demo data |
-| Journal and Insights tabs | First versions (7-day entries, rule-based observations); full features are Phase 2 |
-| Quick log (mood, meal, drink, cycle) | Shared with the web app, saves locally in demo mode |
+| Home: goal hero, today's measurements, wellbeing, today's timeline; cards can be reordered and hidden | Working |
+| Health: module list plus Activity, Workouts, Sleep, Heart rate, Stress, Blood oxygen, Skin temperature pages | Working |
+| Journal: history with category filter; Mood, Food & drink and Cycle pages with editing | Working |
+| Insights: every rule-based observation with its calculation, withheld ones, data coverage | Working |
+| Quick log (mood, meal, drink, cycle) as a bottom sheet, opening the matching form per page | Working; saves locally in demo mode |
+| Profile & settings: goals, trackers, theme, data source, server tokens, privacy | Working (server sections need a running backend) |
 | Light and dark themes (follows the system) | Working |
 | Android project (`android/`) | Generated, **not built or run yet** (no Android SDK on the development machine) |
 | iOS project (`ios/`) | Generated, **not built** (needs macOS and Xcode) |
