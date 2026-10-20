@@ -5,6 +5,7 @@
     the only coloured surface on Home, so it is where the eye lands first.
   -->
   <section aria-labelledby="greeting">
+    <WeekStrip class="mb-6" />
     <h1 id="greeting" class="text-[30px] leading-tight font-semibold tracking-tight">{{ part.greeting }}</h1>
 
     <Transition name="swap" mode="out-in">
@@ -58,6 +59,7 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { checkmarkCircleOutline, close, flameOutline, footstepsOutline, sparklesOutline } from 'ionicons/icons'
 import ChoiceGlyph from '@/components/forms/ChoiceGlyph.vue'
+import WeekStrip from '@/components/WeekStrip.vue'
 import { MOOD_CHOICES } from '@/components/forms/choices'
 import { progress } from '@/data/derive'
 import { loggingStreak } from '@/data/journalDerive'
