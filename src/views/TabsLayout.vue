@@ -5,7 +5,7 @@
       <ion-tab-bar slot="bottom">
         <!-- Icon-only: the name is the accessible label. Outline icons; the selected tab shows its filled icon in teal. -->
         <ion-tab-button v-for="t in TABS" :key="t.tab" :tab="t.tab" :href="`/${t.tab}`" :aria-label="t.label">
-          <ion-icon :key="selected(t.tab) ? 'on' : 'off'" :icon="selected(t.tab) ? t.filled : t.icon" aria-hidden="true" />
+          <TabIcon :key="selected(t.tab) ? 'on' : 'off'" :name="t.tab" :filled="selected(t.tab)" />
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -23,7 +23,8 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonIcon, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
-import { add, book, bookOutline, bulb, bulbOutline, fitness as fitnessFilled, fitnessOutline, home, homeOutline } from 'ionicons/icons'
+import { add } from 'ionicons/icons'
+import TabIcon, { type TabIconName } from '@/components/TabIcon.vue'
 import { App } from '@capacitor/app'
 import { Network } from '@capacitor/network'
 import { useAuthStore } from '@/stores/auth'
@@ -32,11 +33,11 @@ import { useJournalStore } from '@/stores/journal'
 import { useModeStore } from '@/stores/mode'
 import { useUiStore, type QuickLogView } from '@/stores/ui'
 
-const TABS = [
-  { tab: 'home', label: 'Home', icon: homeOutline, filled: home },
-  { tab: 'health', label: 'Health', icon: fitnessOutline, filled: fitnessFilled },
-  { tab: 'journal', label: 'Journal', icon: bookOutline, filled: book },
-  { tab: 'insights', label: 'Insights', icon: bulbOutline, filled: bulb },
+const TABS: { tab: TabIconName; label: string }[] = [
+  { tab: 'home', label: 'Home' },
+  { tab: 'health', label: 'Health' },
+  { tab: 'journal', label: 'Journal' },
+  { tab: 'insights', label: 'Insights' },
 ]
 
 const route = useRoute()
@@ -81,8 +82,8 @@ onBeforeUnmount(() => listeners.forEach((l) => l.then((h) => h.remove())))
 .quick-log {
   position: absolute;
   right: 16px;
-  /* Above the floating tab bar: its height, its 12px bottom margin, then 16px of air. */
-  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 28px);
+  /* 16px above the docked tab bar. */
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 16px);
   z-index: 20;
   display: grid;
   place-items: center;
