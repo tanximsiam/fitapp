@@ -1,0 +1,92 @@
+import { createRouter, createWebHistory } from '@ionic/vue-router'
+import { RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useModeStore } from '@/stores/mode'
+import { onboarding } from '@/lib/onboarding'
+
+import TabsLayout from '@/views/TabsLayout.vue'
+import HomePage from '@/views/HomePage.vue'
+
+// Only the shell and Home load at start-up; every other screen loads when first opened.
+const HealthPage = () => import('@/views/HealthPage.vue')
+const JournalPage = () => import('@/views/JournalPage.vue')
+const InsightsPage = () => import('@/views/InsightsPage.vue')
+const DevicePage = () => import('@/views/DevicePage.vue')
+const WelcomePage = () => import('@/views/WelcomePage.vue')
+const LoginPage = () => import('@/views/LoginPage.vue')
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    /** Needs a signed-in user when the backend is the data source. */
+    requiresData?: boolean
+    title?: string
+  }
+}
+
+const data = { requiresData: true }
+
+const routes: Array<RouteRecordRaw> = [
+  { path: '/welcome', component: WelcomePage, meta: { title: 'Welcome' } },
+  { path: '/login', component: LoginPage, meta: { title: 'Sign in' } },
+  {
+    path: '/',
+    component: TabsLayout,
+    children: [
+      { path: '', redirect: '/home' },
+      { path: 'home', component: HomePage, meta: { ...data, title: 'Today' } },
+      { path: 'home/device', component: DevicePage, meta: { ...data, title: 'Watch & connection' } },
+      { path: 'home/notifications', component: () => import('@/views/NotificationsPage.vue'), meta: { title: 'Notifications' } },
+      { path: 'home/settings', component: () => import('@/views/SettingsPage.vue'), meta: { title: 'Profile & settings' } },
+      { path: 'health', component: HealthPage, meta: { ...data, title: 'Health' } },
+      { path: 'health/activity', component: () => import('@/views/ActivityPage.vue'), meta: { ...data, title: 'Activity' } },
+      { path: 'health/workouts', component: () => import('@/views/WorkoutsPage.vue'), meta: { ...data, title: 'Workouts' } },
+      { path: 'health/sleep', component: () => import('@/views/SleepPage.vue'), meta: { ...data, title: 'Sleep' } },
+      { path: 'health/heart-rate', component: () => import('@/views/HeartRatePage.vue'), meta: { ...data, title: 'Heart rate' } },
+      { path: 'health/stress', component: () => import('@/views/StressPage.vue'), meta: { ...data, title: 'Stress' } },
+      { path: 'health/blood-oxygen', component: () => import('@/views/OxygenPage.vue'), meta: { ...data, title: 'Blood oxygen' } },
+      { path: 'health/skin-temperature', component: () => import('@/views/SkinTemperaturePage.vue'), meta: { ...data, title: 'Skin temperature' } },
+      { path: 'journal', component: JournalPage, meta: { ...data, title: 'Journal' } },
+      { path: 'journal/mood', component: () => import('@/views/MoodPage.vue'), meta: { ...data, title: 'Mood' } },
+      { path: 'journal/food', component: () => import('@/views/FoodPage.vue'), meta: { ...data, title: 'Food & drink' } },
+      { path: 'journal/cycle', component: () => import('@/views/CyclePage.vue'), meta: { ...data, title: 'Periods' } },
+      { path: 'insights', component: InsightsPage, meta: { ...data, title: 'Insights' } },
+    ],
+  },
+  // Paths used by components shared with the web app.
+  { path: '/overview', redirect: '/home' },
+  { path: '/settings', redirect: '/home/settings' },
+  { path: '/device', redirect: '/home/device' },
+  ...['activity', 'sleep', 'heart-rate', 'stress', 'blood-oxygen', 'skin-temperature'].map((p) => ({ path: `/${p}`, redirect: `/health/${p}` })),
+  ...['mood', 'food', 'cycle'].map((p) => ({ path: `/${p}`, redirect: `/journal/${p}` })),
+  { path: '/timeline', redirect: '/journal' },
+  { path: '/:pathMatch(.*)*', redirect: '/home' },
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+})
+
+router.beforeEach(async (to) => {
+  if (!onboarding.done() && to.path !== '/welcome' && to.path !== '/login') return '/welcome'
+
+  const mode = useModeStore()
+  if (mode.isDemo) {
+    return to.path === '/login' && !mode.backendConfigured ? '/home' : undefined
+  }
+
+  const auth = useAuthStore()
+  await auth.init()
+  if (to.meta.requiresData && !auth.isAuthenticated) {
+    return { path: '/login', query: { redirect: to.fullPath } }
+  }
+  if (to.path === '/login' && auth.isAuthenticated) {
+    return '/home'
+  }
+})
+
+router.afterEach((to) => {
+  document.title = to.meta.title ? `${to.meta.title} · FitApp` : 'FitApp'
+})
+
+export default router

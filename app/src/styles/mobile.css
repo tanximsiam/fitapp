@@ -1,0 +1,75 @@
+/*
+ * Ionic chrome on FitApp tokens (see tailwind.css): canvas-coloured toolbars, a floating icon-only
+ * tab bar with the brand accent for the active tab, and sheets on the card surface.
+ */
+:root {
+  --ion-font-family: var(--font-sans);
+  --ion-background-color: var(--page);
+  --ion-text-color: var(--ink);
+  --ion-color-primary: var(--accent);
+  --tabbar-height: 64px;
+}
+
+ion-toolbar {
+  --background: var(--page);
+  --color: var(--ink);
+  --border-width: 0;
+  --min-height: 52px;
+}
+ion-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+ion-back-button {
+  --color: var(--ink);
+}
+
+/*
+ * Docked tab bar with rounded top corners, icons only (TabIcon.vue): outline icons,
+ * the selected tab filled in brand teal. The bottom padding keeps icons above the home indicator.
+ */
+ion-tab-bar {
+  --background: var(--surface);
+  --border: 0;
+  height: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+  padding: 0 12px env(safe-area-inset-bottom);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 30px -14px rgb(16 24 40 / 0.18);
+}
+:root[data-theme='dark'] ion-tab-bar {
+  box-shadow: none;
+  border-top: 1px solid var(--line);
+}
+ion-tab-button {
+  --color: var(--muted);
+  --color-selected: var(--accent);
+  --ripple-color: var(--accent);
+}
+/* The filled icon arrives with a quick, small scale-in. */
+ion-tab-button.tab-selected .tab-icon {
+  animation: tab-on 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes tab-on {
+  from {
+    scale: 0.82;
+    opacity: 0.6;
+  }
+}
+:root[data-theme='dark'] ion-tab-button {
+  --color-selected: #5eead4;
+}
+
+ion-refresher-content {
+  --color: var(--muted);
+}
+
+ion-modal.sheet {
+  --height: auto;
+  --background: var(--surface);
+  /* Sheets sit on the bottom edge: rounded top corners only. */
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.4;
+}
+ion-modal.sheet::part(handle) {
+  background: var(--line-strong);
+}
