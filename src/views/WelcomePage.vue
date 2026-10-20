@@ -11,7 +11,7 @@
             <div class="flex flex-1 flex-col items-center justify-center pt-10 text-center">
             <BrandLogo class="h-9" />
             <h1 id="intro-title" class="mt-8 text-[28px] leading-tight font-semibold tracking-tight">Your watch, and what it can't measure.</h1>
-            <p class="mt-2 text-[15px] leading-relaxed text-ink-2">Watch data, mood, meals, water and cycle in one place, with every pattern explained.</p>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-2">Watch data, mood, meals, water and periods in one place, with every pattern explained.</p>
 
             <ol class="card mt-6 w-full divide-y divide-line text-left" aria-label="Where your data comes from">
               <li v-for="s in SOURCES" :key="s.title" class="flex items-center gap-3 px-4 py-3">
@@ -85,13 +85,13 @@ import type { TrackerPrefs } from '@/types/journal'
 const SOURCES = [
   { icon: watchOutline, title: 'Your FitApp watch', text: 'Activity, sleep and heart rate' },
   { icon: phonePortraitOutline, title: 'Health Connect or Apple Health', text: 'For other watches, if you allow it' },
-  { icon: layersOutline, title: 'What you add', text: 'Mood, meals, water and cycle' },
+  { icon: layersOutline, title: 'What you add', text: 'Mood, meals, water and periods' },
 ]
 
 const TRACKERS: { key: keyof TrackerPrefs; label: string; hint: string; icon: string; tone: Tone }[] = [
   { key: 'mood', label: 'Mood', hint: 'Check-ins with energy and stress you report', icon: ICONS.mood, tone: 'mood' },
   { key: 'food', label: 'Food & water', hint: 'Meals, nutrients and drinks', icon: ICONS.meals, tone: 'energy' },
-  { key: 'cycle', label: 'Cycle', hint: 'Periods and symptoms, kept private', icon: ICONS.cycle, tone: 'spo2' },
+  { key: 'cycle', label: 'Periods', hint: 'Periods and symptoms, kept private', icon: ICONS.cycle, tone: 'spo2' },
 ]
 
 const router = useRouter()

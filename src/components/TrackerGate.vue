@@ -16,6 +16,6 @@ import type { TrackerPrefs } from '@/types/journal'
 
 const props = defineProps<{ tracker: keyof TrackerPrefs }>()
 const journal = useJournalStore()
-const names: Record<keyof TrackerPrefs, string> = { mood: 'mood', food: 'food', cycle: 'cycle' }
+const names: Record<keyof TrackerPrefs, string> = { mood: 'mood', food: 'food', cycle: 'period' }
 const enable = () => journal.savePrefs({ ...journal.prefs, [props.tracker]: true })
 </script>

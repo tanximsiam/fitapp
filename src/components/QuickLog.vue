@@ -85,7 +85,7 @@ import { useJournalStore } from '@/stores/journal'
 import { useModeStore } from '@/stores/mode'
 import { useUiStore, type LogKind } from '@/stores/ui'
 
-const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal logged', drink: 'Drink logged', cycle: 'Cycle day saved' }
+const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal logged', drink: 'Drink logged', cycle: 'Period day saved' }
 
 const ui = useUiStore()
 const journal = useJournalStore()
@@ -101,7 +101,7 @@ const tabs = computed(() =>
       { kind: 'mood', label: 'Mood', hint: 'How you feel', icon: ICONS.mood, tone: 'mood', on: journal.prefs.mood },
       { kind: 'meal', label: 'Meal', hint: 'Foods and nutrients', icon: ICONS.meals, tone: 'energy', on: journal.prefs.food },
       { kind: 'drink', label: 'Drink', hint: 'Water you drank', icon: ICONS.water, tone: 'activity', on: journal.prefs.food },
-      { kind: 'cycle', label: 'Cycle', hint: 'Flow and symptoms', icon: ICONS.cycle, tone: 'spo2', on: journal.prefs.cycle },
+      { kind: 'cycle', label: 'Period', hint: 'Flow and symptoms', icon: ICONS.cycle, tone: 'spo2', on: journal.prefs.cycle },
     ] as { kind: LogKind; label: string; hint: string; icon: string; tone: Tone; on: boolean }[]
   ).filter((t) => t.on),
 )

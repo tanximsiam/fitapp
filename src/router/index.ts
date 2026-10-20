@@ -46,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
       { path: 'journal', component: JournalPage, meta: { ...data, title: 'Journal' } },
       { path: 'journal/mood', component: () => import('@/views/MoodPage.vue'), meta: { ...data, title: 'Mood' } },
       { path: 'journal/food', component: () => import('@/views/FoodPage.vue'), meta: { ...data, title: 'Food & drink' } },
-      { path: 'journal/cycle', component: () => import('@/views/CyclePage.vue'), meta: { ...data, title: 'Cycle' } },
+      { path: 'journal/cycle', component: () => import('@/views/CyclePage.vue'), meta: { ...data, title: 'Periods' } },
       { path: 'insights', component: InsightsPage, meta: { ...data, title: 'Insights' } },
       { path: 'device', component: DevicePage, meta: { ...data, title: 'Device' } },
     ],

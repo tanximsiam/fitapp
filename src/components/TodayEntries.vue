@@ -127,7 +127,7 @@ const rows = computed(() => {
       empty: !water,
     },
     {
-      kind: 'cycle', label: 'Cycle', action: 'Log a cycle day', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,
+      kind: 'cycle', label: 'Periods', action: 'Log a period day', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,
       value: c ? [c.flow && `${c.flow} flow`, c.symptoms.length ? `${c.symptoms.length} symptoms` : null].filter(Boolean).join(' · ') || 'Note only' : 'Nothing logged',
       empty: !c,
     },

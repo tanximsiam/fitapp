@@ -1,11 +1,11 @@
 <template>
-  <AppShell title="Cycle">
+  <AppShell title="Periods">
     <template #subtitle>Periods and symptoms you recorded</template>
     <TrackerGate tracker="cycle">
       <JournalState>
         <ModuleHero
           class="mb-4"
-          title="Cycle"
+          title="Periods"
           tone="cycle"
           :icon="ICONS.cycle"
           eyebrow="From the days you recorded"
@@ -21,7 +21,7 @@
           ]"
         >
           <template #actions>
-            <PrimaryButton label="Log cycle day" @click="ui.openQuickLog('cycle')" />
+            <PrimaryButton label="Log a period day" @click="ui.openQuickLog('cycle')" />
           </template>
         </ModuleHero>
 

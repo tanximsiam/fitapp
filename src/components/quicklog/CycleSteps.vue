@@ -1,7 +1,7 @@
 <template>
   <WizardFrame
     v-model:step="step"
-    title="Cycle"
+    title="Period"
     color="var(--mood-ink)"
     :total="3"
     :saving="saving"

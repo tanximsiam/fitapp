@@ -74,7 +74,7 @@ const AREAS: Record<Exclude<Category, 'all'>, string[]> = {
   mood: ['Mood'],
   meals: ['Meal'],
   water: ['Water'],
-  cycle: ['Cycle'],
+  cycle: ['Period'],
   watch: ['Sleep', 'Workout', 'Activity'],
 }
 /** The journal store loads 60 days; older days need a reload from an earlier date. */
@@ -89,7 +89,7 @@ const categories = computed(() =>
     { value: 'mood' as const, label: 'Mood', icon: ICONS.mood, on: journal.prefs.mood },
     { value: 'meals' as const, label: 'Meals', icon: ICONS.meals, on: journal.prefs.food },
     { value: 'water' as const, label: 'Water', icon: ICONS.water, on: journal.prefs.food },
-    { value: 'cycle' as const, label: 'Cycle', icon: ICONS.cycle, on: journal.prefs.cycle },
+    { value: 'cycle' as const, label: 'Periods', icon: ICONS.cycle, on: journal.prefs.cycle },
     { value: 'watch' as const, label: 'Watch', icon: watchOutline, on: true },
   ].filter((c) => c.on),
 )

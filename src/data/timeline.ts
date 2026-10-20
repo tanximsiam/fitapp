@@ -51,7 +51,7 @@ export function dayRows(d: DaySummary | null, j: JournalDay, prefs: TrackerPrefs
         rows.push({ time: formatClock(h.recordedAt), area: 'Water', icon: ICONS.water, text: `${formatInt(h.volumeMl)} ml`, source: h.syncState ?? h.provenance, to: '/journal/food' })
     }
     if (prefs.cycle && j.cycleDay)
-      rows.push({ time: null, area: 'Cycle', icon: ICONS.cycle, text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · ') || 'Note', source: j.cycleDay.syncState ?? j.cycleDay.provenance, to: '/journal/cycle' })
+      rows.push({ time: null, area: 'Period', icon: ICONS.cycle, text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · ') || 'Note', source: j.cycleDay.syncState ?? j.cycleDay.provenance, to: '/journal/cycle' })
   }
   return rows.sort((a, b) => (a.time ?? '99').localeCompare(b.time ?? '99'))
 }

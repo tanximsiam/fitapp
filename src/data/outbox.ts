@@ -106,7 +106,7 @@ export function applyOutbox(data: JournalData, queue: Op[]): JournalData {
 
 /** One line describing a queued change, for the "needs your decision" list. */
 export function describeOp(op: Op): string {
-  const what = { mood: 'Mood check-in', meals: 'Meal', hydration: 'Drink', cycle: 'Cycle day' }[op.kind]
+  const what = { mood: 'Mood check-in', meals: 'Meal', hydration: 'Drink', cycle: 'Period day' }[op.kind]
   if (op.kind === 'cycle') return `${what} ${op.date}${op.action === 'remove' ? ' (deleted)' : ''}`
   if (op.action === 'remove') return `${what} (deleted)`
   const input = op.input as Partial<MoodInput & MealInput & HydrationInput>

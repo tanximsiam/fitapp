@@ -224,7 +224,7 @@ function showWelcome() {
 const TRACKERS: { key: keyof TrackerPrefs; label: string; hint: string }[] = [
   { key: 'mood', label: 'Mood', hint: 'Check-ins with mood, energy, emotions and stress you felt' },
   { key: 'food', label: 'Food & water', hint: 'Meals with optional nutrition values, and drinks' },
-  { key: 'cycle', label: 'Cycle', hint: 'Period days, flow and symptoms' },
+  { key: 'cycle', label: 'Periods', hint: 'Period days, flow and symptoms' },
 ]
 const prefsError = ref<string | null>(null)
 async function toggleTracker(key: keyof TrackerPrefs, on: boolean) {

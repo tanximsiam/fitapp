@@ -53,7 +53,7 @@ const AREAS: Record<Area, { label: string; icon: string; tone?: Tone }> = {
   skin: { label: 'Skin temperature', icon: ICONS.skinTemp, tone: 'skin' },
   mood: { label: 'Mood', icon: ICONS.mood, tone: 'mood' },
   food: { label: 'Food', icon: ICONS.meals, tone: 'energy' },
-  cycle: { label: 'Cycle', icon: ICONS.cycle, tone: 'mood' },
+  cycle: { label: 'Periods', icon: ICONS.cycle, tone: 'mood' },
   combined: { label: 'Combined', icon: ICONS.combined },
 }
 const label = computed(() => AREAS[props.insight.area].label)
