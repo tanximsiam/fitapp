@@ -27,6 +27,9 @@
           <PrimaryButton v-else :label="busy === r.source.id ? 'Connecting…' : 'Connect'" :disabled="!!busy" @click="run(r.source.id, () => connectSource(r.source.id))" />
           <PrimaryButton v-if="r.source.openSettings" variant="secondary" label="Permissions" @click="r.source.openSettings!()" />
         </div>
+        <p v-if="busy === 'fitapp-watch' && r.source.id === 'fitapp-watch' && !r.state" role="status" class="mt-2 text-[13px] text-ink-2">
+          Keep the watch close and awake. When it asks, confirm the pairing on the watch.
+        </p>
         <p v-if="errors[r.source.id]" role="alert" class="mt-2 text-[13px] text-danger">{{ errors[r.source.id] }}</p>
       </li>
     </ul>

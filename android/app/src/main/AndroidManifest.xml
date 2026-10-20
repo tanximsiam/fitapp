@@ -66,6 +66,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Bluetooth for the FitApp watch. Scanning never derives location (Android 12+); location only for scanning on Android 11 and earlier. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" tools:targetApi="s" tools:node="replace" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" tools:targetApi="s" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" tools:node="replace" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" tools:node="replace" />
+
     <!-- Health Connect, read only, and only what FitApp reads (see src/sources/healthPlatform.ts). -->
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED" />

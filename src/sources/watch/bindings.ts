@@ -15,7 +15,7 @@ import type { SourceRecords } from '@/types/ingest'
 
 /** Byte-level link to one connected watch. Services and characteristics are UUID strings. */
 export interface WatchLink {
-  write(service: string, characteristic: string, data: Uint8Array): Promise<void>
+  write(service: string, characteristic: string, data: Uint8Array, opts?: { withoutResponse?: boolean }): Promise<void>
   read(service: string, characteristic: string): Promise<Uint8Array>
   /** Calls onData for every notification until the returned function is called. */
   subscribe(service: string, characteristic: string, onData: (data: Uint8Array) => void): Promise<() => Promise<void>>
