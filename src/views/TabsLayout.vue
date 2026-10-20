@@ -23,7 +23,7 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
-import { add, bookOutline, bulbOutline, homeOutline, pulseOutline, watchOutline } from 'ionicons/icons'
+import { add, bookOutline, bulbOutline, homeOutline, pulseOutline } from 'ionicons/icons'
 import { App } from '@capacitor/app'
 import { Network } from '@capacitor/network'
 import { useAuthStore } from '@/stores/auth'
@@ -37,7 +37,6 @@ const TABS = [
   { tab: 'health', label: 'Health', icon: pulseOutline },
   { tab: 'journal', label: 'Journal', icon: bookOutline },
   { tab: 'insights', label: 'Insights', icon: bulbOutline },
-  { tab: 'device', label: 'Device', icon: watchOutline },
 ]
 
 const route = useRoute()

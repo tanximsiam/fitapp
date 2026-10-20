@@ -34,6 +34,8 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       { path: '', redirect: '/home' },
       { path: 'home', component: HomePage, meta: { ...data, title: 'Today' } },
+      { path: 'home/device', component: DevicePage, meta: { ...data, title: 'Watch & connection' } },
+      { path: 'home/notifications', component: () => import('@/views/NotificationsPage.vue'), meta: { title: 'Notifications' } },
       { path: 'home/settings', component: () => import('@/views/SettingsPage.vue'), meta: { title: 'Profile & settings' } },
       { path: 'health', component: HealthPage, meta: { ...data, title: 'Health' } },
       { path: 'health/activity', component: () => import('@/views/ActivityPage.vue'), meta: { ...data, title: 'Activity' } },
@@ -48,12 +50,12 @@ const routes: Array<RouteRecordRaw> = [
       { path: 'journal/food', component: () => import('@/views/FoodPage.vue'), meta: { ...data, title: 'Food & drink' } },
       { path: 'journal/cycle', component: () => import('@/views/CyclePage.vue'), meta: { ...data, title: 'Periods' } },
       { path: 'insights', component: InsightsPage, meta: { ...data, title: 'Insights' } },
-      { path: 'device', component: DevicePage, meta: { ...data, title: 'Device' } },
     ],
   },
   // Paths used by components shared with the web app.
   { path: '/overview', redirect: '/home' },
   { path: '/settings', redirect: '/home/settings' },
+  { path: '/device', redirect: '/home/device' },
   ...['activity', 'sleep', 'heart-rate', 'stress', 'blood-oxygen', 'skin-temperature'].map((p) => ({ path: `/${p}`, redirect: `/health/${p}` })),
   ...['mood', 'food', 'cycle'].map((p) => ({ path: `/${p}`, redirect: `/journal/${p}` })),
   { path: '/timeline', redirect: '/journal' },

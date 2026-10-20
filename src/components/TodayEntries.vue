@@ -1,12 +1,13 @@
 <template>
-  <section class="card flex flex-col p-4 sm:p-5" aria-labelledby="journal-title">
-    <div class="flex items-baseline justify-between gap-3">
+  <section class="card flex flex-col p-4 sm:p-5" :aria-labelledby="compact ? undefined : 'journal-title'">
+    <!-- In compact mode the page gives the heading, above the card like every other section. -->
+    <div v-if="!compact" class="flex items-baseline justify-between gap-3">
       <h2 id="journal-title" class="text-[15px] font-semibold tracking-tight">Journal</h2>
       <RouterLink to="/timeline" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Timeline</RouterLink>
     </div>
-    <p class="mt-0.5 text-xs text-muted">{{ fitness.isToday ? 'What you logged today' : 'What you logged this day' }}</p>
+    <p v-if="!compact" class="mt-0.5 text-xs text-muted">{{ fitness.isToday ? 'What you logged today' : 'What you logged this day' }}</p>
 
-    <ul class="mt-4 grid gap-1">
+    <ul class="grid gap-1" :class="compact ? '' : 'mt-4'">
       <li v-for="r in rows" :key="r.kind" class="flex items-center gap-3 rounded-xl py-2 pr-1 pl-2 transition-colors duration-150 hover:bg-page" :class="`tone-${r.tone}`">
         <RouterLink :to="r.to" class="flex min-w-0 flex-1 items-center gap-3">
           <span class="badge grid size-9 shrink-0 place-items-center rounded-lg" aria-hidden="true"><ion-icon :icon="r.icon" class="text-lg" /></span>
@@ -27,7 +28,7 @@
       </li>
     </ul>
 
-    <div v-if="latest.length" class="mt-5">
+    <div v-if="!compact && latest.length" class="mt-5">
       <h3 class="mb-2 text-xs font-medium text-muted">Latest entries</h3>
       <ul class="grid grid-cols-[minmax(0,1fr)] gap-2">
         <li v-for="e in latest" :key="e.key" class="flex min-w-0 items-center gap-2.5 text-sm" :class="`tone-${e.tone}`">
@@ -38,7 +39,7 @@
       </ul>
     </div>
 
-    <div v-if="journal.prefs.mood" class="mt-auto pt-5">
+    <div v-if="!compact && journal.prefs.mood" class="mt-auto pt-5">
       <h3 class="mb-2 text-xs font-medium text-muted">Mood this week</h3>
       <ol class="grid grid-cols-7 gap-1 text-center" :aria-label="weekLabel">
         <li v-for="w in week" :key="w.date" class="flex flex-col items-center gap-1">
@@ -67,6 +68,8 @@ import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import { useUiStore, type LogKind } from '@/stores/ui'
 
+/** compact: just the rows (Home); the Journal tab also shows latest entries and the mood week. */
+withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
 const fitness = useFitnessStore()
 const journal = useJournalStore()
 const ui = useUiStore()

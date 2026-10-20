@@ -7,8 +7,8 @@ export interface HomeCard {
 }
 
 export const HOME_CARDS: { id: HomeCardId; label: string; hint: string; /** Watch measurements stay on Home. */ locked?: boolean }[] = [
-  { id: 'goals', label: 'Goals', hint: 'Steps, activity and sleep against your goals' },
-  { id: 'health', label: "Today's health", hint: 'Heart rate, distance, sleep, stress and oxygen', locked: true },
+  { id: 'goals', label: "Today's goals", hint: 'Steps, activity and sleep against your goals' },
+  { id: 'health', label: 'Vitals', hint: 'Heart rate, stress and blood oxygen', locked: true },
   { id: 'wellbeing', label: 'Journal', hint: 'Mood, meals, water and periods today' },
   { id: 'timeline', label: 'Today so far', hint: 'Everything recorded today, in order' },
 ]

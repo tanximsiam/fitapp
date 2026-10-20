@@ -14,6 +14,24 @@
         <RouterLink v-if="!mode.isDemo && !auth.user" to="/login" class="min-h-9 shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-ink">Sign in</RouterLink>
       </section>
 
+      <!-- The watch lives here rather than in the tab bar: checked now and then, not every day. -->
+      <section aria-labelledby="device-title">
+        <h2 id="device-title" :class="HEADING">Watch & connection</h2>
+        <RouterLink to="/home/device" class="card flex items-center gap-3 p-4">
+          <span class="relative grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft text-accent" aria-hidden="true">
+            <ion-icon :icon="watchOutline" class="text-lg" />
+            <span class="absolute top-0 right-0 size-2.5 rounded-full ring-2 ring-[var(--surface)]" :class="SYNC_DOT[sync]" />
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="block truncate text-[15px] font-semibold">{{ fitness.status?.sources[0]?.device ?? 'No watch yet' }}</span>
+            <span class="block truncate text-[13px] text-ink-2">
+              {{ SYNC_LABELS[sync] }}<template v-if="fitness.status?.lastIngestedAt"> · {{ formatRelative(fitness.status.lastIngestedAt) }}</template>
+            </span>
+          </span>
+          <ion-icon :icon="chevronForward" aria-hidden="true" class="shrink-0 text-muted" />
+        </RouterLink>
+      </section>
+
       <section v-if="mode.isDemo || auth.user" aria-labelledby="goals-title">
         <h2 id="goals-title" :class="HEADING">Daily goals</h2>
         <div class="card p-4"><GoalsForm /></div>
@@ -128,7 +146,8 @@ import { alertController, IonIcon, IonToggle } from '@ionic/vue'
 import { connection } from '@/data/offline'
 import { vault } from '@/lib/vault'
 import { forgetAccount } from '@/sources/sync'
-import { checkmarkCircle, openOutline, personOutline } from 'ionicons/icons'
+import { checkmarkCircle, chevronForward, openOutline, personOutline, watchOutline } from 'ionicons/icons'
+import { SYNC_LABELS, syncState } from '@/data/connection'
 import { version } from '../../package.json'
 import { errorMessage } from '@/api/client'
 import AppShell from '@/components/AppShell.vue'
@@ -148,6 +167,7 @@ import type { TrackerPrefs } from '@/types/journal'
 
 const DOCS_URL = 'https://github.com/tanximsiam/fitapp/blob/main/docs/integration.md'
 const REPO_URL = 'https://github.com/tanximsiam/fitapp-mobile'
+const SYNC_DOT = { current: 'bg-[#0ca30c]', delayed: 'bg-[#fab219]', stale: 'bg-danger', none: 'bg-line-strong' } as const
 const HEADING = 'mb-2 px-1 text-xs font-medium tracking-wide text-muted uppercase'
 const FOOT = 'mt-2 px-1 text-xs leading-relaxed text-muted'
 const ROW = 'flex min-h-14 w-full items-center gap-3 p-4 text-left'
@@ -157,6 +177,7 @@ const auth = useAuthStore()
 const fitness = useFitnessStore()
 const journal = useJournalStore()
 const router = useRouter()
+const sync = computed(() => syncState(fitness.status))
 
 onMounted(async () => {
   if (mode.isDemo) return fitness.ensureLoaded()
