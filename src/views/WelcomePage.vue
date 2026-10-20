@@ -128,8 +128,8 @@ async function finish() {
 <style scoped>
 .tracker {
   --track-background-checked: var(--accent);
-  box-sizing: border-box;
-  width: 100%;
+  /* Ionic forces content-box on toggles, so fill the row as a block instead of width: 100%. */
+  display: block;
   padding: 0 16px;
 }
 .step-enter-active,

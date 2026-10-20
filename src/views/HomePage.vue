@@ -4,9 +4,10 @@
 
     <DataState>
       <div class="stagger grid grid-cols-[minmax(0,1fr)] gap-4">
-        <TodayNudge :day="day" />
+        <template v-for="card in shown" :key="card.id">
+        <TodayNudge v-if="card.id === 'goals'" :day="day" />
 
-        <section aria-labelledby="health-title">
+        <section v-else-if="card.id === 'health'" aria-labelledby="health-title">
           <SectionHeading id="health-title" title="Today's health" to="/health" link="All measurements" />
           <div class="grid grid-cols-2 gap-3">
             <HealthTile
@@ -61,24 +62,33 @@
           </div>
         </section>
 
-        <section v-if="anyTracker" aria-label="Personal wellbeing">
+        <section v-else-if="card.id === 'wellbeing'" aria-label="Personal wellbeing">
           <JournalState><TodayEntries /></JournalState>
         </section>
 
-        <section class="card p-4" aria-labelledby="timeline-title">
+        <section v-else-if="card.id === 'timeline'" class="card p-4" aria-labelledby="timeline-title">
           <SectionHeading id="timeline-title" title="Today so far" class="!mb-4" />
           <JournalState>
             <DayTimeline :rows="rows" empty-text="Nothing recorded yet today." />
           </JournalState>
         </section>
+        </template>
+
+        <button type="button" class="mx-auto inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-ink-2" @click="editing = true">
+          <ion-icon :icon="optionsOutline" aria-hidden="true" />Customise Home
+        </button>
       </div>
+      <HomeLayoutSheet v-model:open="editing" />
     </DataState>
   </AppShell>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { onIonViewWillEnter } from '@ionic/vue'
+import { computed, ref } from 'vue'
+import { IonIcon, onIonViewWillEnter } from '@ionic/vue'
+import { optionsOutline } from 'ionicons/icons'
+import HomeLayoutSheet from '@/components/HomeLayoutSheet.vue'
+import { useHomeLayout } from '@/composables/useHomeLayout'
 import AppShell from '@/components/AppShell.vue'
 import DataState from '@/components/DataState.vue'
 import DayTimeline from '@/components/DayTimeline.vue'
@@ -127,5 +137,9 @@ const stageText = computed(() => {
 })
 
 const anyTracker = computed(() => journal.prefs.mood || journal.prefs.food || journal.prefs.cycle)
+const { layout } = useHomeLayout()
+const editing = ref(false)
+/** Visible cards in the saved order; the journal card needs at least one tracker turned on. */
+const shown = computed(() => layout.value.filter((c) => c.visible && (c.id !== 'wellbeing' || anyTracker.value)))
 const rows = computed(() => dayRows(day.value, journal.onDate(fitness.today), journal.prefs, mode.isDemo))
 </script>

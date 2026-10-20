@@ -1,16 +1,25 @@
 <template>
   <!-- A compact date button (month calendar in a bottom sheet) beside the range selector. -->
   <div class="mb-4 flex flex-wrap items-center gap-2">
-    <button
-      type="button"
-      class="inline-flex min-h-9 items-center gap-2 rounded-full bg-surface px-3.5 text-xs font-medium text-ink shadow-[var(--card-shadow)]"
-      aria-haspopup="dialog"
-      :aria-label="`Choose a date, ${formatLongDate(fitness.selectedDate)} selected`"
-      @click="open = true"
-    >
-      <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-sm text-ink-2" />
-      {{ fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate) }}
-    </button>
+    <!-- Previous and next day beside the date; a swipe would fight chart scrubbing and the iOS back gesture. -->
+    <div class="inline-flex min-h-9 items-center rounded-full bg-surface shadow-[var(--card-shadow)]">
+      <button type="button" class="grid size-9 place-items-center rounded-full text-ink-2" aria-label="Previous day" @click="step(-1)">
+        <ion-icon :icon="chevronBack" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        class="inline-flex min-h-9 items-center gap-1.5 px-1 text-xs font-medium text-ink"
+        aria-haspopup="dialog"
+        :aria-label="`Choose a date, ${formatLongDate(fitness.selectedDate)} selected`"
+        @click="open = true"
+      >
+        <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-sm text-ink-2" />
+        {{ fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate) }}
+      </button>
+      <button type="button" class="grid size-9 place-items-center rounded-full text-ink-2 disabled:opacity-30" aria-label="Next day" :disabled="fitness.isToday" @click="step(1)">
+        <ion-icon :icon="chevronForward" aria-hidden="true" />
+      </button>
+    </div>
     <button
       v-if="!fitness.isToday"
       type="button"
@@ -33,7 +42,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { IonIcon, IonModal } from '@ionic/vue'
-import { calendarOutline } from 'ionicons/icons'
+import { calendarOutline, chevronBack, chevronForward } from 'ionicons/icons'
+import { addDays } from '@/lib/dates'
 import MonthCalendar from '@/components/MonthCalendar.vue'
 import RangeTabs from '@/components/RangeTabs.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
@@ -42,6 +52,8 @@ import { formatLongDate, formatShortDate } from '@/lib/format'
 withDefaults(defineProps<{ showRange?: boolean }>(), { showRange: true })
 const { fitness, hasData } = useFitnessData()
 const open = ref(false)
+
+const step = (days: number) => fitness.selectDate(addDays(fitness.selectedDate, days))
 
 function pick(date: string) {
   fitness.selectDate(date)

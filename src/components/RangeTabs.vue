@@ -10,9 +10,10 @@
       :tabindex="opt === modelValue ? 0 : -1"
       class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-150"
       :class="opt === modelValue ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:text-ink'"
+      :aria-label="`${opt} days`"
       @click="emit('update:modelValue', opt)"
     >
-      {{ opt }} days
+      {{ opt }}d
     </button>
   </div>
 </template>

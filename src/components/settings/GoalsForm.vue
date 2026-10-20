@@ -1,6 +1,6 @@
 <template>
   <form novalidate @submit.prevent="save">
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid grid-cols-2 gap-3">
       <FormInput v-model="form.steps" label="Daily steps" type="number" inputmode="numeric" :min="100" :max="100000" :step="100" :error="!!errors.steps" :hint="errors.steps" />
       <FormInput v-model="form.activeKcal" label="Active energy (kcal)" type="number" inputmode="numeric" :min="10" :max="10000" :step="10" :error="!!errors.activeKcal" :hint="errors.activeKcal" />
       <FormInput v-model="form.distanceKm" label="Distance (km)" type="number" inputmode="decimal" :min="0.1" :max="200" step="0.1" :error="!!errors.distanceKm" :hint="errors.distanceKm" />

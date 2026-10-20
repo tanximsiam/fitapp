@@ -104,32 +104,21 @@
         </div>
 
         <PanelSection title="History">
-          <div class="-mx-4 overflow-x-auto sm:mx-0">
-            <table id="activity-history" class="w-full min-w-[34rem] text-left text-sm">
-              <thead>
-                <tr class="text-xs text-muted">
-                  <th scope="col" class="px-4 py-2 font-medium sm:pl-0">Date</th>
-                  <th scope="col" class="px-4 py-2 text-right font-medium">Steps</th>
-                  <th scope="col" class="px-4 py-2 text-right font-medium">Distance</th>
-                  <th scope="col" class="px-4 py-2 text-right font-medium">Active energy</th>
-                  <th scope="col" class="px-4 py-2 text-right font-medium sm:pr-0">Active time</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="d in historyRows" :key="d.date" class="border-t border-line" :class="d.date === fitness.selectedDate ? 'bg-accent-soft/60' : ''">
-                  <th scope="row" class="px-4 py-2 font-normal sm:pl-0">
-                    <button type="button" class="text-left text-ink underline-offset-2 hover:underline" @click="fitness.selectDate(d.date)">
-                      {{ formatWeekday(d.date) }}, {{ formatShortDate(d.date) }}
-                    </button>
-                  </th>
-                  <td class="tabular px-4 py-2 text-right">{{ formatInt(d.activity?.steps) }}</td>
-                  <td class="tabular px-4 py-2 text-right">{{ formatKm(d.activity?.distanceM) }}</td>
-                  <td class="tabular px-4 py-2 text-right">{{ d.activity?.activeKcal == null ? EMPTY : `${formatInt(d.activity.activeKcal)} kcal` }}</td>
-                  <td class="tabular px-4 py-2 text-right sm:pr-0">{{ formatDuration(d.activity?.activeMinutes) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <HistoryList
+            id="activity-history"
+            :rows="
+              historyRows.map((d) => ({
+                key: d.date,
+                title: `${formatWeekday(d.date)}, ${formatShortDate(d.date)}`,
+                value: d.activity?.steps == null ? EMPTY : `${formatInt(d.activity.steps)} steps`,
+                detail: d.activity
+                  ? [formatKm(d.activity.distanceM), d.activity.activeKcal == null ? null : `${formatInt(d.activity.activeKcal)} kcal`, d.activity.activeMinutes == null ? null : `${formatDuration(d.activity.activeMinutes)} active`].filter(Boolean).join(' · ')
+                  : 'Not measured',
+                selected: d.date === fitness.selectedDate,
+              }))
+            "
+            @select="fitness.selectDate"
+          />
           <ShowMore v-if="rangeDaysList.length > 7" v-model:expanded="showAllHistory" controls="activity-history" :more-label="`Show all ${rangeDaysList.length} days`" />
         </PanelSection>
       </div>
@@ -149,6 +138,7 @@ import DateToolbar from '@/components/DateToolbar.vue'
 import ModuleHero from '@/components/ModuleHero.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import ShowMore from '@/components/ShowMore.vue'
+import HistoryList from '@/components/HistoryList.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
 import { dailyLine, dailyTicks, lastValues, metricBars } from '@/data/chartData'

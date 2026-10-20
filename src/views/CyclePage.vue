@@ -81,28 +81,19 @@
             Calculated only from the dates you recorded in the last 6 months. A cycle counts once the next period has started. FitApp does not
             predict periods or fertile days and does not give medical or contraceptive advice.
           </p>
-          <div v-if="periods.length" class="-mx-4 overflow-x-auto sm:mx-0">
-            <table class="w-full min-w-[32rem] text-left text-sm">
-              <thead>
-                <tr class="text-xs text-muted">
-                  <th scope="col" class="px-4 py-2 font-medium sm:pl-0">Period started</th>
-                  <th scope="col" class="px-4 py-2 font-medium">Length</th>
-                  <th scope="col" class="px-4 py-2 font-medium">Cycle length</th>
-                  <th scope="col" class="px-4 py-2 font-medium sm:pr-0">Symptoms, first two days</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="p in [...periods].reverse()" :key="p.start" class="border-t border-line">
-                  <td class="px-4 py-2 sm:pl-0">
-                    <button type="button" class="underline-offset-2 hover:underline" @click="jumpTo(p.start)">{{ formatShortDate(p.start) }}, {{ p.start.slice(0, 4) }}</button>
-                  </td>
-                  <td class="tabular px-4 py-2">{{ p.lengthDays }} days</td>
-                  <td class="tabular px-4 py-2">{{ cycleLength(p.start) ?? 'In progress' }}</td>
-                  <td class="px-4 py-2 sm:pr-0">{{ earlySymptoms(p) || '—' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <HistoryList
+            v-if="periods.length"
+            :rows="
+              [...periods].reverse().map((p) => ({
+                key: p.start,
+                title: `Period from ${formatShortDate(p.start)}, ${p.start.slice(0, 4)}`,
+                value: `${p.lengthDays} days`,
+                detail: `Cycle ${cycleLength(p.start) ?? 'in progress'}${earlySymptoms(p) ? ` · first days: ${earlySymptoms(p)}` : ''}`,
+                selected: p.start === selected,
+              }))
+            "
+            @select="jumpTo"
+          />
           <p v-else class="text-sm text-muted">No periods recorded yet. Select a day in the calendar to record bleeding or symptoms.</p>
         </PanelSection>
       </JournalState>
@@ -116,6 +107,7 @@ import { IonIcon } from '@ionic/vue'
 import { chevronBackOutline, chevronForwardOutline, water } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
 import CycleDayForm from '@/components/forms/CycleDayForm.vue'
+import HistoryList from '@/components/HistoryList.vue'
 import JournalState from '@/components/JournalState.vue'
 import { ICONS } from '@/components/metricIcons'
 import ModuleHero from '@/components/ModuleHero.vue'
