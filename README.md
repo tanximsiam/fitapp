@@ -1,6 +1,18 @@
 # FitApp Mobile
 
-The Android and iOS app for [FitApp](https://github.com/tanximsiam/fitapp), a watch-centred holistic health tracker. Your smartwatch supplies activity, sleep, heart rate and body signals; you add mood, meals, water and cycle entries; FitApp explains what the combined records show.
+The Android and iOS app for [FitApp](https://github.com/tanximsiam/fitapp), a watch-centred holistic health tracker. The watch supplies activity, sleep, heart rate and body signals; you add mood, meals, water and cycle entries; FitApp explains what the combined records show.
+
+## The product
+
+FitApp is a concept health brand and a personal open-source portfolio project by Tanzim Siam, covering brand and logo design, UI/UX and app development. It is not a commercial product.
+
+- **The FitApp watch** is the brand's own concept wearable and the app's primary data source. The app is designed around it: the watch's status sits in every tab's toolbar, and the Device tab covers connection, sync and supported measurements.
+- **Other sources:** Android Health Connect and Apple Health are planned as additional sources, for people who wear another device.
+- **Build your own platform.** The way the app pairs and exchanges data with a watch is kept in one replaceable connection layer. To run FitApp with your own wearable or platform, adapt that layer to your device's protocol or point it at an architecture you already use; the screens, data model and insights stay the same.
+
+Until a watch is connected, the app runs on a simulated FitApp watch with six months of sample data, always labelled as simulated.
+
+## Stack
 
 Built with Ionic Vue 3, TypeScript, Capacitor 7, Pinia and Tailwind CSS 4. It talks to the existing FitApp Laravel 12 API and runs fully offline in demo mode.
 
@@ -19,7 +31,8 @@ Phase 1 (foundation) of the mobile specification.
 | Light and dark themes (follows the system) | Working |
 | Android project (`android/`) | Generated, **not built or run yet** (no Android SDK on the development machine) |
 | iOS project (`ios/`) | Generated, **not built** (needs macOS and Xcode) |
-| Health Connect / Apple Health | Not implemented (Phase 4). The app never claims a connection it does not have. |
+| FitApp watch connection layer | Not implemented (Phase 4). The app never claims a connection it does not have. |
+| Health Connect / Apple Health | Not implemented (Phase 4) |
 | Offline queue, secure token storage | Not implemented (Phase 3). The backend token is in `localStorage` for now. |
 
 ## Getting started
