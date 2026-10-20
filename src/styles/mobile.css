@@ -25,8 +25,8 @@ ion-back-button {
 }
 
 /*
- * Floating tab bar: a rounded card inset from the screen edges, solid icons only.
- * The selected tab is brand teal with a small dot under it; the others stay muted.
+ * Floating tab bar: a rounded card inset from the screen edges, icons only.
+ * Outline icons; the selected tab shows its filled icon in brand teal.
  */
 ion-tab-bar {
   --background: var(--surface);
@@ -51,27 +51,19 @@ ion-tab-button {
 }
 ion-tab-button ion-icon {
   font-size: 24px;
-  transition: scale 180ms cubic-bezier(0.23, 1, 0.32, 1);
 }
+/* The filled icon arrives with a quick, small scale-in. */
 ion-tab-button.tab-selected ion-icon {
-  scale: 1.08;
+  animation: tab-on 220ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-ion-tab-button.tab-selected::after {
-  content: '';
-  position: absolute;
-  bottom: 9px;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  margin-left: -2.5px;
-  border-radius: 50%;
-  background: var(--accent);
+@keyframes tab-on {
+  from {
+    scale: 0.82;
+    opacity: 0.6;
+  }
 }
 :root[data-theme='dark'] ion-tab-button {
   --color-selected: #5eead4;
-}
-:root[data-theme='dark'] ion-tab-button.tab-selected::after {
-  background: #5eead4;
 }
 
 ion-refresher-content {

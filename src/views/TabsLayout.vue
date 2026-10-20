@@ -3,9 +3,9 @@
     <ion-tabs>
       <ion-router-outlet />
       <ion-tab-bar slot="bottom">
-        <!-- Icon-only: the name is the accessible label; the selected tab is teal with a dot under it (mobile.css). -->
+        <!-- Icon-only: the name is the accessible label. Outline icons; the selected tab shows its filled icon in teal. -->
         <ion-tab-button v-for="t in TABS" :key="t.tab" :tab="t.tab" :href="`/${t.tab}`" :aria-label="t.label">
-          <ion-icon :icon="t.icon" aria-hidden="true" />
+          <ion-icon :key="selected(t.tab) ? 'on' : 'off'" :icon="selected(t.tab) ? t.filled : t.icon" aria-hidden="true" />
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -23,7 +23,7 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonIcon, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
-import { add, book, bulb, home, pulse } from 'ionicons/icons'
+import { add, book, bookOutline, bulb, bulbOutline, fitness as fitnessFilled, fitnessOutline, home, homeOutline } from 'ionicons/icons'
 import { App } from '@capacitor/app'
 import { Network } from '@capacitor/network'
 import { useAuthStore } from '@/stores/auth'
@@ -33,13 +33,15 @@ import { useModeStore } from '@/stores/mode'
 import { useUiStore, type QuickLogView } from '@/stores/ui'
 
 const TABS = [
-  { tab: 'home', label: 'Home', icon: home },
-  { tab: 'health', label: 'Health', icon: pulse },
-  { tab: 'journal', label: 'Journal', icon: book },
-  { tab: 'insights', label: 'Insights', icon: bulb },
+  { tab: 'home', label: 'Home', icon: homeOutline, filled: home },
+  { tab: 'health', label: 'Health', icon: fitnessOutline, filled: fitnessFilled },
+  { tab: 'journal', label: 'Journal', icon: bookOutline, filled: book },
+  { tab: 'insights', label: 'Insights', icon: bulbOutline, filled: bulb },
 ]
 
 const route = useRoute()
+/** A tab is selected on its own page and on the pages below it (e.g. /health/sleep). */
+const selected = (tab: string) => route.path === `/${tab}` || route.path.startsWith(`/${tab}/`)
 const ui = useUiStore()
 const journal = useJournalStore()
 const fitness = useFitnessStore()
