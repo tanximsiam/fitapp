@@ -9,8 +9,7 @@
 
     <Transition name="swap" mode="out-in">
       <div v-if="ask" key="ask" class="hero-panel mt-5 rounded-3xl px-5 pt-5 pb-4">
-        <p class="text-[12px] font-medium tracking-wide text-ink-2 uppercase">{{ CHECK_IN[part.key] }}</p>
-        <h2 class="mt-1.5 text-[20px] leading-snug font-semibold tracking-tight">How are you feeling {{ part.phrase }}?</h2>
+        <h2 class="text-[20px] leading-snug font-semibold tracking-tight">How are you feeling {{ part.phrase }}?</h2>
         <ul class="mt-5 grid grid-cols-5 gap-1.5" aria-label="Choose a mood">
           <li v-for="c in MOOD_CHOICES" :key="c.value">
             <button
@@ -71,8 +70,6 @@ const REMINDERS = [
   'Stand up and stretch for a minute.',
   "Showing up is the hardest part, and you're here.",
 ]
-
-const CHECK_IN = { morning: 'Morning check-in', afternoon: 'Afternoon check-in', evening: 'Evening check-in', night: 'Night check-in' } as const
 
 const props = defineProps<{ day: DaySummary | null | undefined }>()
 const fitness = useFitnessStore()
