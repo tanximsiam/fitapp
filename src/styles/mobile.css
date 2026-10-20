@@ -1,6 +1,6 @@
 /*
- * Ionic chrome on FitApp tokens (see tailwind.css): canvas-coloured toolbars, a rail-grey tab bar
- * behind a hairline with the brand accent for the active tab, and sheets on the card surface.
+ * Ionic chrome on FitApp tokens (see tailwind.css): canvas-coloured toolbars, a floating icon-only
+ * tab bar with the brand accent for the active tab, and sheets on the card surface.
  */
 :root {
   --ion-font-family: var(--font-sans);
