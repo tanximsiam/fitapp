@@ -3,9 +3,9 @@
     <ion-tabs>
       <ion-router-outlet />
       <ion-tab-bar slot="bottom">
-        <ion-tab-button v-for="t in TABS" :key="t.tab" :tab="t.tab" :href="`/${t.tab}`">
+        <!-- Icon-only: the name is the accessible label; the selected tab is teal with a dot under it (mobile.css). -->
+        <ion-tab-button v-for="t in TABS" :key="t.tab" :tab="t.tab" :href="`/${t.tab}`" :aria-label="t.label">
           <ion-icon :icon="t.icon" aria-hidden="true" />
-          <ion-label>{{ t.label }}</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -22,8 +22,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
-import { add, bookOutline, bulbOutline, homeOutline, pulseOutline } from 'ionicons/icons'
+import { IonIcon, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
+import { add, book, bulb, home, pulse } from 'ionicons/icons'
 import { App } from '@capacitor/app'
 import { Network } from '@capacitor/network'
 import { useAuthStore } from '@/stores/auth'
@@ -33,10 +33,10 @@ import { useModeStore } from '@/stores/mode'
 import { useUiStore, type QuickLogView } from '@/stores/ui'
 
 const TABS = [
-  { tab: 'home', label: 'Home', icon: homeOutline },
-  { tab: 'health', label: 'Health', icon: pulseOutline },
-  { tab: 'journal', label: 'Journal', icon: bookOutline },
-  { tab: 'insights', label: 'Insights', icon: bulbOutline },
+  { tab: 'home', label: 'Home', icon: home },
+  { tab: 'health', label: 'Health', icon: pulse },
+  { tab: 'journal', label: 'Journal', icon: book },
+  { tab: 'insights', label: 'Insights', icon: bulb },
 ]
 
 const route = useRoute()
@@ -79,7 +79,8 @@ onBeforeUnmount(() => listeners.forEach((l) => l.then((h) => h.remove())))
 .quick-log {
   position: absolute;
   right: 16px;
-  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 16px);
+  /* Above the floating tab bar: its height, its 12px bottom margin, then 16px of air. */
+  bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 28px);
   z-index: 20;
   display: grid;
   place-items: center;

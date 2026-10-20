@@ -8,8 +8,16 @@
     <h1 id="greeting" class="text-[30px] leading-tight font-semibold tracking-tight">{{ part.greeting }}</h1>
 
     <Transition name="swap" mode="out-in">
-      <div v-if="ask" key="ask" class="hero-panel mt-5 rounded-3xl px-5 pt-5 pb-4">
-        <h2 class="text-[20px] leading-snug font-semibold tracking-tight">How are you feeling {{ part.phrase }}?</h2>
+      <div v-if="ask" key="ask" class="hero-panel relative mt-5 rounded-3xl px-5 pt-5 pb-4">
+        <button
+          type="button"
+          class="absolute top-2.5 right-2.5 grid size-10 place-items-center rounded-full text-ink-2 transition-colors duration-150 active:bg-white/15"
+          aria-label="Not now"
+          @click="dismiss"
+        >
+          <ion-icon :icon="close" aria-hidden="true" class="text-xl" />
+        </button>
+        <h2 class="pr-8 text-[20px] leading-snug font-semibold tracking-tight">How are you feeling {{ part.phrase }}?</h2>
         <ul class="mt-5 grid grid-cols-5 gap-1.5" aria-label="Choose a mood">
           <li v-for="c in MOOD_CHOICES" :key="c.value">
             <button
@@ -48,7 +56,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
-import { checkmarkCircleOutline, flameOutline, footstepsOutline, sparklesOutline } from 'ionicons/icons'
+import { checkmarkCircleOutline, close, flameOutline, footstepsOutline, sparklesOutline } from 'ionicons/icons'
 import ChoiceGlyph from '@/components/forms/ChoiceGlyph.vue'
 import { MOOD_CHOICES } from '@/components/forms/choices'
 import { progress } from '@/data/derive'
@@ -81,9 +89,29 @@ const timer = setInterval(() => (now.value = new Date()), 60_000)
 onBeforeUnmount(() => clearInterval(timer))
 const part = computed(() => dayPart(now.value))
 
-/** Ask once per part of the day: hidden as soon as a mood exists since this part began. */
+/** "Not now" lasts until the next part of the day; kept across restarts so the question does not come straight back. */
+const DISMISS_KEY = 'fitapp.checkin.dismissed'
+const readDismissed = () => {
+  try {
+    return localStorage.getItem(DISMISS_KEY)
+  } catch {
+    return null
+  }
+}
+const dismissed = ref(readDismissed())
+function dismiss() {
+  dismissed.value = part.value.start.toISOString()
+  try {
+    localStorage.setItem(DISMISS_KEY, dismissed.value)
+  } catch {
+    // Storage unavailable: dismissed for this session only.
+  }
+}
+
+/** Ask once per part of the day: hidden once a mood exists since this part began, or after "Not now". */
 const ask = computed(() => {
   if (!journal.loaded || !journal.prefs.mood) return false
+  if (dismissed.value === part.value.start.toISOString()) return false
   const since = part.value.start.getTime()
   return !journal.data.mood.some((e) => Date.parse(e.recordedAt) >= since)
 })

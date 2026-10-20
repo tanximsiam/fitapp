@@ -7,7 +7,7 @@
   --ion-background-color: var(--page);
   --ion-text-color: var(--ink);
   --ion-color-primary: var(--accent);
-  --tabbar-height: 56px;
+  --tabbar-height: 64px;
 }
 
 ion-toolbar {
@@ -24,23 +24,54 @@ ion-back-button {
   --color: var(--ink);
 }
 
+/*
+ * Floating tab bar: a rounded card inset from the screen edges, solid icons only.
+ * The selected tab is brand teal with a small dot under it; the others stay muted.
+ */
 ion-tab-bar {
-  --background: var(--rail);
-  --border: 1px solid var(--line-strong);
+  --background: var(--surface);
+  --border: 0;
   height: var(--tabbar-height);
+  margin: 0 16px calc(env(safe-area-inset-bottom) + 12px);
+  padding: 0 8px;
+  border-radius: 24px;
+  box-shadow:
+    0 1px 2px rgb(16 24 40 / 0.06),
+    0 12px 32px -10px rgb(16 24 40 / 0.22);
+}
+:root[data-theme='dark'] ion-tab-bar {
+  box-shadow: none;
+  outline: 1px solid var(--line);
 }
 ion-tab-button {
   --color: var(--muted);
   --color-selected: var(--accent);
   --ripple-color: var(--accent);
-  font-size: 11px;
-  font-weight: 500;
+  position: relative;
 }
 ion-tab-button ion-icon {
-  font-size: 23px;
+  font-size: 24px;
+  transition: scale 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+ion-tab-button.tab-selected ion-icon {
+  scale: 1.08;
+}
+ion-tab-button.tab-selected::after {
+  content: '';
+  position: absolute;
+  bottom: 9px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 :root[data-theme='dark'] ion-tab-button {
   --color-selected: #5eead4;
+}
+:root[data-theme='dark'] ion-tab-button.tab-selected::after {
+  background: #5eead4;
 }
 
 ion-refresher-content {
