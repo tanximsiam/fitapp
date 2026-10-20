@@ -12,6 +12,8 @@ import * as authApi from '@/api/auth'
 import { api, isConflict } from '@/api/client'
 import * as fitnessApi from '@/api/fitness'
 import { createBackendJournal } from '@/api/journal'
+import { uploadIngest } from '@/api/ingest'
+import { platformRecords } from '@/sources/normalize'
 import { connection, createOfflineJournal } from '@/data/offline'
 import type { JournalAdapter, MoodInput } from '@/types/journal'
 
@@ -94,6 +96,29 @@ describe.skipIf(!URL)('FitApp API contract', () => {
     expect(day).toEqual(expect.objectContaining({ flow: 'light', symptoms: ['cramps'], updatedAt: expect.any(String) }))
     await journal.removeCycleDay('2026-10-16')
     expect((await listOct()).cycleDays.some((d) => d.date === '2026-10-16')).toBe(false)
+  })
+
+  it('accepts phone-source records uploaded with this phone’s ingest token', async () => {
+    const token = await fitnessApi.createIngestToken('FitApp mobile (contract)')
+    const records = platformRecords(
+      {
+        steps: [{ startDate: '2026-10-10T00:00', value: 6543 }],
+        activeKcal: [{ startDate: '2026-10-10T00:00', value: 321 }],
+        workouts: [{ startDate: '2026-10-10T07:00:00Z', endDate: '2026-10-10T07:30:00Z', workoutType: 'WALKING', calories: 120, heartRate: [{ timestamp: '2026-10-10T07:10:00Z', bpm: 101 }] }],
+      },
+      ['steps', 'active_energy', 'workouts', 'heart_rate'],
+    )
+    await uploadIngest(token, { source: { key: 'health-connect', name: 'Health Connect', device: null, measurements: ['steps', 'active_energy', 'workouts', 'heart_rate'] }, timezone: 'UTC', ...records })
+
+    const status = await fitnessApi.getStatus()
+    expect(status.sources.map((s) => s.key)).toContain('health-connect')
+    const [day] = (await fitnessApi.getDays('2026-10-10', '2026-10-10')).days
+    expect(day.activity).toEqual(expect.objectContaining({ steps: 6543, activeKcal: 321, distanceM: null, source: 'health-connect' }))
+    expect(day.workouts[0]).toEqual(expect.objectContaining({ type: 'walking', durationMin: 30, avgBpm: 101 }))
+
+    // An ingest token can only upload, never read.
+    const read = await api.get('/user', { headers: { Authorization: `Bearer ${token}` } }).catch((e) => e)
+    expect(read.response?.status).toBe(403)
   })
 
   it('queues an offline edit, holds back the conflict, and applies "keep mine" when chosen', async () => {

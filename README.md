@@ -18,7 +18,7 @@ Built with Ionic Vue 3, TypeScript, Capacitor 7, Pinia and Tailwind CSS 4. It ta
 
 ## Status
 
-Phases 1 (foundation), 2 (mobile features) and 3 (backend and data) of the mobile specification. Screens were checked in a browser at phone size on demo data and against a local FitApp backend; nothing has run on a phone yet.
+Phases 1 to 4 (foundation, mobile features, backend and data, native health integration) of the mobile specification. Screens were checked in a browser at phone size on demo data and against a local FitApp backend; nothing has run on a phone yet.
 
 | Area | State |
 |---|---|
@@ -33,8 +33,9 @@ Phases 1 (foundation), 2 (mobile features) and 3 (backend and data) of the mobil
 | Light and dark themes (follows the system) | Working |
 | Android project (`android/`) | Generated, **not built or run yet** (no Android SDK on the development machine) |
 | iOS project (`ios/`) | Generated, **not built** (needs macOS and Xcode) |
-| FitApp watch connection layer | Not implemented (Phase 4). The app never claims a connection it does not have. |
-| Health Connect / Apple Health | Not implemented (Phase 4) |
+| FitApp watch connection layer (transport, replaceable bindings, pairing, upload) | Layer implemented and tested with a simulated watch. This build ships **no device bindings and no Bluetooth transport**, so the watch shows as not available |
+| Health Connect (Android) / Apple Health (iOS): steps, active energy, workouts, workout heart rate | Implemented, permissions configured; **not yet run on a device**. Normalisation and upload are unit- and contract-tested |
+| Sleep, resting and all-day heart rate, SpO₂, stress, skin temperature from health platforms | Not available from these sources in this version; shown as such, never estimated |
 | Sign-in token and profile in the iOS Keychain / Android Keystore | Implemented; native storage not yet run on a device (a plain browser falls back to unencrypted localStorage) |
 | Offline: encrypted local copy of loaded data, opens and shows an offline notice without a connection | Working against a local backend in the browser |
 | Offline journal entries: queued, shown as "waiting to sync", sent when back online | Working; covered by unit and contract tests |
@@ -70,6 +71,24 @@ Without the script running, the contract tests are skipped.
 
 Live data is cached per account, encrypted with AES-GCM under a random key kept in the Keychain or Keystore, in the app's private data folder. Journal changes made offline wait in an encrypted outbox and are sent in order when the connection returns. A change the server refuses because the entry was edited elsewhere is never overwritten silently: the Journal tab asks which version to keep. Demo data is kept separately and never mixed with an account's records.
 
+### Data sources on the phone
+
+```
+FitApp watch ─ transport ─ bindings ─┐
+Health Connect / Apple Health ───────┼─► HealthSource ─► sync ─► POST /api/ingest ─► FitApp server
+(more adapters)  ────────────────────┘    (src/sources)          (this phone's ingest-only token)
+```
+
+Every source implements one interface (`src/sources/types.ts`) and returns records in the ingest format. The sync pipeline gives each measurement to one connected source in priority order (the watch first), so nothing is counted twice, and uploads with an ingest token created for this phone. Health Connect and Apple Health totals come from the platforms' own aggregation, which already de-duplicates phone and watch.
+
+**Bringing your own wearable or platform.** The FitApp watch connection lives in `src/sources/watch/`:
+
+- `WatchTransport`: bytes to and from the device (Bluetooth LE GATT on a phone).
+- `WatchBindings`: how the device is found, the pairing handshake, and how its data is read and decoded.
+- `createWatchSource`: turns any transport and bindings into a source, keeping the pairing secret in secure storage.
+
+Implement `WatchBindings` for your device's protocol (and a transport if it is not Bluetooth LE), set `WATCH_BINDINGS` and `WATCH_TRANSPORT` in `src/sources/registry.ts`, and the rest of the app works unchanged. `simulated.ts` is a complete example used by the tests.
+
 ### Native builds
 
 ```bash
@@ -78,7 +97,7 @@ npx cap open android # needs Android Studio and an Android SDK
 npx cap open ios     # needs macOS with Xcode
 ```
 
-The app id is `io.github.tanximsiam.fitapp`.
+The app id is `io.github.tanximsiam.fitapp`. Android needs SDK 26 or later (Health Connect). On iOS, turn on the HealthKit capability for the App ID in your Apple developer account; `ios/App/App/App.entitlements` and the usage descriptions in `Info.plist` are already in place.
 
 ## How it is organised
 

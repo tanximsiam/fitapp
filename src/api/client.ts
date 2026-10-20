@@ -54,7 +54,8 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = tokenStorage.get()
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  // A request that brings its own token (ingest uploads) keeps it.
+  if (token && !config.headers.Authorization) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 

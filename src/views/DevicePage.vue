@@ -3,7 +3,9 @@
     <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Devices and bridges that send data to your FitApp backend' }}</template>
 
     <DataState>
-      <div class="grid gap-4">
+      <div class="grid grid-cols-[minmax(0,1fr)] gap-4">
+        <PhoneSources />
+        <h2 class="-mb-2 px-1 text-xs font-medium tracking-wide text-muted uppercase">{{ mode.isDemo ? 'Demo source' : 'Received by your server' }}</h2>
         <PanelSection v-for="s in sources" :key="s.key" :title="s.device ?? s.name">
           <template #aside>
             <span class="flex items-center gap-1.5 text-sm text-ink-2">
@@ -84,6 +86,7 @@ import ShowMore from '@/components/ShowMore.vue'
 import DataState from '@/components/DataState.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
+import PhoneSources from '@/components/PhoneSources.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
 import { demoControls, type DemoScenario } from '@/data/adapters'

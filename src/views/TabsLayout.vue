@@ -26,6 +26,7 @@ import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, I
 import { add, bookOutline, bulbOutline, homeOutline, pulseOutline, watchOutline } from 'ionicons/icons'
 import { App } from '@capacitor/app'
 import { Network } from '@capacitor/network'
+import { syncAll, useAccount } from '@/sources/sync'
 import { useAuthStore } from '@/stores/auth'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
@@ -62,8 +63,11 @@ onMounted(() => {
 })
 
 /** Back online or back in the app: send queued entries (journal.load flushes first) and refresh. */
-function refresh() {
+async function refresh() {
   if (mode.isDemo || !auth.user) return
+  useAccount(auth.user.id)
+  // Phone sources upload first, so the reload below already includes their readings.
+  await syncAll()
   fitness.load()
   if (journal.loaded) journal.load()
 }

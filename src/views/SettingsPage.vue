@@ -127,6 +127,7 @@ import { useRouter } from 'vue-router'
 import { alertController, IonIcon, IonToggle } from '@ionic/vue'
 import { connection } from '@/data/offline'
 import { vault } from '@/lib/vault'
+import { forgetAccount } from '@/sources/sync'
 import { checkmarkCircle, openOutline, personOutline } from 'ionicons/icons'
 import { version } from '../../package.json'
 import { errorMessage } from '@/api/client'
@@ -206,6 +207,7 @@ async function signOut() {
     await alert.present()
     if ((await alert.onDidDismiss()).role !== 'destructive') return
   }
+  if (auth.user) await forgetAccount(auth.user.id)
   await auth.logout()
   await vault.clear()
   connection.queue = []

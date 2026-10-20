@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSHealthShareUsageDescription</key>
+	<string>FitApp reads your steps, active energy and workouts, including their heart rate, to show them next to your journal and upload them to your FitApp server.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>FitApp does not write to Apple Health. This description is required by the health plugin it uses.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
