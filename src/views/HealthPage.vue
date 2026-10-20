@@ -15,8 +15,12 @@
                   <span class="block text-[15px] font-semibold">{{ m.title }}</span>
                   <span class="tabular block truncate text-[13px]" :class="m.value ? 'text-ink-2' : 'text-muted'">{{ m.value ?? m.missing }}</span>
                 </span>
+                <!-- Heart rate: the day's uploaded readings as a trace, first to last reading. -->
+                <svg v-if="m.line" :width="SPARK_W" height="28" class="shrink-0" role="img" :aria-label="`${m.title} readings through the day`">
+                  <path :d="m.line" fill="none" stroke="var(--tone)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+                </svg>
                 <!-- Deviations can be negative, so skin temperature has no height spark. -->
-                <span v-if="m.spark.length" class="flex h-7 shrink-0 items-end gap-[3px]" role="img" :aria-label="`${m.title}, last 7 days`">
+                <span v-else-if="m.spark.length" class="flex h-7 shrink-0 items-end gap-[3px]" role="img" :aria-label="`${m.title}, last 7 days`">
                   <span
                     v-for="(v, i) in m.spark"
                     :key="i"
@@ -38,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { chevronForward } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
@@ -51,7 +55,8 @@ import { lastValues } from '@/data/chartData'
 import { workoutLabel } from '@/data/connection'
 import { formatDeviation } from '@/data/signals'
 import { formatDuration, formatInt, formatKm } from '@/lib/format'
-import type { DaySummary } from '@/types/fitness'
+import { wallMinutes } from '@/lib/dates'
+import type { DaySummary, HeartRateSample } from '@/types/fitness'
 
 const { fitness, mode, freshness, days, selectedDay: day } = useFitnessData()
 
@@ -63,10 +68,51 @@ interface Module {
   value: string | null
   missing: string
   spark: (number | null)[]
+  /** SVG path for a line spark; replaces the bars when set. */
+  line?: string
 }
 
 const spark = (pick: (d: DaySummary) => number | null | undefined) => lastValues(days.value, pick)
 const sparkMax = (vals: (number | null)[]) => Math.max(1, ...vals.map((v) => v ?? 0))
+
+/** Same width as the 7-bar sparks so the rows line up. */
+const SPARK_W = 60
+const samples = ref<HeartRateSample[]>([])
+let request = 0
+watch(
+  () => [fitness.selectedDate, mode.mode, fitness.status?.lastIngestedAt],
+  async () => {
+    const id = ++request
+    try {
+      const result = await mode.adapter.getHeartRate(fitness.selectedDate)
+      if (id === request) samples.value = result
+    } catch {
+      // The row still shows the daily summary; the detail page reports load errors.
+      if (id === request) samples.value = []
+    }
+  },
+  { immediate: true },
+)
+const hrLine = computed(() => {
+  const s = samples.value
+  if (s.length < 2) return undefined
+  const bpm = s.map((x) => x.bpm)
+  const lo = Math.min(...bpm)
+  const span = Math.max(1, Math.max(...bpm) - lo)
+  // Fit the readings' own time span, so a part-day (today so far) fills the spark too.
+  const t0 = wallMinutes(s[0].at)
+  const tSpan = Math.max(1, wallMinutes(s.at(-1)!.at) - t0)
+  let prev = -Infinity
+  return s
+    .map((x) => {
+      const m = wallMinutes(x.at)
+      // Readings more than 30 minutes apart are not joined (watch off the wrist).
+      const cmd = m - prev > 30 ? 'M' : 'L'
+      prev = m
+      return `${cmd}${(1 + ((m - t0) / tSpan) * (SPARK_W - 2)).toFixed(1)},${(26 - ((x.bpm - lo) / span) * 24).toFixed(1)}`
+    })
+    .join('')
+})
 
 const groups = computed(() => {
   const d = day.value
@@ -86,7 +132,7 @@ const groups = computed(() => {
     { title: 'Sleep', to: '/health/sleep', icon: ICONS.sleep, tone: 'sleep', missing: 'No sleep recorded', value: d?.sleep ? formatDuration(d.sleep.durationMin) : null, spark: spark((x) => x.sleep?.durationMin) },
   ]
   const bodyItems: Module[] = [
-    { title: 'Heart rate', to: '/health/heart-rate', icon: ICONS.heartRate, tone: 'heart', missing: 'Not measured', value: d?.heartRate?.restingBpm != null ? `Resting ${d.heartRate.restingBpm} bpm` : null, spark: spark((x) => x.heartRate?.restingBpm) },
+    { title: 'Heart rate', to: '/health/heart-rate', icon: ICONS.heartRate, tone: 'heart', missing: 'Not measured', value: d?.heartRate?.restingBpm != null ? `Resting ${d.heartRate.restingBpm} bpm` : null, spark: [], line: hrLine.value },
     { title: 'Stress', to: '/health/stress', icon: ICONS.stress, tone: 'stress', missing: 'Not measured', value: d?.stress ? `${d.stress.avg} / 100 average` : null, spark: spark((x) => x.stress?.avg) },
     { title: 'Blood oxygen', to: '/health/blood-oxygen', icon: ICONS.spo2, tone: 'spo2', missing: 'Not measured', value: d?.spo2 ? `${d.spo2.avg}% overnight average` : null, spark: spark((x) => x.spo2?.avg) },
     { title: 'Skin temperature', to: '/health/skin-temperature', icon: ICONS.skinTemp, tone: 'skin', missing: 'Not measured', value: d?.skinTemp ? `${formatDeviation(d.skinTemp.deviationC)} vs your baseline` : null, spark: [] },
