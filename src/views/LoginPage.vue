@@ -17,20 +17,17 @@
             <p class="mt-1.5 text-[15px] text-ink-2">Sign in to see your watch data and journal.</p>
           </div>
 
-          <form id="login-form" class="mt-8 flex flex-col gap-4" novalidate @submit.prevent="handleLogin">
+          <form class="mt-8 flex flex-col gap-4" novalidate @submit.prevent="handleLogin">
             <FormInput v-model="email" label="Email" type="email" inputmode="email" required autocomplete="email" placeholder="you@example.com" />
             <FormInput v-model="password" label="Password" type="password" required autocomplete="current-password" />
             <p v-if="auth.error" role="alert" class="rounded-xl bg-danger-soft px-3.5 py-2.5 text-sm text-danger">{{ auth.error }}</p>
+            <PrimaryButton class="mt-2" :label="auth.isLoading ? 'Signing in…' : 'Sign in'" type="submit" :disabled="auth.isLoading || !email || !password" />
           </form>
         </div>
 
-        <!-- Both ways forward at the bottom, within thumb reach; Sign in still submits the form above (and Enter does too). -->
-        <div class="grid gap-2">
-          <PrimaryButton form="login-form" :label="auth.isLoading ? 'Signing in…' : 'Sign in'" type="submit" :disabled="auth.isLoading || !email || !password" />
-          <button type="button" class="mx-auto min-h-11 px-4 text-sm font-medium text-ink-2" @click="useDemo">
-            Explore with sample data instead
-          </button>
-        </div>
+        <button type="button" class="mx-auto min-h-11 px-4 text-sm font-medium text-ink-2" @click="useDemo">
+          Explore with sample data instead
+        </button>
       </main>
     </ion-content>
   </ion-page>
