@@ -2,29 +2,31 @@
   <ion-page>
     <ion-content>
       <main class="mx-auto flex min-h-full w-full max-w-md flex-col px-6 pt-[max(env(safe-area-inset-top),24px)] pb-[max(env(safe-area-inset-bottom),24px)]">
-        <BrandLogo class="mt-6 h-9 self-start" />
+        <div class="mt-2 flex items-center justify-between">
+          <BrandLogo class="h-8" />
+          <!-- Light, dark or the system's setting, before signing in; the choice carries into the app. -->
+          <ThemeToggle />
+        </div>
 
         <Transition name="step" mode="out-in">
-          <section v-if="step === 'intro'" key="intro" class="mt-10 flex flex-1 flex-col" aria-labelledby="intro-title">
-            <h1 id="intro-title" class="text-[30px] leading-tight font-semibold tracking-tight">Your watch, and the parts of the day it can't measure.</h1>
-            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">
-              FitApp brings your smartwatch's measurements together with your mood, meals, water and cycle, and explains what the records show.
-            </p>
+          <!-- One screen, no scrolling: a short promise, three sources, and the two ways in. -->
+          <section v-if="step === 'intro'" key="intro" class="mt-8 flex flex-1 flex-col" aria-labelledby="intro-title">
+            <h1 id="intro-title" class="text-[28px] leading-tight font-semibold tracking-tight">Your watch, and what it can't measure.</h1>
+            <p class="mt-2 text-[15px] leading-relaxed text-ink-2">Watch data, mood, meals, water and cycle in one place, with every pattern explained.</p>
 
-            <h2 class="mt-8 text-xs font-medium tracking-wide text-muted uppercase">Where your data comes from</h2>
-            <ol class="card mt-3 divide-y divide-line">
-              <li v-for="s in SOURCES" :key="s.title" class="flex items-start gap-3 p-4">
-                <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent" aria-hidden="true">
-                  <ion-icon :icon="s.icon" class="text-lg" />
+            <ol class="card mt-6 divide-y divide-line" aria-label="Where your data comes from">
+              <li v-for="s in SOURCES" :key="s.title" class="flex items-center gap-3 px-4 py-3">
+                <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent" aria-hidden="true">
+                  <ion-icon :icon="s.icon" class="text-base" />
                 </span>
                 <span class="min-w-0">
                   <span class="block text-sm font-semibold">{{ s.title }}</span>
-                  <span class="mt-0.5 block text-[13px] leading-snug text-ink-2">{{ s.text }}</span>
+                  <span class="block text-[13px] leading-snug text-ink-2">{{ s.text }}</span>
                 </span>
               </li>
             </ol>
 
-            <div class="mt-auto grid gap-3 pt-8">
+            <div class="mt-auto grid gap-3 pt-6">
               <PrimaryButton label="Explore with sample data" @click="step = 'trackers'" />
               <PrimaryButton v-if="mode.backendConfigured" variant="secondary" label="Sign in to your FitApp server" @click="signIn" />
               <p class="text-center text-xs text-muted">Sample data is simulated on this phone and always labelled as such.</p>
@@ -70,6 +72,7 @@ import { IonContent, IonIcon, IonPage, IonToggle } from '@ionic/vue'
 import { layersOutline, phonePortraitOutline, watchOutline } from 'ionicons/icons'
 import BrandLogo from '@/components/BrandLogo.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import { ICONS } from '@/components/metricIcons'
 import type { Tone } from '@/components/PanelSection.vue'
 import { onboarding } from '@/lib/onboarding'
@@ -79,13 +82,9 @@ import { resetDataStores } from '@/stores/reset'
 import type { TrackerPrefs } from '@/types/journal'
 
 const SOURCES = [
-  { icon: watchOutline, title: 'Your smartwatch', text: 'Steps, workouts, sleep, heart rate and the other readings your watch records.' },
-  {
-    icon: phonePortraitOutline,
-    title: 'Health Connect or Apple Health',
-    text: "Your watch's companion app shares them with the phone. Connecting is planned and not available yet; FitApp asks for permission only when you connect.",
-  },
-  { icon: layersOutline, title: 'What you add', text: 'Mood, meals, water and cycle entries, always marked as your own.' },
+  { icon: watchOutline, title: 'Your FitApp watch', text: 'Activity, sleep and heart rate' },
+  { icon: phonePortraitOutline, title: 'Health Connect or Apple Health', text: 'For other watches, if you allow it' },
+  { icon: layersOutline, title: 'What you add', text: 'Mood, meals, water and cycle' },
 ]
 
 const TRACKERS: { key: keyof TrackerPrefs; label: string; hint: string; icon: string; tone: Tone }[] = [
