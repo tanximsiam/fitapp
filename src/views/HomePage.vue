@@ -4,7 +4,6 @@
 
     <DataState>
       <div class="stagger grid grid-cols-[minmax(0,1fr)] gap-4">
-        <WatchStatus />
         <TodayNudge :day="day" />
 
         <section aria-labelledby="health-title">
@@ -88,7 +87,6 @@ import JournalState from '@/components/JournalState.vue'
 import SectionHeading from '@/components/SectionHeading.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
 import TodayNudge from '@/components/TodayNudge.vue'
-import WatchStatus from '@/components/WatchStatus.vue'
 import { ICONS } from '@/components/metricIcons'
 import { SLEEP_STAGES } from '@/components/sleepStages'
 import { useJournalData } from '@/composables/useJournalData'

@@ -90,7 +90,8 @@ const rings = computed(() => {
   return [
     { label: 'Steps', icon: ICONS.steps, color: 'var(--ring-1)', ratio: progress(a?.steps, g.steps), valueText: formatInt(a?.steps), goalText: formatInt(g.steps) },
     {
-      label: 'Active energy',
+      // Short label keeps the three captions on one line on phones; the kcal value says what is counted.
+      label: 'Activity',
       icon: ICONS.activeEnergy,
       color: 'var(--ring-2)',
       ratio: progress(a?.activeKcal, g.activeKcal),

@@ -13,6 +13,7 @@
         <BrandLogo v-else slot="start" symbol class="ml-4 h-6" />
         <ion-buttons slot="end" class="mr-2 gap-2">
           <DataModeBadge v-if="!parent" />
+          <WatchStatus v-if="!parent && route.path !== '/device'" />
           <RouterLink
             v-if="!parent"
             to="/home/settings"
@@ -49,6 +50,7 @@ import type { RefresherCustomEvent } from '@ionic/vue'
 import { personOutline } from 'ionicons/icons'
 import BrandLogo from '@/components/BrandLogo.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
+import WatchStatus from '@/components/WatchStatus.vue'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 
