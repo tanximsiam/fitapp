@@ -122,7 +122,7 @@ const groups = computed(() => {
     { title: 'Activity', to: '/health/activity', icon: ICONS.activity, tone: 'activity', missing: 'Not measured', value: a ? `${formatInt(a.steps)} steps · ${formatKm(a.distanceM)}` : null, spark: spark((x) => x.activity?.steps) },
     {
       title: 'Workouts',
-      to: '/health/activity',
+      to: '/health/workouts',
       icon: ICONS.workouts,
       tone: 'heart',
       missing: 'No workout recorded',

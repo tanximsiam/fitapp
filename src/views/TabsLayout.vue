@@ -12,7 +12,7 @@
 
     <!-- Manual entries belong to Home and Journal; watch pages have nothing to log by hand. -->
     <Transition name="fab">
-      <button v-if="showLog" type="button" class="quick-log" aria-label="Quick log: add a mood, meal, drink or cycle day" @click="ui.openQuickLog()">
+      <button v-if="showLog" type="button" class="quick-log" aria-label="Quick log: add a mood, meal, drink or cycle day" @click="ui.openQuickLog(LOG_KIND[route.path])">
         <ion-icon :icon="add" aria-hidden="true" />
       </button>
     </Transition>
@@ -27,7 +27,7 @@ import { add, bookOutline, bulbOutline, homeOutline, pulseOutline, watchOutline 
 import { useAuthStore } from '@/stores/auth'
 import { useJournalStore } from '@/stores/journal'
 import { useModeStore } from '@/stores/mode'
-import { useUiStore } from '@/stores/ui'
+import { useUiStore, type QuickLogView } from '@/stores/ui'
 
 const TABS = [
   { tab: 'home', label: 'Home', icon: homeOutline },
@@ -42,7 +42,15 @@ const ui = useUiStore()
 const journal = useJournalStore()
 const mode = useModeStore()
 const auth = useAuthStore()
-const showLog = computed(() => route.path === '/home' || route.path === '/journal')
+/** Where a manual entry fits, and which form the button opens there ('choose' shows all four). */
+const LOG_KIND: Record<string, QuickLogView> = {
+  '/home': 'choose',
+  '/journal': 'choose',
+  '/journal/mood': 'mood',
+  '/journal/food': 'choose',
+  '/journal/cycle': 'cycle',
+}
+const showLog = computed(() => route.path in LOG_KIND)
 
 // Tracker preferences decide what Home, Journal and Quick log offer.
 onMounted(() => {

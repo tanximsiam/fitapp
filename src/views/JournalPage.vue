@@ -11,30 +11,39 @@
             <RouterLink to="/home/settings" class="font-medium text-accent">your profile</RouterLink>.
           </p>
 
-          <section aria-labelledby="recent-title">
-            <div class="mb-3 flex items-center justify-between gap-3">
-              <h2 id="recent-title" class="text-[17px] font-semibold tracking-tight">Last 7 days</h2>
-              <div role="radiogroup" aria-label="Show" class="inline-flex rounded-full bg-surface p-0.5 shadow-[var(--card-shadow)]">
-                <button
-                  v-for="f in FILTERS"
-                  :key="f.value"
-                  type="button"
-                  role="radio"
-                  :aria-checked="filter === f.value"
-                  class="min-h-8 rounded-full px-3 text-xs font-medium transition-colors duration-150"
-                  :class="filter === f.value ? 'bg-accent text-accent-ink' : 'text-ink-2'"
-                  @click="filter = f.value"
-                >
-                  {{ f.label }}
-                </button>
-              </div>
+          <section aria-labelledby="history-title">
+            <h2 id="history-title" class="mb-3 text-[17px] font-semibold tracking-tight">History</h2>
+            <!-- Category chips scroll sideways rather than wrapping, so the list keeps its place. -->
+            <div role="radiogroup" aria-label="Show" class="-mx-4 mb-3 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+              <button
+                v-for="c in categories"
+                :key="c.value"
+                type="button"
+                role="radio"
+                :aria-checked="category === c.value"
+                class="flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition-colors duration-150"
+                :class="category === c.value ? 'bg-accent text-accent-ink' : 'bg-surface text-ink-2 shadow-[var(--card-shadow)]'"
+                @click="category = c.value"
+              >
+                <ion-icon v-if="c.icon" :icon="c.icon" aria-hidden="true" />{{ c.label }}
+              </button>
             </div>
-            <ol class="grid gap-3">
-              <li v-for="d in week" :key="d.date" class="card p-4">
+
+            <ol id="journal-days" class="grid gap-3">
+              <li v-for="d in shownDays" :key="d.date" class="card p-4">
                 <h3 class="mb-3 text-sm font-semibold">{{ d.date === fitness.today ? 'Today' : formatLongDate(d.date) }}</h3>
-                <DayTimeline :rows="d.rows" :empty-text="filter === 'journal' ? 'No entries this day.' : 'Nothing recorded this day.'" />
+                <DayTimeline :rows="d.rows" :empty-text="emptyText" />
               </li>
             </ol>
+            <button
+              v-if="visible < DAYS_LOADED"
+              type="button"
+              aria-controls="journal-days"
+              class="mt-3 min-h-11 w-full rounded-full text-sm font-medium text-accent"
+              @click="visible += 7"
+            >
+              Show earlier days
+            </button>
           </section>
         </div>
       </JournalState>
@@ -43,30 +52,61 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { IonIcon } from '@ionic/vue'
+import { watchOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
 import DataState from '@/components/DataState.vue'
 import DayTimeline from '@/components/DayTimeline.vue'
 import JournalState from '@/components/JournalState.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
+import { ICONS } from '@/components/metricIcons'
 import { useJournalData } from '@/composables/useJournalData'
-import { dayRows, type TimelineFilter } from '@/data/timeline'
+import { dayRows } from '@/data/timeline'
 import { addDays } from '@/lib/dates'
 import { formatLongDate } from '@/lib/format'
 
-const FILTERS: { value: TimelineFilter; label: string }[] = [
-  { value: 'journal', label: 'Yours' },
-  { value: 'all', label: 'All' },
-]
-const filter = ref<TimelineFilter>('journal')
+type Category = 'all' | 'mood' | 'meals' | 'water' | 'cycle' | 'watch'
+/** Timeline areas shown for each category ('all' shows everything). */
+const AREAS: Record<Exclude<Category, 'all'>, string[]> = {
+  mood: ['Mood'],
+  meals: ['Meal'],
+  water: ['Water'],
+  cycle: ['Cycle'],
+  watch: ['Sleep', 'Workout', 'Activity'],
+}
+/** The journal store loads 60 days; older days need a reload from an earlier date. */
+const DAYS_LOADED = 60
 
 const { fitness, journal, mode, days } = useJournalData()
 const anyTracker = computed(() => journal.prefs.mood || journal.prefs.food || journal.prefs.cycle)
 
-const week = computed(() =>
-  Array.from({ length: 7 }, (_, i) => {
+const categories = computed(() =>
+  [
+    { value: 'all' as const, label: 'All', icon: null, on: true },
+    { value: 'mood' as const, label: 'Mood', icon: ICONS.mood, on: journal.prefs.mood },
+    { value: 'meals' as const, label: 'Meals', icon: ICONS.meals, on: journal.prefs.food },
+    { value: 'water' as const, label: 'Water', icon: ICONS.water, on: journal.prefs.food },
+    { value: 'cycle' as const, label: 'Cycle', icon: ICONS.cycle, on: journal.prefs.cycle },
+    { value: 'watch' as const, label: 'Watch', icon: watchOutline, on: true },
+  ].filter((c) => c.on),
+)
+const category = ref<Category>('all')
+// A tracker turned off in settings removes its chip; fall back to everything.
+watch(categories, (cs) => {
+  if (!cs.some((c) => c.value === category.value)) category.value = 'all'
+})
+
+const visible = ref(7)
+watch(category, () => (visible.value = 7))
+
+const shownDays = computed(() =>
+  Array.from({ length: visible.value }, (_, i) => {
     const date = addDays(fitness.selectedDate, -i)
-    return { date, rows: dayRows(days.value.find((d) => d.date === date) ?? null, journal.onDate(date), journal.prefs, mode.isDemo, filter.value) }
+    const rows = dayRows(days.value.find((d) => d.date === date) ?? null, journal.onDate(date), journal.prefs, mode.isDemo)
+    const c = category.value
+    return { date, rows: c === 'all' ? rows : rows.filter((r) => AREAS[c].includes(r.area)) }
   }),
 )
+const emptyText = computed(() => (category.value === 'all' ? 'Nothing recorded this day.' : 'Nothing in this category this day.'))
 </script>

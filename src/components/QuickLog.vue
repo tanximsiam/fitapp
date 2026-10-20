@@ -1,13 +1,15 @@
 <template>
-  <!-- A modal is warranted here: a short, focused entry that returns to where the user was. -->
-  <dialog
-    ref="dialog"
+  <!-- A bottom sheet: a short, focused entry that returns to where the user was. Swipe down or tap outside to close. -->
+  <ion-modal
+    :is-open="!!ui.quickLog"
+    :initial-breakpoint="1"
+    :breakpoints="[0, 1]"
+    class="sheet"
     aria-labelledby="quick-log-title"
-    class="m-auto max-h-[92dvh] w-[min(34rem,calc(100vw-1.5rem))] overflow-y-auto rounded-3xl bg-surface p-0 text-ink shadow-[0_24px_64px_rgb(0_0_0/0.22)] backdrop:bg-black/40 max-sm:mb-0 max-sm:w-full max-sm:max-w-full max-sm:rounded-b-none"
-    @close="ui.closeQuickLog()"
-    @click.self="close"
+    @will-present="onOpen"
+    @did-dismiss="ui.closeQuickLog()"
   >
-    <div class="px-5 pt-4 pb-5 sm:px-6">
+    <div class="max-h-[88dvh] overflow-y-auto px-5 pt-4 pb-[max(env(safe-area-inset-bottom),20px)]">
       <div class="mb-4 flex items-center justify-between">
         <h2 id="quick-log-title" class="text-lg font-semibold tracking-tight">{{ saved ? 'Saved' : 'Quick log' }}</h2>
         <button type="button" class="grid size-9 place-items-center rounded-full text-ink-2 hover:bg-page" aria-label="Close" @click="close">
@@ -61,12 +63,14 @@
         <CycleSteps v-else :key="`c${openCount}`" :date="fitness.today" @exit="choose" @saved="onSaved" />
       </template>
     </div>
-  </dialog>
+  </ion-modal>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { IonIcon } from '@ionic/vue'
+import { computed, ref } from 'vue'
+import { Capacitor } from '@capacitor/core'
+import { Haptics, NotificationType } from '@capacitor/haptics'
+import { IonIcon, IonModal } from '@ionic/vue'
 import { closeOutline, flameOutline } from 'ionicons/icons'
 import { ICONS } from '@/components/metricIcons'
 import type { Tone } from '@/components/PanelSection.vue'
@@ -87,7 +91,6 @@ const ui = useUiStore()
 const journal = useJournalStore()
 const fitness = useFitnessStore()
 const mode = useModeStore()
-const dialog = ref<HTMLDialogElement | null>(null)
 const openCount = ref(0)
 const saved = ref<LogKind | null>(null)
 const streak = computed(() => loggingStreak(journal.data, fitness.today))
@@ -103,20 +106,13 @@ const tabs = computed(() =>
   ).filter((t) => t.on),
 )
 
-watch(
-  () => ui.quickLog,
-  (kind) => {
-    if (kind && !dialog.value?.open) {
-      if (kind !== 'choose' && !tabs.value.some((t) => t.kind === kind)) ui.quickLog = 'choose'
-      saved.value = null
-      openCount.value++
-      journal.ensureLoaded()
-      dialog.value?.showModal()
-    } else if (!kind && dialog.value?.open) {
-      dialog.value.close()
-    }
-  },
-)
+function onOpen() {
+  const kind = ui.quickLog
+  if (kind && kind !== 'choose' && !tabs.value.some((t) => t.kind === kind)) ui.quickLog = 'choose'
+  saved.value = null
+  openCount.value++
+  journal.ensureLoaded()
+}
 
 function choose() {
   saved.value = null
@@ -125,8 +121,9 @@ function choose() {
 }
 function onSaved() {
   saved.value = ui.quickLog === 'choose' ? null : ui.quickLog
+  if (Capacitor.isNativePlatform()) Haptics.notification({ type: NotificationType.Success }).catch(() => {})
 }
-const close = () => dialog.value?.close()
+const close = () => ui.closeQuickLog()
 </script>
 
 <style scoped>
