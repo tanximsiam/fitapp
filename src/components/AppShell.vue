@@ -29,8 +29,8 @@
       <ion-refresher slot="fixed" @ion-refresh="refresh">
         <ion-refresher-content />
       </ion-refresher>
-      <!-- Room below the last card so nothing stays under the quick-log button. -->
-      <main class="mx-auto w-full max-w-2xl px-4 pt-1 pb-28">
+      <!-- Room below the last card for the quick-log button: 56px tall, 16px above the tab bar, plus a little air. -->
+      <main class="mx-auto w-full max-w-2xl px-4 pt-1 pb-20">
         <div v-if="!hideTitle || $slots.subtitle || $slots.actions" class="mb-4">
           <h1 v-if="!parent && !hideTitle" class="text-[28px] leading-tight font-semibold tracking-tight">{{ title }}</h1>
           <p v-if="$slots.subtitle" class="mt-0.5 text-sm text-muted"><slot name="subtitle" /></p>
