@@ -12,7 +12,6 @@
         <ion-title v-if="parent">{{ title }}</ion-title>
         <BrandLogo v-else slot="start" symbol class="ml-4 h-6" />
         <ion-buttons slot="end" class="mr-2 gap-2">
-          <DataModeBadge v-if="!parent" />
           <NotificationBell v-if="!parent" />
           <RouterLink
             v-if="!parent"
@@ -33,7 +32,7 @@
       <!-- Room below the last card so nothing stays under the quick-log button. -->
       <main class="mx-auto w-full max-w-2xl px-4 pt-1 pb-28">
         <div class="mb-4">
-          <h1 v-if="!parent" class="text-[28px] leading-tight font-semibold tracking-tight">{{ title }}</h1>
+          <h1 v-if="!parent && !hideTitle" class="text-[28px] leading-tight font-semibold tracking-tight">{{ title }}</h1>
           <p v-if="$slots.subtitle" class="mt-0.5 text-sm text-muted"><slot name="subtitle" /></p>
           <div v-if="$slots.actions" class="mt-3"><slot name="actions" /></div>
         </div>
@@ -51,13 +50,13 @@ import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, Ion
 import type { RefresherCustomEvent } from '@ionic/vue'
 import { personOutline } from 'ionicons/icons'
 import BrandLogo from '@/components/BrandLogo.vue'
-import DataModeBadge from '@/components/DataModeBadge.vue'
 import NotificationBell from '@/components/NotificationBell.vue'
 import OfflineBanner from '@/components/OfflineBanner.vue'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 
-defineProps<{ title: string }>()
+/** hideTitle: the page draws its own heading (Home greets instead of showing a title). */
+defineProps<{ title: string; hideTitle?: boolean }>()
 const route = useRoute()
 const fitness = useFitnessStore()
 const journal = useJournalStore()

@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { chevronForward } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
@@ -55,8 +55,8 @@ import { lastValues } from '@/data/chartData'
 import { workoutLabel } from '@/data/connection'
 import { formatDeviation } from '@/data/signals'
 import { formatDuration, formatInt, formatKm } from '@/lib/format'
-import { wallMinutes } from '@/lib/dates'
-import type { DaySummary, HeartRateSample } from '@/types/fitness'
+import type { DaySummary } from '@/types/fitness'
+import { useHeartTrace } from '@/composables/useHeartTrace'
 
 const { fitness, mode, freshness, days, selectedDay: day } = useFitnessData()
 
@@ -77,42 +77,7 @@ const sparkMax = (vals: (number | null)[]) => Math.max(1, ...vals.map((v) => v ?
 
 /** Same width as the 7-bar sparks so the rows line up. */
 const SPARK_W = 60
-const samples = ref<HeartRateSample[]>([])
-let request = 0
-watch(
-  () => [fitness.selectedDate, mode.mode, fitness.status?.lastIngestedAt],
-  async () => {
-    const id = ++request
-    try {
-      const result = await mode.adapter.getHeartRate(fitness.selectedDate)
-      if (id === request) samples.value = result
-    } catch {
-      // The row still shows the daily summary; the detail page reports load errors.
-      if (id === request) samples.value = []
-    }
-  },
-  { immediate: true },
-)
-const hrLine = computed(() => {
-  const s = samples.value
-  if (s.length < 2) return undefined
-  const bpm = s.map((x) => x.bpm)
-  const lo = Math.min(...bpm)
-  const span = Math.max(1, Math.max(...bpm) - lo)
-  // Fit the readings' own time span, so a part-day (today so far) fills the spark too.
-  const t0 = wallMinutes(s[0].at)
-  const tSpan = Math.max(1, wallMinutes(s.at(-1)!.at) - t0)
-  let prev = -Infinity
-  return s
-    .map((x) => {
-      const m = wallMinutes(x.at)
-      // Readings more than 30 minutes apart are not joined (watch off the wrist).
-      const cmd = m - prev > 30 ? 'M' : 'L'
-      prev = m
-      return `${cmd}${(1 + ((m - t0) / tSpan) * (SPARK_W - 2)).toFixed(1)},${(26 - ((x.bpm - lo) / span) * 24).toFixed(1)}`
-    })
-    .join('')
-})
+const { path: hrLine } = useHeartTrace(SPARK_W)
 
 const groups = computed(() => {
   const d = day.value
