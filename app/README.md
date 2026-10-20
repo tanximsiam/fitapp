@@ -58,11 +58,11 @@ npm run test:unit -- --run
 npm run build
 ```
 
-To use your own backend instead of demo data, copy `.env.example` to `.env` and set `VITE_BACKEND_URI` to the URL of a running [FitApp backend](https://github.com/tanximsiam/fitapp/tree/main/backend-fitapp). Accounts are created on the server with `php artisan fitapp:create-user`.
+To use your own backend instead of demo data, copy `.env.example` to `.env` and set `VITE_BACKEND_URI` to the URL of a running [FitApp backend](../backend-fitapp). Accounts are created on the server with `php artisan fitapp:create-user`.
 
 ### API contract tests
 
-These run the app's own API client against a real FitApp backend, so a renamed or missing field fails here. The script starts a throwaway backend from `../fitapp/backend-fitapp` (or `FITAPP_BACKEND_DIR`) on port 8010 with its own temporary SQLite database, a test user with a random password, and the sample ingest payload. Your backend's database and `.env` are not touched. Needs PHP 8.3 and the backend's Composer dependencies.
+These run the app's own API client against a real FitApp backend, so a renamed or missing field fails here. The script starts a throwaway backend from `../backend-fitapp` (or `FITAPP_BACKEND_DIR`) on port 8010 with its own temporary SQLite database, a test user with a random password, and the sample ingest payload. Your backend's database and `.env` are not touched. Needs PHP 8.3 and the backend's Composer dependencies.
 
 ```bash
 scripts/contract-backend.sh &
@@ -116,11 +116,11 @@ src/
   api/           Laravel API client (Sanctum bearer token)
   stores/        Pinia: fitness, journal, mode (demo or backend), auth, ui
   insights/      Rule-based, explainable observations
-  styles/        tailwind.css (FitApp tokens, shared with the web app), mobile.css (Ionic chrome)
+  styles/        tailwind.css (FitApp tokens, shared with the web dashboard), mobile.css (Ionic chrome)
 tests/unit/      Vitest
 ```
 
-The data layer, types, stores, insight rules, charts and entry forms come from the FitApp web app so both clients calculate the same way. Screens, navigation and the page frame are mobile-specific. Paths used by shared components (`/activity`, `/settings`, …) redirect to their mobile locations.
+The data layer, types, stores, insight rules and charts match the web dashboard in `../frontend-fitapp`, so both clients calculate the same way. Entry forms live only here: the phone is where journal entries, goals and trackers are set. Screens, navigation and the page frame are mobile-specific. Paths used by shared components (`/activity`, `/settings`, …) redirect to their mobile locations.
 
 ## Principles
 
@@ -130,4 +130,4 @@ The data layer, types, stores, insight rules, charts and entry forms come from t
 
 ## Licence
 
-Code: Apache-2.0, see [LICENSE](LICENSE) and [NOTICE](NOTICE). The FitApp name, logo and images are not licensed for reuse; see [TRADEMARKS.md](TRADEMARKS.md). Animated mood faces are adapted from "Simple animating emotions" by Misha Heesakkers (MIT).
+Code: Apache-2.0, see [LICENSE](../LICENSE) and [NOTICE](../NOTICE). The FitApp name, logo and images are not licensed for reuse; see [TRADEMARKS.md](../TRADEMARKS.md). Animated mood faces are adapted from "Simple animating emotions" by Misha Heesakkers (MIT).

@@ -19,7 +19,8 @@ all rights reserved. See TRADEMARKS.md.
 
 Third-party material
 --------------------
-Animated mood faces (frontend-fitapp/src/components/forms/MoodFace.vue) are
+Animated mood faces (frontend-fitapp/src/components/forms/MoodFace.vue and
+app/src/components/forms/MoodFace.vue) are
 adapted from "Simple animating emotions" by Misha Heesakkers
 (https://codepen.io/MishaHahaha/pen/grzLJy), used under the MIT License:
 

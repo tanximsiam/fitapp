@@ -1,11 +1,11 @@
 // Renders the icon and splash sources in resources/ from the official brand SVGs, then
 // `npx capacitor-assets generate --android --ios` produces every platform size.
-//   node scripts/brand-assets.mjs [path/to/fitapp/brand/svg]
+//   node scripts/brand-assets.mjs [path/to/brand/svg]
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import sharp from 'sharp'
 
-const brand = resolve(process.argv[2] ?? new URL('../../fitapp/brand/svg', import.meta.url).pathname)
+const brand = resolve(process.argv[2] ?? new URL('../../brand/svg', import.meta.url).pathname)
 const out = (name) => resolve(new URL('../resources', import.meta.url).pathname, name)
 
 const TEAL = '#087F72' // brand master teal (brand/README.txt)

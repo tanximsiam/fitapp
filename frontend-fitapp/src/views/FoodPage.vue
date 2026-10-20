@@ -21,35 +21,25 @@
               { label: 'Carbs', icon: ICONS.meals, value: grams(macros.carbs), ratio: macroShare(macros.carbs, 4) },
               { label: 'Fat', icon: ICONS.meals, value: grams(macros.fat), ratio: macroShare(macros.fat, 9) },
             ]"
-          >
-            <template #actions>
-              <PrimaryButton v-if="fitness.isToday" label="Log meal" @click="ui.openQuickLog('meal')" />
-              <PrimaryButton v-if="fitness.isToday" label="+ 250 ml water" :disabled="quickSaving" @click="quickWater" />
-              <p v-if="quickError" role="alert" class="text-sm">{{ quickError }}</p>
-            </template>
-          </ModuleHero>
+          />
 
           <div class="@container">
             <div class="grid items-start gap-4 @2xl:grid-cols-2 @[76rem]:grid-cols-3">
               <WidgetCard title="Meals" :icon="ICONS.meals" tone="energy" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(day.meals.length)">
-                <div class="overflow-y-auto" :style="editing || addingMeal ? undefined : { height: `${AREA}px` }">
+                <div class="overflow-y-auto" :style="{ height: `${AREA}px` }">
                   <ul v-if="day.meals.length" class="divide-y divide-line">
                     <li v-for="m in day.meals" :key="m.id" class="py-2.5 first:pt-0">
-                      <MealForm v-if="editing === m.id" :date="m.date" :existing="m" @done="editing = null" />
-                      <div v-else class="flex items-start gap-3 text-sm">
+                      <div class="flex items-start gap-3 text-sm">
                         <span class="tabular w-11 shrink-0 text-xs text-muted">{{ formatClock(m.eatenAt) }}</span>
                         <div class="min-w-0 flex-1">
                           <p class="font-medium capitalize">{{ m.mealType }}</p>
                           <p class="truncate text-xs text-ink-2">{{ m.items.map((i) => i.name).join(', ') }}</p>
                           <p v-if="mealKcal(m) != null" class="tabular text-xs text-muted">{{ formatInt(mealKcal(m)) }} kcal {{ energyOrigin(enteredEnergy([m])) }}</p>
                         </div>
-                        <button type="button" class="text-xs font-medium text-accent underline underline-offset-2" @click="editing = m.id">Edit</button>
                       </div>
                     </li>
                   </ul>
-                  <p v-else class="text-sm text-muted">No meals logged on this day.</p>
-                  <div v-if="addingMeal" class="mt-3 border-t border-line pt-3"><MealForm :date="fitness.selectedDate" @done="addingMeal = false" /></div>
-                  <button v-else-if="!fitness.isToday" type="button" class="mt-3 text-sm font-medium text-accent underline underline-offset-2" @click="addingMeal = true">Add a meal for this day</button>
+                  <p v-else class="text-sm text-muted">No meals logged on this day. Meals are logged in the FitApp mobile app.</p>
                 </div>
               </WidgetCard>
 
@@ -70,25 +60,13 @@
               </WidgetCard>
 
               <WidgetCard title="Water" :icon="ICONS.water" tone="activity" :label="fitness.isToday ? 'Today' : 'This day'" :value="day.waterMl ? `${formatInt(day.waterMl)} ml` : EMPTY">
-                <div class="overflow-y-auto" :style="editingDrinkEntry || addingDrink ? undefined : { height: `${AREA}px` }">
+                <div class="overflow-y-auto" :style="{ height: `${AREA}px` }">
                   <ul v-if="day.hydration.length" class="flex flex-wrap gap-2">
-                    <li v-for="h in day.hydration" :key="h.id">
-                      <button
-                        type="button"
-                        class="rounded-lg bg-page px-3 py-1.5 text-sm transition-colors duration-150 hover:bg-[var(--activity-soft)]"
-                        :aria-label="`Edit ${h.volumeMl} ml at ${formatClock(h.recordedAt)}`"
-                        @click="editingDrink = h.id"
-                      >
-                        <span class="tabular font-medium">{{ h.volumeMl }} ml</span> <span class="text-xs text-muted">{{ formatClock(h.recordedAt) }}</span>
-                      </button>
+                    <li v-for="h in day.hydration" :key="h.id" class="rounded-lg bg-page px-3 py-1.5 text-sm">
+                      <span class="tabular font-medium">{{ h.volumeMl }} ml</span> <span class="text-xs text-muted">{{ formatClock(h.recordedAt) }}</span>
                     </li>
                   </ul>
                   <p v-else class="text-sm text-muted">No drinks logged on this day.</p>
-                  <div v-if="editingDrinkEntry" class="mt-3 border-t border-line pt-3">
-                    <DrinkForm :key="String(editingDrink)" :date="fitness.selectedDate" :existing="editingDrinkEntry" @done="editingDrink = null" />
-                  </div>
-                  <div v-else-if="addingDrink" class="mt-3 border-t border-line pt-3"><DrinkForm :date="fitness.selectedDate" @done="addingDrink = false" /></div>
-                  <button v-else type="button" class="mt-3 text-sm font-medium text-accent underline underline-offset-2" @click="addingDrink = true">Add a drink…</button>
                 </div>
               </WidgetCard>
 
@@ -136,45 +114,32 @@
 
 <script setup lang="ts">
 import { ICONS } from '@/components/metricIcons'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import BarList from '@/components/charts/BarList.vue'
 import DonutChart from '@/components/charts/DonutChart.vue'
 import DateToolbar from '@/components/DateToolbar.vue'
-import DrinkForm from '@/components/forms/DrinkForm.vue'
-import MealForm from '@/components/forms/MealForm.vue'
 import JournalState from '@/components/JournalState.vue'
 import ModuleHero from '@/components/ModuleHero.vue'
-import PrimaryButton from '@/components/PrimaryButton.vue'
 import TrackerGate from '@/components/TrackerGate.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { lastValues } from '@/data/chartData'
 import { mean } from '@/data/derive'
 import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
-import { defaultInputFor, localInputToIso } from '@/lib/instants'
 import { EMPTY, formatClock, formatInt, formatLongDate, formatShortDate, formatWeekday } from '@/lib/format'
-import { useUiStore } from '@/stores/ui'
-import { MEAL_TYPES, type EntryId, type Meal } from '@/types/journal'
+import { MEAL_TYPES, type Meal } from '@/types/journal'
 
 const CHART = 130
 const AREA = CHART + 28
 
 const { fitness, journal, rangeDaysList } = useJournalData()
-const ui = useUiStore()
-const editing = ref<EntryId | null>(null)
-const editingDrink = ref<EntryId | null>(null)
-const addingMeal = ref(false)
-const addingDrink = ref(false)
-const quickSaving = ref(false)
-const quickError = ref<string | null>(null)
 
 const day = computed(() => {
   const entries = journal.onDate(fitness.selectedDate)
   return { ...entries, waterMl: entries.hydration.reduce((a, h) => a + h.volumeMl, 0), watchKcal: fitness.selectedDay?.activity?.activeKcal ?? null }
 })
-const editingDrinkEntry = computed(() => day.value.hydration.find((h) => h.id === editingDrink.value))
 const energyLine = computed(() => {
   const e = enteredEnergy(day.value.meals)
   if (!e.total) return ''
@@ -229,17 +194,5 @@ function dayBars(pick: (date: string) => number | null, color: string, format: (
       valueText: v == null ? 'Nothing logged' : format(v),
     }
   })
-}
-
-async function quickWater() {
-  quickSaving.value = true
-  quickError.value = null
-  try {
-    await journal.saveHydration({ recordedAt: localInputToIso(defaultInputFor(fitness.today)), volumeMl: 250 })
-  } catch (err) {
-    quickError.value = err instanceof Error ? err.message : 'Could not save.'
-  } finally {
-    quickSaving.value = false
-  }
 }
 </script>

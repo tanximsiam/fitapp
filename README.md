@@ -4,10 +4,13 @@
 
 FitApp is a personal open-source health tracking project by Tanzim Siam. It is part of a bigger personal portfolio project that covers the whole path from brand and logo design through UI/UX to app development. FitApp is not a commercial product or a market brand.
 
-This web app brings the activity, sleep and heart-rate data recorded by a wearable together with the things a wearable can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible.
+FitApp brings the activity, sleep and heart-rate data recorded by a wearable together with the things a wearable can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible. It has two clients on one backend:
+
+- **The mobile app** ([`app/`](app/), Ionic + Capacitor for Android and iOS) is where everything is entered: journal entries, goals and trackers. It connects the watch and Health Connect or HealthKit, works offline and syncs when back online. See [app/README.md](app/README.md).
+- **The web dashboard** ([`frontend-fitapp/`](frontend-fitapp/)) is read-only: the same records on a large screen for reading trends. Its settings cover only sign-in, the data source and the theme.
 
 - **Watch first.** A dashboard overview (today's goals as donuts, a month calendar, your journal and a widget per measurement), Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
-- **Personal trackers.** A step-by-step quick log (one question per step, with picture cards) for mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
+- **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker, logged in the mobile app and shown on both clients. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
 - **Open data path.** Any device, bridge or exporter you build sends data through one documented, authenticated ingestion API. See [docs/integration.md](docs/integration.md).
 - **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser.
@@ -24,7 +27,7 @@ This web app brings the activity, sleep and heart-rate data recorded by a wearab
 <p>
   <img src="docs/screenshots/mobile-overview.png" width="200" alt="Overview on a phone" />
   <img src="docs/screenshots/mobile-sleep.png" width="200" alt="Sleep on a phone" />
-  <img src="docs/screenshots/mobile-quick-log.png" width="200" alt="Quick log on a phone" />
+  <img src="docs/screenshots/mobile-mood.png" width="200" alt="Mood on a phone" />
 </p>
 
 Screenshots are from the demo. All values in them are simulated.
@@ -33,7 +36,7 @@ Screenshots are from the demo. All values in them are simulated.
 
 | Area | Status |
 | --- | --- |
-| Demo mode (simulated watch, journal fixtures, local edits, Reset demo) | Works offline in the browser; unit-tested and checked in Chromium at phone and desktop sizes |
+| Demo mode (simulated watch and journal fixtures) | Works offline in the browser; unit-tested and checked in Chromium at phone and desktop sizes |
 | FitApp backend: auth, fitness read API, journal CRUD, ingestion | Implemented; feature tests; checked end to end against a local server with `curl` and the website |
 | Ingestion from a device or bridge | Contract implemented and tested with representative payloads (`docs/examples/ingest-sample.json` and a 30-day generated payload) |
 | A real device | **Not tested.** No physical device was used |
@@ -41,8 +44,9 @@ Screenshots are from the demo. All values in them are simulated.
 ## Repository layout
 
 ```
-frontend-fitapp/   Vue 3 + TypeScript + Ionic + Tailwind 4 + Pinia website
-  src/views/       screens            src/components/  presentation, charts, forms
+app/               mobile app: Ionic Vue 3 + Capacitor (Android, iOS), offline cache and outbox, watch and health sources
+frontend-fitapp/   read-only web dashboard: Vue 3 + TypeScript + Ionic + Tailwind 4 + Pinia
+  src/views/       screens            src/components/  presentation, charts
   src/stores/      shared state       src/composables/ reusable behaviour
   src/api/         HTTP + payload normalisation
   src/data/        demo generators, adapters, derivations (cycle, journal)
@@ -61,7 +65,7 @@ npm ci
 npm run dev
 ```
 
-Open the printed URL (Vite's default is http://localhost:5173). Without `VITE_BACKEND_URI` the site runs in demo mode: no login and no network calls. Demo changes (entries, goals, tracker choices, simulated connection state) are kept in this browser's `localStorage` until **Settings → Reset demo**.
+Open the printed URL (Vite's default is http://localhost:5173). Without `VITE_BACKEND_URI` the site runs in demo mode: no login and no network calls. The dashboard only displays data; to try logging entries, run the mobile app's demo (see [app/README.md](app/README.md)).
 
 ## Run the full stack
 
@@ -122,9 +126,11 @@ How to connect a device or bridge, including field mapping: **[docs/integration.
 cd backend-fitapp && php artisan test          # auth, ownership, ingestion, journal, dates
 cd frontend-fitapp && npx vitest run            # demo data, adapters, cycle, insights, food list, components
 cd frontend-fitapp && npm run build             # type-check (vue-tsc) and production build
+cd app && npx vue-tsc --noEmit && npx vitest run # mobile app: type-check and unit tests
+cd app && npm run test:contract                  # mobile API client against a real backend (start scripts/contract-backend.sh first)
 ```
 
-GitHub Actions runs all three on every push and pull request (`.github/workflows/ci.yml`).
+GitHub Actions runs the backend, web and mobile checks and an Android debug build on every push and pull request (`.github/workflows/ci.yml`).
 
 ## Host the demo for free
 

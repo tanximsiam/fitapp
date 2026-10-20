@@ -27,7 +27,7 @@ Leave it empty for a demo-only build (no sign-in, simulated watch). The server m
 Generated from the official brand files; regenerate after a brand change:
 
 ```bash
-node scripts/brand-assets.mjs        # renders resources/ from ../fitapp/brand/svg
+node scripts/brand-assets.mjs        # renders resources/ from ../brand/svg
 npx capacitor-assets generate --android --ios
 ```
 

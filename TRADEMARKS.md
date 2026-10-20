@@ -6,7 +6,7 @@ FitApp is a personal project and the intellectual property of Tanzim Siam. The *
 
 - The name "FitApp" and the FitApp logo, symbol, wordmark and app icon.
 - Everything in [`brand/`](brand/), including the logo files, specifications and the usage guidelines PDF.
-- The logo copies the app uses: `frontend-fitapp/src/assets/brand/` and the favicons and app icons in `frontend-fitapp/public/`.
+- The logo copies the apps use: `frontend-fitapp/src/assets/brand/`, `app/src/assets/brand/`, the favicons and app icons in `frontend-fitapp/public/` and `app/public/`, the icon and splash sources in `app/resources/`, and the generated icons and splash screens in `app/android/` and `app/ios/`.
 - The screenshots in [`docs/screenshots/`](docs/screenshots/) and other original images and artwork in this repository.
 
 You may not use these in your own project, product or app, commercial or not, without written permission.

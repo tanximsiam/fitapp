@@ -19,11 +19,7 @@
             { label: 'Recorded periods', icon: ICONS.combined, value: String(summary.recordedPeriods), note: `${summary.completedCycles} complete cycles` },
             { label: 'Symptom days', icon: ICONS.mood, value: String(symptomDays), note: 'last 30 days' },
           ]"
-        >
-          <template #actions>
-            <PrimaryButton label="Log cycle day" @click="ui.openQuickLog('cycle')" />
-          </template>
-        </ModuleHero>
+        />
 
         <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
           <PanelSection :title="monthTitle">
@@ -62,7 +58,12 @@
           </PanelSection>
 
           <PanelSection :title="formatLongDate(selected)">
-            <CycleDayForm :key="`${selected}-${journal.data.cycleDays.length}`" :date="selected" :cancellable="false" @done="() => {}" />
+            <dl v-if="selectedDay" class="grid gap-3 text-sm">
+              <div><dt class="text-xs text-muted">Flow</dt><dd class="mt-0.5 capitalize">{{ selectedDay.flow ?? 'None' }}</dd></div>
+              <div><dt class="text-xs text-muted">Symptoms</dt><dd class="mt-0.5">{{ selectedDay.symptoms.join(', ').replace(/_/g, ' ') || 'None' }}</dd></div>
+              <div v-if="selectedDay.note"><dt class="text-xs text-muted">Note</dt><dd class="mt-0.5 whitespace-pre-line">{{ selectedDay.note }}</dd></div>
+            </dl>
+            <p v-else class="text-sm text-muted">Nothing recorded on this day. Cycle days are recorded in the FitApp mobile app.</p>
           </PanelSection>
         </div>
 
@@ -103,7 +104,7 @@
               </tbody>
             </table>
           </div>
-          <p v-else class="text-sm text-muted">No periods recorded yet. Select a day in the calendar to record bleeding or symptoms.</p>
+          <p v-else class="text-sm text-muted">No periods recorded yet. Cycle days are recorded in the FitApp mobile app.</p>
         </PanelSection>
       </JournalState>
     </TrackerGate>
@@ -115,26 +116,23 @@ import { computed, ref } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { chevronBackOutline, chevronForwardOutline, water } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
-import CycleDayForm from '@/components/forms/CycleDayForm.vue'
 import JournalState from '@/components/JournalState.vue'
 import { ICONS } from '@/components/metricIcons'
 import ModuleHero from '@/components/ModuleHero.vue'
 import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
-import PrimaryButton from '@/components/PrimaryButton.vue'
 import TrackerGate from '@/components/TrackerGate.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { cycleSummary, deriveCycles, derivePeriods, periodDayIndex, type Period } from '@/data/cycle'
 import { addDays, daysBetween, weekday } from '@/lib/dates'
 import { EMPTY, formatLongDate, formatShortDate } from '@/lib/format'
-import { useUiStore } from '@/stores/ui'
 import type { Flow } from '@/types/journal'
 
 const { fitness, journal } = useJournalData()
-const ui = useUiStore()
 
 const selected = ref(fitness.selectedDate)
 const month = ref(fitness.selectedDate.slice(0, 7))
+const selectedDay = computed(() => journal.data.cycleDays.find((c) => c.date === selected.value) ?? null)
 const iconBtn = 'grid size-8 place-items-center rounded-lg border border-line text-ink-2 hover:border-line-strong disabled:opacity-35'
 
 const monthTitle = computed(() => new Date(`${month.value}-01T00:00:00Z`).toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }))
@@ -186,7 +184,7 @@ const cycleDay = computed(() => (lastPeriod.value ? daysBetween(lastPeriod.value
 const heroSentence = computed(() =>
   lastPeriod.value
     ? `Your last recorded period started ${formatShortDate(lastPeriod.value.start)} and lasted ${lastPeriod.value.lengthDays} days. FitApp does not predict periods.`
-    : 'Record bleeding on a day to start tracking. FitApp does not predict periods.',
+    : 'No period recorded yet. FitApp does not predict periods.',
 )
 const symptomDays = computed(() => journal.data.cycleDays.filter((d) => d.symptoms.length && d.date > addDays(fitness.today, -30)).length)
 const cycleLength = (start: string) => {

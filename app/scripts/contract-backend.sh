@@ -7,7 +7,7 @@
 #
 set -euo pipefail
 
-BACKEND="${FITAPP_BACKEND_DIR:-$(cd "$(dirname "$0")/../../fitapp/backend-fitapp" && pwd)}"
+BACKEND="${FITAPP_BACKEND_DIR:-$(cd "$(dirname "$0")/../../backend-fitapp" && pwd)}"
 PORT="${PORT:-8010}"
 OUT="$(cd "$(dirname "$0")/.." && pwd)/.contract.env"
 TMP="$(mktemp -d)"

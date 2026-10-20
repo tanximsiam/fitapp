@@ -10,7 +10,6 @@
           </span>
           <span><span class="tabular">{{ streak }}</span>-day logging streak</span>
         </span>
-        <PrimaryButton v-if="journal.loaded && !loggedToday" label="Log how you feel" @click="ui.openQuickLog('choose')" />
       </div>
     </div>
 
@@ -47,25 +46,19 @@
         </li>
       </ul>
     </div>
-    <!-- Pinned to the corner so it does not push the donuts off centre. -->
-    <RouterLink to="/settings" class="absolute top-3 right-4 inline-flex items-center gap-1 text-xs text-ink-2 hover:text-ink sm:right-5">
-      <ion-icon :icon="createOutline" aria-hidden="true" />Edit goals
-    </RouterLink>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
-import { checkmarkCircle, createOutline, flame } from 'ionicons/icons'
+import { checkmarkCircle, flame } from 'ionicons/icons'
 import { ICONS } from '@/components/metricIcons'
-import PrimaryButton from '@/components/PrimaryButton.vue'
 import { progress } from '@/data/derive'
 import { loggingStreak } from '@/data/journalDerive'
 import { EMPTY, formatDuration, formatInt } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
-import { useUiStore } from '@/stores/ui'
 import type { DaySummary } from '@/types/fitness'
 
 const CIRC = 2 * Math.PI * 52
@@ -73,15 +66,10 @@ const CIRC = 2 * Math.PI * 52
 const props = defineProps<{ day: DaySummary | null | undefined }>()
 const fitness = useFitnessStore()
 const journal = useJournalStore()
-const ui = useUiStore()
 
 const hour = new Date().getHours()
 const greeting = hour < 5 ? 'Good night' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 const streak = computed(() => loggingStreak(journal.data, fitness.today))
-const loggedToday = computed(() => {
-  const d = journal.onDate(fitness.today)
-  return d.mood.length + d.meals.length + d.hydration.length + (d.cycleDay ? 1 : 0) > 0
-})
 
 // Ring colours follow the theme (see the style block).
 const rings = computed(() => {
