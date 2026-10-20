@@ -91,7 +91,7 @@ const SOURCES = [
 const TRACKERS: { key: keyof TrackerPrefs; label: string; hint: string; icon: string; tone: Tone }[] = [
   { key: 'mood', label: 'Mood', hint: 'Check-ins with energy and stress you report', icon: ICONS.mood, tone: 'mood' },
   { key: 'food', label: 'Food & water', hint: 'Meals, nutrients and drinks', icon: ICONS.meals, tone: 'energy' },
-  { key: 'cycle', label: 'Periods', hint: 'Periods and symptoms, kept private', icon: ICONS.cycle, tone: 'spo2' },
+  { key: 'cycle', label: 'Periods', hint: 'Flow and symptoms, kept private', icon: ICONS.cycle, tone: 'spo2' },
 ]
 
 const router = useRouter()
