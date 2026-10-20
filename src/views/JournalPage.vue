@@ -5,6 +5,7 @@
     <DataState>
       <JournalState>
         <div class="stagger grid grid-cols-[minmax(0,1fr)] gap-4">
+          <SyncIssues />
           <TodayEntries v-if="anyTracker" />
           <p v-else class="card p-4 text-sm text-ink-2">
             All personal trackers are off. Turn on mood, food or cycle tracking in
@@ -59,6 +60,7 @@ import AppShell from '@/components/AppShell.vue'
 import DataState from '@/components/DataState.vue'
 import DayTimeline from '@/components/DayTimeline.vue'
 import JournalState from '@/components/JournalState.vue'
+import SyncIssues from '@/components/SyncIssues.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
 import { ICONS } from '@/components/metricIcons'
 import { useJournalData } from '@/composables/useJournalData'

@@ -5,8 +5,28 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-/** Where a value came from: the (simulated) watch, the user's own entry, or a demo fixture. */
-const props = defineProps<{ kind: 'watch' | 'simulated-watch' | 'manual' | 'simulated' }>()
-const text = computed(() => ({ watch: 'Watch', 'simulated-watch': 'Simulated watch', manual: 'You logged', simulated: 'Sample entry' })[props.kind])
-const cls = computed(() => (props.kind === 'watch' || props.kind === 'simulated-watch' ? 'border-activity/40 text-activity' : 'border-line-strong text-ink-2'))
+/**
+ * Where a value came from: the (simulated) watch, the user's own entry, or a demo fixture;
+ * or, for an entry made on this phone, that the server does not have it yet.
+ */
+export type EntryBadgeKind = 'watch' | 'simulated-watch' | 'manual' | 'simulated' | 'pending' | 'conflict' | 'rejected'
+const props = defineProps<{ kind: EntryBadgeKind }>()
+const text = computed(
+  () =>
+    ({
+      watch: 'Watch',
+      'simulated-watch': 'Simulated watch',
+      manual: 'You logged',
+      simulated: 'Sample entry',
+      pending: 'Waiting to sync',
+      conflict: 'Needs review',
+      rejected: 'Not saved',
+    })[props.kind],
+)
+const cls = computed(() => {
+  if (props.kind === 'watch' || props.kind === 'simulated-watch') return 'border-activity/40 text-activity'
+  if (props.kind === 'conflict' || props.kind === 'rejected') return 'border-danger/40 text-danger'
+  if (props.kind === 'pending') return 'border-dashed border-line-strong text-ink-2'
+  return 'border-line-strong text-ink-2'
+})
 </script>

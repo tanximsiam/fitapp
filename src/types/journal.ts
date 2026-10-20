@@ -6,6 +6,8 @@ import type { ISODate } from './fitness'
  */
 export type Provenance = 'manual' | 'simulated'
 export type EntryId = number | string
+/** A change made on this device that the server has not accepted yet. */
+export type SyncState = 'pending' | 'conflict' | 'rejected'
 
 interface Entry {
   id: EntryId
@@ -13,6 +15,8 @@ interface Entry {
   provenance: Provenance
   /** Concurrency token from the backend; null for demo records. */
   updatedAt: string | null
+  /** Set only on records changed offline and not yet on the server. */
+  syncState?: SyncState
 }
 
 export interface MoodEntry extends Entry {

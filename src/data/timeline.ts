@@ -1,3 +1,4 @@
+import type { EntryBadgeKind } from '@/components/EntryBadge.vue'
 import { ICONS } from '@/components/metricIcons'
 import { workoutLabel } from '@/data/connection'
 import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
@@ -5,7 +6,7 @@ import { formatClock, formatDuration, formatInt, formatKm } from '@/lib/format'
 import type { DaySummary } from '@/types/fitness'
 import type { CycleDay, HydrationEntry, Meal, MoodEntry, TrackerPrefs } from '@/types/journal'
 
-export type Source = 'watch' | 'simulated-watch' | 'manual' | 'simulated'
+export type Source = EntryBadgeKind
 export type TimelineFilter = 'all' | 'watch' | 'journal'
 
 export interface TimelineRow {
@@ -40,17 +41,17 @@ export function dayRows(d: DaySummary | null, j: JournalDay, prefs: TrackerPrefs
   if (filter !== 'watch') {
     if (prefs.mood)
       for (const e of j.mood)
-        rows.push({ time: formatClock(e.recordedAt), area: 'Mood', icon: ICONS.mood, text: `Mood ${e.mood}/5${e.energy ? ` · energy ${e.energy}/5` : ''}${e.emotions.length ? ` · ${e.emotions.join(', ')}` : ''}`, source: e.provenance, to: '/journal/mood' })
+        rows.push({ time: formatClock(e.recordedAt), area: 'Mood', icon: ICONS.mood, text: `Mood ${e.mood}/5${e.energy ? ` · energy ${e.energy}/5` : ''}${e.emotions.length ? ` · ${e.emotions.join(', ')}` : ''}`, source: e.syncState ?? e.provenance, to: '/journal/mood' })
     if (prefs.food) {
       for (const m of j.meals) {
         const e = enteredEnergy([m])
-        rows.push({ time: formatClock(m.eatenAt), area: 'Meal', icon: ICONS.meals, text: `${m.mealType[0].toUpperCase()}${m.mealType.slice(1)}: ${m.items.map((i) => i.name).join(', ')}${e.kcal != null ? ` · ${formatInt(e.kcal)} kcal ${energyOrigin(e)}` : ''}`, source: m.provenance, to: '/journal/food' })
+        rows.push({ time: formatClock(m.eatenAt), area: 'Meal', icon: ICONS.meals, text: `${m.mealType[0].toUpperCase()}${m.mealType.slice(1)}: ${m.items.map((i) => i.name).join(', ')}${e.kcal != null ? ` · ${formatInt(e.kcal)} kcal ${energyOrigin(e)}` : ''}`, source: m.syncState ?? m.provenance, to: '/journal/food' })
       }
       for (const h of j.hydration)
-        rows.push({ time: formatClock(h.recordedAt), area: 'Water', icon: ICONS.water, text: `${formatInt(h.volumeMl)} ml`, source: h.provenance, to: '/journal/food' })
+        rows.push({ time: formatClock(h.recordedAt), area: 'Water', icon: ICONS.water, text: `${formatInt(h.volumeMl)} ml`, source: h.syncState ?? h.provenance, to: '/journal/food' })
     }
     if (prefs.cycle && j.cycleDay)
-      rows.push({ time: null, area: 'Cycle', icon: ICONS.cycle, text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · ') || 'Note', source: j.cycleDay.provenance, to: '/journal/cycle' })
+      rows.push({ time: null, area: 'Cycle', icon: ICONS.cycle, text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · ') || 'Note', source: j.cycleDay.syncState ?? j.cycleDay.provenance, to: '/journal/cycle' })
   }
   return rows.sort((a, b) => (a.time ?? '99').localeCompare(b.time ?? '99'))
 }

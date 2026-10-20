@@ -36,6 +36,7 @@
           <p v-if="$slots.subtitle" class="mt-0.5 text-sm text-muted"><slot name="subtitle" /></p>
           <div v-if="$slots.actions" class="mt-3"><slot name="actions" /></div>
         </div>
+        <OfflineBanner />
         <slot />
       </main>
     </ion-content>
@@ -51,6 +52,7 @@ import { personOutline } from 'ionicons/icons'
 import BrandLogo from '@/components/BrandLogo.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
 import WatchStatus from '@/components/WatchStatus.vue'
+import OfflineBanner from '@/components/OfflineBanner.vue'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 

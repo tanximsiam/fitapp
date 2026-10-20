@@ -18,7 +18,7 @@ Built with Ionic Vue 3, TypeScript, Capacitor 7, Pinia and Tailwind CSS 4. It ta
 
 ## Status
 
-Phases 1 (foundation) and 2 (mobile features) of the mobile specification. Everything below runs on demo data and was checked in a browser at phone size; nothing has run on a phone yet.
+Phases 1 (foundation), 2 (mobile features) and 3 (backend and data) of the mobile specification. Screens were checked in a browser at phone size on demo data and against a local FitApp backend; nothing has run on a phone yet.
 
 | Area | State |
 |---|---|
@@ -35,7 +35,12 @@ Phases 1 (foundation) and 2 (mobile features) of the mobile specification. Every
 | iOS project (`ios/`) | Generated, **not built** (needs macOS and Xcode) |
 | FitApp watch connection layer | Not implemented (Phase 4). The app never claims a connection it does not have. |
 | Health Connect / Apple Health | Not implemented (Phase 4) |
-| Offline queue, secure token storage | Not implemented (Phase 3). The backend token is in `localStorage` for now. |
+| Sign-in token and profile in the iOS Keychain / Android Keystore | Implemented; native storage not yet run on a device (a plain browser falls back to unencrypted localStorage) |
+| Offline: encrypted local copy of loaded data, opens and shows an offline notice without a connection | Working against a local backend in the browser |
+| Offline journal entries: queued, shown as "waiting to sync", sent when back online | Working; covered by unit and contract tests |
+| Edit conflicts: a change refused by the server waits for "keep mine" or "keep the other version" | Working; covered by contract tests |
+| Sign-out removes the token, the cached copy, unsent entries (after a warning) and the encryption key | Implemented |
+| API contract tests against a real backend | 8 tests, passing (see below) |
 
 ## Getting started
 
@@ -49,6 +54,21 @@ npm run build
 ```
 
 To use your own backend instead of demo data, copy `.env.example` to `.env` and set `VITE_BACKEND_URI` to the URL of a running [FitApp backend](https://github.com/tanximsiam/fitapp/tree/main/backend-fitapp). Accounts are created on the server with `php artisan fitapp:create-user`.
+
+### API contract tests
+
+These run the app's own API client against a real FitApp backend, so a renamed or missing field fails here. The script starts a throwaway backend from `../fitapp/backend-fitapp` (or `FITAPP_BACKEND_DIR`) on port 8010 with its own temporary SQLite database, a test user with a random password, and the sample ingest payload. Your backend's database and `.env` are not touched. Needs PHP 8.3 and the backend's Composer dependencies.
+
+```bash
+scripts/contract-backend.sh &
+npm run test:contract
+```
+
+Without the script running, the contract tests are skipped.
+
+### Offline data and privacy
+
+Live data is cached per account, encrypted with AES-GCM under a random key kept in the Keychain or Keystore, in the app's private data folder. Journal changes made offline wait in an encrypted outbox and are sent in order when the connection returns. A change the server refuses because the entry was edited elsewhere is never overwritten silently: the Journal tab asks which version to keep. Demo data is kept separately and never mixed with an account's records.
 
 ### Native builds
 

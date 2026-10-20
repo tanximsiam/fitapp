@@ -20,11 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
 import { add, bookOutline, bulbOutline, homeOutline, pulseOutline, watchOutline } from 'ionicons/icons'
+import { App } from '@capacitor/app'
+import { Network } from '@capacitor/network'
 import { useAuthStore } from '@/stores/auth'
+import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import { useModeStore } from '@/stores/mode'
 import { useUiStore, type QuickLogView } from '@/stores/ui'
@@ -40,6 +43,7 @@ const TABS = [
 const route = useRoute()
 const ui = useUiStore()
 const journal = useJournalStore()
+const fitness = useFitnessStore()
 const mode = useModeStore()
 const auth = useAuthStore()
 /** Where a manual entry fits, and which form the button opens there ('choose' shows all four). */
@@ -56,6 +60,15 @@ const showLog = computed(() => route.path in LOG_KIND)
 onMounted(() => {
   if (mode.isDemo || auth.user) journal.ensureLoaded()
 })
+
+/** Back online or back in the app: send queued entries (journal.load flushes first) and refresh. */
+function refresh() {
+  if (mode.isDemo || !auth.user) return
+  fitness.load()
+  if (journal.loaded) journal.load()
+}
+const listeners = [Network.addListener('networkStatusChange', (s) => s.connected && refresh()), App.addListener('resume', refresh)]
+onBeforeUnmount(() => listeners.forEach((l) => l.then((h) => h.remove())))
 </script>
 
 <style scoped>

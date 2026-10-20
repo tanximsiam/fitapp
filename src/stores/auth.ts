@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import * as authApi from '@/api/auth'
-import { errorMessage, isUnauthorized, tokenStorage } from '@/api/client'
+import { errorMessage, isNetworkError, isUnauthorized, tokenStorage } from '@/api/client'
 import type { User } from '@/types/auth'
 
 let initPromise: Promise<void> | null = null
@@ -22,14 +22,18 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async restore() {
-      if (!tokenStorage.get()) return
+      if (!(await tokenStorage.load())) return
       try {
         this.user = await authApi.fetchCurrentUser()
+        await tokenStorage.setUser(this.user)
       } catch (err) {
         this.user = null
-        // Keep the token when the backend is merely unreachable; drop it only when it is rejected.
-        if (isUnauthorized(err)) tokenStorage.clear()
-        else this.error = errorMessage(err)
+        // Drop the token only when the backend rejects it. Unreachable: stay signed in with the saved profile, so cached data opens offline.
+        if (isUnauthorized(err)) await tokenStorage.clear()
+        else {
+          this.error = errorMessage(err)
+          if (isNetworkError(err)) this.user = await tokenStorage.getUser()
+        }
       }
     },
 
@@ -38,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const { user, token } = await authApi.login(email, password)
-        tokenStorage.set(token)
+        await Promise.all([tokenStorage.set(token), tokenStorage.setUser(user)])
         this.user = user
         return true
       } catch (err) {
@@ -56,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
       } catch {
         // The token is discarded locally either way.
       } finally {
-        tokenStorage.clear()
+        await tokenStorage.clear()
         this.user = null
       }
     },

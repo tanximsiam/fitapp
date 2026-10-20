@@ -99,7 +99,11 @@
           </button>
         </div>
         <p :class="FOOT">
-          {{ mode.isDemo ? 'In the demo, everything stays on this device. Nothing is sent anywhere.' : 'Your records are stored on your FitApp server. Cycle entries never appear in notifications.' }}
+          {{
+            mode.isDemo
+              ? 'In the demo, everything stays on this device. Nothing is sent anywhere.'
+              : 'Your records live on your FitApp server. This phone keeps an encrypted copy for offline use, removed when you sign out.'
+          }}
         </p>
       </section>
 
@@ -120,7 +124,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonIcon, IonToggle } from '@ionic/vue'
+import { alertController, IonIcon, IonToggle } from '@ionic/vue'
+import { connection } from '@/data/offline'
+import { vault } from '@/lib/vault'
 import { checkmarkCircle, openOutline, personOutline } from 'ionicons/icons'
 import { version } from '../../package.json'
 import { errorMessage } from '@/api/client'
@@ -188,8 +194,22 @@ async function switchMode(next: DataMode) {
   await fitness.load()
 }
 
+/** Signing out removes everything this account left on the phone: token, profile, cached records and the outbox. */
 async function signOut() {
+  const unsent = (await mode.offlineJournal?.unsent()) ?? 0
+  if (unsent) {
+    const alert = await alertController.create({
+      header: `${unsent} ${unsent === 1 ? 'entry has' : 'entries have'} not synced`,
+      message: 'Signing out deletes them from this phone. Connect to the internet first to keep them.',
+      buttons: [{ text: 'Cancel', role: 'cancel' }, { text: 'Sign out anyway', role: 'destructive' }],
+    })
+    await alert.present()
+    if ((await alert.onDidDismiss()).role !== 'destructive') return
+  }
   await auth.logout()
+  await vault.clear()
+  connection.queue = []
+  connection.offline = false
   resetDataStores()
   router.replace('/login')
 }

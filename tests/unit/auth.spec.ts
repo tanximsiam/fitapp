@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { AxiosError, AxiosHeaders } from 'axios'
-import { api } from '@/api/client'
+import { api, tokenStorage } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
 function httpError(status: number, data: unknown = {}) {
@@ -10,13 +10,14 @@ function httpError(status: number, data: unknown = {}) {
 }
 
 describe('auth store', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     setActivePinia(createPinia())
+    await tokenStorage.clear()
     localStorage.clear()
     vi.restoreAllMocks()
   })
 
-  test('login stores the token and a normalized user', async () => {
+  test('login keeps the token in secure storage, not plain localStorage', async () => {
     vi.spyOn(api, 'post').mockResolvedValue({
       data: { data: { token: 'tok', user: { id: 7, name: 'Ana', email: 'a@x.test', created_at: null } } },
     })
@@ -24,7 +25,9 @@ describe('auth store', () => {
 
     expect(await auth.login('a@x.test', 'pw')).toBe(true)
     expect(auth.user).toEqual({ id: 7, name: 'Ana', email: 'a@x.test' })
-    expect(localStorage.getItem('fitapp.token')).toBe('tok')
+    expect(await tokenStorage.load()).toBe('tok')
+    expect(await tokenStorage.getUser()).toEqual({ id: 7, name: 'Ana', email: 'a@x.test' })
+    expect(localStorage.getItem('fitapp.token')).toBeNull()
   })
 
   test('failed login surfaces the backend message', async () => {
@@ -36,17 +39,22 @@ describe('auth store', () => {
     expect(auth.isAuthenticated).toBe(false)
   })
 
-  test('restore drops a rejected token but keeps it when the backend is unreachable', async () => {
+  test('restore moves a legacy token and drops it when the backend rejects it', async () => {
     localStorage.setItem('fitapp.token', 'old')
     vi.spyOn(api, 'get').mockRejectedValueOnce(httpError(401))
     await useAuthStore().restore()
     expect(localStorage.getItem('fitapp.token')).toBeNull()
+    expect(await tokenStorage.load()).toBeNull()
+  })
 
-    localStorage.setItem('fitapp.token', 'old')
+  test('restore stays signed in with the saved profile when the backend is unreachable', async () => {
+    await tokenStorage.set('old')
+    await tokenStorage.setUser({ id: 7, name: 'Ana', email: 'a@x.test' })
     vi.spyOn(api, 'get').mockRejectedValueOnce(new AxiosError('Network Error', 'ERR_NETWORK'))
     const auth = useAuthStore()
     await auth.restore()
-    expect(localStorage.getItem('fitapp.token')).toBe('old')
+    expect(await tokenStorage.load()).toBe('old')
+    expect(auth.user?.email).toBe('a@x.test')
     expect(auth.error).toMatch(/Could not reach/)
   })
 })
