@@ -6,7 +6,7 @@
 import { computed } from 'vue'
 
 /**
- * Where a value came from: the (simulated) watch, the user's own entry, or a demo fixture;
+ * Where a value came from: the watch or the user's own entry (sample data reads the same);
  * or, for an entry made on this phone, that the server does not have it yet.
  */
 export type EntryBadgeKind = 'watch' | 'simulated-watch' | 'manual' | 'simulated' | 'pending' | 'conflict' | 'rejected'
@@ -15,9 +15,9 @@ const text = computed(
   () =>
     ({
       watch: 'Watch',
-      'simulated-watch': 'Simulated watch',
+      'simulated-watch': 'Watch',
       manual: 'You logged',
-      simulated: 'Sample entry',
+      simulated: 'You logged',
       pending: 'Waiting to sync',
       conflict: 'Needs review',
       rejected: 'Not saved',

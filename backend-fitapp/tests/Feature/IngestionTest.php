@@ -19,7 +19,8 @@ class IngestionTest extends TestCase
     private function asIngestClient(?User $user = null): User
     {
         $user ??= User::factory()->create(['timezone' => 'Asia/Dhaka']);
-        Sanctum::actingAs($user, ['ingest']);
+        // The phone uploads with its normal sign-in token.
+        Sanctum::actingAs($user, ['app']);
 
         return $user;
     }
@@ -56,7 +57,7 @@ class IngestionTest extends TestCase
 
         $this->assertDatabaseCount('activity_days', 2);
         $this->assertDatabaseCount('heart_rate_samples', 4);
-        $this->assertDatabaseHas('activity_days', ['user_id' => $user->id, 'date' => '2026-10-17', 'steps' => 7800, 'distance_m' => 2990]);
+        $this->assertDatabaseHas('activity_days', ['data_source_id' => $user->dataSources()->value('id'), 'date' => '2026-10-17', 'steps' => 7800, 'distance_m' => 2990]);
     }
 
     public function test_samples_get_local_dates_and_utc_instants(): void
@@ -92,30 +93,33 @@ class IngestionTest extends TestCase
         $this->assertDatabaseCount('data_sources', 0);
     }
 
-    public function test_ingest_requires_an_ingest_token(): void
+    public function test_ingest_requires_a_signed_in_app_token(): void
     {
         $this->postJson('/api/ingest', $this->sample())->assertUnauthorized();
 
-        Sanctum::actingAs(User::factory()->create(), ['app']);
+        Sanctum::actingAs(User::factory()->create(), []);
         $this->postJson('/api/ingest', $this->sample())->assertForbidden();
     }
 
-    public function test_ingest_tokens_cannot_read_data(): void
+    public function test_uploads_are_private_to_their_owner(): void
     {
         $this->asIngestClient();
-        $this->getJson('/api/fitness/days')->assertForbidden();
+        $this->postJson('/api/ingest', $this->sample())->assertOk();
+
+        Sanctum::actingAs(User::factory()->create(), ['app']);
+        $this->getJson('/api/fitness/status')->assertJsonCount(0, 'data.sources');
+        $this->getJson('/api/fitness/days?from=2026-10-16&to=2026-10-17')->assertJsonPath('data.0.activity', null);
     }
 
-    public function test_issued_ingest_token_works_end_to_end(): void
+    public function test_deleting_a_source_removes_its_records(): void
     {
-        $user = User::factory()->create();
-        Sanctum::actingAs($user, ['app']);
-        $token = $this->postJson('/api/ingest-tokens', ['name' => 'bridge'])->assertCreated()->json('data.token');
-        $this->getJson('/api/ingest-tokens')->assertJsonCount(1, 'data')->assertJsonMissingPath('data.0.token');
+        $user = $this->asIngestClient();
+        $this->postJson('/api/ingest', $this->sample())->assertOk();
 
-        $this->app['auth']->forgetGuards();
-        $this->withToken($token)->postJson('/api/ingest', $this->sample())->assertOk();
-        $this->assertDatabaseHas('data_sources', ['user_id' => $user->id, 'key' => 'my-bridge']);
+        $user->dataSources()->first()->delete();
+        $this->assertDatabaseCount('activity_days', 0);
+        $this->assertDatabaseCount('heart_rate_samples', 0);
+        $this->assertDatabaseCount('data_source_measurements', 0);
     }
 
     public function test_workouts_device_and_latest_reading_are_served(): void

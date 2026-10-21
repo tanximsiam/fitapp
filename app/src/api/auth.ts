@@ -1,7 +1,8 @@
 import { BACKEND_URL, api } from './client'
-import type { User, UserPayload } from '@/types/auth'
+import type { User, UserPayload, Wearable } from '@/types/auth'
 
-const toUser = (raw: UserPayload): User => ({ id: raw.id, name: raw.name, email: raw.email })
+// Servers from before the setup screens have no flag: treat those accounts as set up.
+const toUser = (raw: UserPayload): User => ({ id: raw.id, name: raw.name, email: raw.email, onboarded: raw.onboarded ?? true })
 
 export async function login(email: string, password: string): Promise<{ user: User; token: string }> {
   const res = await api.post<{ data: { user: UserPayload; token: string } }>('/login', { email, password })
@@ -30,6 +31,12 @@ export const googleSignInUrl = (returnTo: string) => `${BACKEND_URL}/api/auth/go
 export async function exchangeGoogleCode(code: string): Promise<{ user: User; token: string }> {
   const res = await api.post<{ data: { user: UserPayload; token: string } }>('/auth/google/token', { code })
   return { user: toUser(res.data.data.user), token: res.data.data.token }
+}
+
+/** The setup screens' profile answers; marks the account as set up. */
+export async function saveProfile(input: { name: string; birthDate: string | null; wearable: Wearable | null }): Promise<User> {
+  const body = { name: input.name, birth_date: input.birthDate, preferences: { wearable: input.wearable }, onboarded: true }
+  return toUser((await api.patch<{ data: UserPayload }>('/user', body)).data.data)
 }
 
 export async function fetchCurrentUser(): Promise<User> {

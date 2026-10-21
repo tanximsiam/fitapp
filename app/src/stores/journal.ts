@@ -27,7 +27,7 @@ let requestId = 0
 export const useJournalStore = defineStore('journal', {
   state: () => ({
     data: { mood: [], meals: [], hydration: [], cycleDays: [] } as JournalData,
-    prefs: { mood: true, food: true, cycle: false } as TrackerPrefs,
+    prefs: { mood: true, food: true, hydration: true, cycle: false } as TrackerPrefs,
     loading: false,
     loaded: false,
     error: null as string | null,

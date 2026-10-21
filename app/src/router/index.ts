@@ -16,6 +16,7 @@ const WelcomePage = () => import('@/views/WelcomePage.vue')
 const LoginPage = () => import('@/views/LoginPage.vue')
 const RegisterPage = () => import('@/views/RegisterPage.vue')
 const AuthCallbackPage = () => import('@/views/AuthCallbackPage.vue')
+const OnboardingPage = () => import('@/views/OnboardingPage.vue')
 
 /** Open before onboarding and without an account. */
 const PUBLIC = ['/welcome', '/login', '/register', '/auth/google']
@@ -35,6 +36,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/login', component: LoginPage, meta: { title: 'Sign in' } },
   { path: '/register', component: RegisterPage, meta: { title: 'Create account' } },
   { path: '/auth/google', component: AuthCallbackPage, meta: { title: 'Signing in' } },
+  { path: '/onboarding', component: OnboardingPage, meta: { title: 'Set up' } },
   {
     path: '/',
     component: TabsLayout,
@@ -75,7 +77,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  if (!onboarding.done() && !PUBLIC.includes(to.path)) return '/welcome'
+  if (!onboarding.done() && !PUBLIC.includes(to.path) && to.path !== '/onboarding') return '/welcome'
 
   const mode = useModeStore()
   if (mode.isDemo) {
@@ -90,6 +92,8 @@ router.beforeEach(async (to) => {
   if ((to.path === '/login' || to.path === '/register') && auth.isAuthenticated) {
     return '/home'
   }
+  // A new account answers the setup questions first; after that the screen is only reachable from the profile.
+  if (auth.user && !auth.user.onboarded && to.path !== '/onboarding' && !PUBLIC.includes(to.path)) return '/onboarding'
 })
 
 router.afterEach((to) => {

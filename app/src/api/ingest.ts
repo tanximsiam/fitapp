@@ -1,7 +1,7 @@
 import { api } from './client'
 import type { IngestPayload } from '@/types/ingest'
 
-/** Uploads with an ingest-only token (this phone's), not the signed-in user's token. See docs/integration.md. */
-export async function uploadIngest(ingestToken: string, payload: IngestPayload): Promise<void> {
-  await api.post('/ingest', payload, { headers: { Authorization: `Bearer ${ingestToken}` } })
+/** Uploads what this phone read from the watch or the health platform, as the signed-in account. */
+export async function uploadIngest(payload: IngestPayload): Promise<void> {
+  await api.post('/ingest', payload)
 }

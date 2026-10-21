@@ -61,15 +61,6 @@
             <p v-if="synced" role="status" class="text-sm text-ink-2">Simulated sync completed.</p>
           </div>
         </PanelSection>
-
-        <PanelSection v-else title="Connecting a source">
-          <p class="max-w-prose text-sm text-ink-2">
-            Watch data reaches FitApp through a provider or bridge that uploads to <code class="rounded bg-page px-1 text-xs">POST /api/ingest</code>
-            with an ingest token. A successful upload shows that the source reached FitApp; it does not by itself prove which watch
-            recorded the data.
-          </p>
-          <RouterLink to="/settings" class="mt-3 inline-block text-sm font-medium text-accent underline underline-offset-2">Manage ingest tokens</RouterLink>
-        </PanelSection>
       </div>
     </DataState>
   </AppShell>

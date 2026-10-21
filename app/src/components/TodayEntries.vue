@@ -96,7 +96,7 @@ const latest = computed(() => {
     ...(journal.prefs.food
       ? d.meals.map((e) => ({ key: `f${e.id}`, at: e.eatenAt, date: e.date, tone: 'energy' as Tone, text: `${e.mealType[0].toUpperCase()}${e.mealType.slice(1)}: ${e.items.map((i) => i.name).join(', ')}` }))
       : []),
-    ...(journal.prefs.food ? d.hydration.map((e) => ({ key: `h${e.id}`, at: e.recordedAt, date: e.date, tone: 'activity' as Tone, text: `Water ${formatInt(e.volumeMl)} ml` })) : []),
+    ...(journal.prefs.hydration ? d.hydration.map((e) => ({ key: `h${e.id}`, at: e.recordedAt, date: e.date, tone: 'activity' as Tone, text: `Water ${formatInt(e.volumeMl)} ml` })) : []),
   ]
   return all
     .filter((e) => e.date <= end)
@@ -125,7 +125,7 @@ const rows = computed(() => {
       empty: !d.meals.length,
     },
     {
-      kind: 'drink', label: 'Water', action: 'Log a drink', icon: ICONS.water, tone: 'activity', to: '/food', on: journal.prefs.food,
+      kind: 'drink', label: 'Water', action: 'Log a drink', icon: ICONS.water, tone: 'activity', to: '/food', on: journal.prefs.hydration,
       value: water ? `${formatInt(water)} ml` : 'Not logged yet',
       empty: !water,
     },

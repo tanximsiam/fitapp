@@ -34,7 +34,7 @@
           </ul>
         </section>
         <p class="px-1 text-xs leading-relaxed text-muted">
-          Values come from {{ mode.isDemo ? 'a simulated watch' : 'your watch uploads' }}. A measurement your watch does not provide shows as not measured; FitApp never estimates it.
+          Values come from your watch. A measurement your watch does not provide shows as not measured; FitApp never estimates it.
         </p>
       </div>
     </DataState>
@@ -57,7 +57,7 @@ import { formatDuration, formatInt, formatKm, formatLongDate } from '@/lib/forma
 import type { DaySummary } from '@/types/fitness'
 import { useHeartTrace } from '@/composables/useHeartTrace'
 
-const { fitness, mode, freshness, days, selectedDay: day } = useFitnessData()
+const { fitness, freshness, days, selectedDay: day } = useFitnessData()
 
 interface Module {
   title: string

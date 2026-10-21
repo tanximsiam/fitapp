@@ -7,20 +7,26 @@ use App\Http\Requests\MoodEntryRequest;
 use App\Http\Resources\JournalResources;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MoodEntryController extends JournalController
 {
     public function index(FitnessRangeRequest $request): JsonResponse
     {
         $user = $request->user();
-        $entries = $user->moodEntries()->whereBetween('date', $this->range($request))->orderBy('recorded_at')->get();
+        $entries = $user->moodEntries()->with('emotions')->whereBetween('date', $this->range($request))->orderBy('recorded_at')->get();
 
         return response()->json(['data' => $entries->map(fn ($e) => JournalResources::mood($e, $user->timezone))]);
     }
 
     public function store(MoodEntryRequest $request): JsonResponse
     {
-        $entry = $request->user()->moodEntries()->create($this->fields($request));
+        $entry = DB::transaction(function () use ($request) {
+            $entry = $request->user()->moodEntries()->create($this->fields($request));
+            $entry->setEmotions($request->validated('emotions') ?? []);
+
+            return $entry;
+        });
 
         return response()->json(['data' => JournalResources::mood($entry, $request->user()->timezone)], 201);
     }
@@ -29,7 +35,10 @@ class MoodEntryController extends JournalController
     {
         $entry = $request->user()->moodEntries()->findOrFail($id);
         $this->assertFresh($request, $entry);
-        $entry->update($this->fields($request));
+        DB::transaction(function () use ($request, $entry) {
+            $entry->update($this->fields($request));
+            $entry->setEmotions($request->validated('emotions') ?? []);
+        });
 
         return response()->json(['data' => JournalResources::mood($entry, $request->user()->timezone)]);
     }
@@ -46,7 +55,7 @@ class MoodEntryController extends JournalController
         [$date, $at] = $this->instant($request->validated('recorded_at'));
 
         return ['date' => $date, 'recorded_at' => $at] + collect($request->validated())
-            ->only(['mood', 'energy', 'stress', 'emotions', 'note'])
-            ->all() + ['energy' => null, 'stress' => null, 'emotions' => [], 'note' => null];
+            ->only(['mood', 'energy', 'stress', 'note'])
+            ->all() + ['energy' => null, 'stress' => null, 'note' => null];
     }
 }

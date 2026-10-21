@@ -99,7 +99,7 @@ class FitnessReadTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.timezone', 'Europe/Berlin')
             ->assertJsonPath('data.goals.steps', 10000)
-            ->assertJsonPath('data.goals.sleep_min', User::DEFAULT_GOALS['sleep_min']);
+            ->assertJsonPath('data.goals.sleep_min', 450);
 
         $this->patchJson('/api/user', ['timezone' => 'Mars/Base', 'goals' => ['calories' => 1]])
             ->assertUnprocessable()->assertJsonValidationErrors(['timezone', 'goals']);

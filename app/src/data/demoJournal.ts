@@ -24,7 +24,7 @@ import type { ISODate } from '@/types/fitness'
 const OVERLAY_KEY = 'fitapp.demo.journal'
 const PREFS_KEY = 'fitapp.demo.trackers'
 /** The demo shows every tracker; a real account starts with the cycle tracker off. */
-const DEMO_PREFS: TrackerPrefs = { mood: true, food: true, cycle: true }
+const DEMO_PREFS: TrackerPrefs = { mood: true, food: true, hydration: true, cycle: true }
 /** Cycle history covers the whole demo window, so several completed cycles exist. */
 export const DEMO_CYCLE_DAYS = DEMO_WINDOW_DAYS
 

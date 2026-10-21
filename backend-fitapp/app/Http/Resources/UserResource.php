@@ -15,8 +15,10 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'timezone' => $this->timezone,
-            'goals' => $this->effectiveGoals(),
-            'preferences' => $this->effectivePreferences(),
+            'birth_date' => $this->birth_date?->toDateString(),
+            'onboarded' => $this->onboarded_at !== null,
+            'goals' => $this->goals(),
+            'preferences' => ['trackers' => $this->trackers(), 'wearable' => $this->wearable()],
             'created_at' => $this->created_at?->toIso8601ZuluString(),
         ];
     }

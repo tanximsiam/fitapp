@@ -78,6 +78,7 @@ export interface JournalData {
 export interface TrackerPrefs {
   mood: boolean
   food: boolean
+  hydration: boolean
   cycle: boolean
 }
 

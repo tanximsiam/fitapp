@@ -32,10 +32,12 @@ class IngestionService
         return DB::transaction(function () use ($user, $payload, $timezone) {
             $source = DataSource::updateOrCreate(
                 ['user_id' => $user->id, 'key' => $payload['source']['key']],
-                ['name' => $payload['source']['name']]
-                    + array_intersect_key($payload['source'], array_flip(['device', 'measurements'])),
+                ['name' => $payload['source']['name']] + array_intersect_key($payload['source'], array_flip(['device'])),
             );
-            $owner = ['user_id' => $user->id, 'data_source_id' => $source->id];
+            if (array_key_exists('measurements', $payload['source'])) {
+                $source->declareMeasurements($payload['source']['measurements'] ?? []);
+            }
+            $owner = ['data_source_id' => $source->id];
 
             foreach ($payload['activity'] ?? [] as $day) {
                 // Only fields present in the upload are changed; explicit nulls clear a value.

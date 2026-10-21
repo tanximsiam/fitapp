@@ -5,9 +5,8 @@ info:
   description: |
     FitApp's own Laravel API. Two kinds of clients use it:
 
-    * **The FitApp frontend** signs in with `POST /login` and receives a token with the `app` ability.
-    * **FitApp devices, bridges or other sources** upload data with a token that has only the `ingest` ability
-      (create one in Settings or with `php artisan fitapp:ingest-token <email>`).
+    * **The FitApp apps** sign in with `POST /login` (or register, or Google) and receive a token with the `app` ability.
+    * **Uploads** (`POST /ingest`) use the same token: the phone app sends what it read from Health Connect or Apple Health.
 
     Conventions:
     * All bodies are JSON. Successful responses wrap results in `data`.
@@ -323,64 +322,6 @@ paths:
                           bpm: { type: integer }
                           source: { type: string }
                       timezone: { type: string }
-
-  /ingest-tokens:
-    get:
-      tags: [Ingestion]
-      summary: List ingest-only tokens (values are never returned again)
-      responses:
-        '200':
-          description: Tokens
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id: { type: integer }
-                        name: { type: string }
-                        last_used_at: { type: [string, 'null'], format: date-time }
-                        created_at: { type: string, format: date-time }
-    post:
-      tags: [Ingestion]
-      summary: Create an ingest-only token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name]
-              properties:
-                name: { type: string, maxLength: 100 }
-      responses:
-        '201':
-          description: Created; `token` is shown only in this response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      id: { type: integer }
-                      name: { type: string }
-                      token: { type: string }
-
-  /ingest-tokens/{id}:
-    delete:
-      tags: [Ingestion]
-      summary: Revoke a token
-      parameters:
-        - { name: id, in: path, required: true, schema: { type: integer } }
-      responses:
-        '200': { description: Revoked }
-        '404': { $ref: '#/components/responses/Error' }
 
   /ingest:
     post:

@@ -7,7 +7,6 @@ import type {
   Goals,
   GoalsPayload,
   HeartRateSample,
-  IngestToken,
   ISODate,
   Reading,
   ReadingKind,
@@ -118,18 +117,3 @@ export async function saveGoals(goals: Goals): Promise<Goals> {
   return toGoals((await api.patch<{ data: { goals: GoalsPayload } }>('/user', body)).data.data.goals)
 }
 
-type TokenPayload = { id: number; name: string; last_used_at: string | null; created_at: string | null }
-
-export async function listIngestTokens(): Promise<IngestToken[]> {
-  const res = await api.get<{ data: TokenPayload[] }>('/ingest-tokens')
-  return res.data.data.map((t) => ({ id: t.id, name: t.name, lastUsedAt: t.last_used_at, createdAt: t.created_at }))
-}
-
-/** Returns the plain-text token; the backend never shows it again. */
-export async function createIngestToken(name: string): Promise<string> {
-  return (await api.post<{ data: { token: string } }>('/ingest-tokens', { name })).data.data.token
-}
-
-export async function revokeIngestToken(id: number): Promise<void> {
-  await api.delete(`/ingest-tokens/${id}`)
-}

@@ -9,11 +9,10 @@
     </template>
   </StatePanel>
 
-  <StatePanel v-else-if="!mode.isDemo && fitness.status && !fitness.status.sources.length" kind="empty" title="No data has been uploaded yet">
-    Your backend is reachable, but no watch data has arrived. Send data from a device or bridge to
-    <code class="rounded bg-page px-1 text-xs">POST /api/ingest</code> with an ingest token.
+  <StatePanel v-else-if="!mode.isDemo && fitness.status && !fitness.status.sources.length" kind="empty" title="No watch data yet">
+    Connect your watch, or allow Health Connect or Apple Health, to see activity, sleep and heart rate here.
     <template #actions>
-      <RouterLink to="/settings" :class="buttonClass">Ingest tokens</RouterLink>
+      <RouterLink v-if="$route.path !== '/home/device'" to="/home/device" :class="buttonClass">Connect your watch</RouterLink>
     </template>
   </StatePanel>
 

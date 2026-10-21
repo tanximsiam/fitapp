@@ -1,7 +1,7 @@
 <template>
   <AppShell title="Food & drink" clear-fab>
     <template #subtitle>{{ formatLongDate(fitness.selectedDate) }} · meals and drinks you logged</template>
-    <TrackerGate tracker="food">
+    <TrackerGate :tracker="['food', 'hydration']">
       <DateToolbar />
       <JournalState>
         <div class="grid gap-4">
@@ -69,7 +69,7 @@
                 <p v-else class="text-sm text-muted">No nutrient values for this day's foods.</p>
               </WidgetCard>
 
-              <WidgetCard title="Water" :icon="ICONS.water" tone="activity" :label="fitness.isToday ? 'Today' : 'This day'" :value="day.waterMl ? `${formatInt(day.waterMl)} ml` : EMPTY">
+              <WidgetCard v-if="journal.prefs.hydration" title="Water" :icon="ICONS.water" tone="activity" :label="fitness.isToday ? 'Today' : 'This day'" :value="day.waterMl ? `${formatInt(day.waterMl)} ml` : EMPTY">
                 <div class="overflow-y-auto" :style="editingDrinkEntry || addingDrink ? undefined : { height: `${AREA}px` }">
                   <ul v-if="day.hydration.length" class="flex flex-wrap gap-2">
                     <li v-for="h in day.hydration" :key="h.id">
@@ -92,7 +92,7 @@
                 </div>
               </WidgetCard>
 
-              <WidgetCard title="Water per day" :icon="ICONS.water" tone="activity" label="Average on logged days" :value="range.avgWater == null ? EMPTY : `${formatInt(range.avgWater)} ml`">
+              <WidgetCard v-if="journal.prefs.hydration" title="Water per day" :icon="ICONS.water" tone="activity" label="Average on logged days" :value="range.avgWater == null ? EMPTY : `${formatInt(range.avgWater)} ml`">
                 <BarChart
                   :bars="dayBars((d) => range.water.get(d) ?? null, 'var(--activity)', (n) => `${formatInt(n)} ml`)"
                   :selected-key="fitness.selectedDate"

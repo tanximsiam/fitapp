@@ -7,7 +7,6 @@ import type {
   Goals,
   GoalsPayload,
   HeartRateSample,
-  IngestToken,
   ISODate,
   Reading,
   ReadingKind,
@@ -78,6 +77,8 @@ export const toGoals = (g: GoalsPayload): Goals => ({
   activeKcal: g.active_kcal,
   distanceM: g.distance_m,
   sleepMin: g.sleep_min,
+  // Servers from before the water goal leave it out.
+  waterMl: g.water_ml ?? 2000,
 })
 
 export async function getDays(from: ISODate, to: ISODate): Promise<DaysResult> {
@@ -114,22 +115,7 @@ export async function getGoals(): Promise<Goals> {
 }
 
 export async function saveGoals(goals: Goals): Promise<Goals> {
-  const body = { goals: { steps: goals.steps, active_kcal: goals.activeKcal, distance_m: goals.distanceM, sleep_min: goals.sleepMin } }
+  const body = { goals: { steps: goals.steps, active_kcal: goals.activeKcal, distance_m: goals.distanceM, sleep_min: goals.sleepMin, water_ml: goals.waterMl } }
   return toGoals((await api.patch<{ data: { goals: GoalsPayload } }>('/user', body)).data.data.goals)
 }
 
-type TokenPayload = { id: number; name: string; last_used_at: string | null; created_at: string | null }
-
-export async function listIngestTokens(): Promise<IngestToken[]> {
-  const res = await api.get<{ data: TokenPayload[] }>('/ingest-tokens')
-  return res.data.data.map((t) => ({ id: t.id, name: t.name, lastUsedAt: t.last_used_at, createdAt: t.created_at }))
-}
-
-/** Returns the plain-text token; the backend never shows it again. */
-export async function createIngestToken(name: string): Promise<string> {
-  return (await api.post<{ data: { token: string } }>('/ingest-tokens', { name })).data.data.token
-}
-
-export async function revokeIngestToken(id: number): Promise<void> {
-  await api.delete(`/ingest-tokens/${id}`)
-}

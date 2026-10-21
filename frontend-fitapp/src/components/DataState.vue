@@ -10,11 +10,7 @@
   </StatePanel>
 
   <StatePanel v-else-if="!mode.isDemo && fitness.status && !fitness.status.sources.length" kind="empty" title="No data has been uploaded yet">
-    Your backend is reachable, but no watch data has arrived. Send data from a device or bridge to
-    <code class="rounded bg-page px-1 text-xs">POST /api/ingest</code> with an ingest token.
-    <template #actions>
-      <RouterLink to="/settings" :class="buttonClass">Ingest tokens</RouterLink>
-    </template>
+    Connect your watch in the FitApp mobile app. Its data shows up here after the first sync.
   </StatePanel>
 
   <template v-else>

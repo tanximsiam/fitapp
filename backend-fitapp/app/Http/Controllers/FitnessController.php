@@ -46,7 +46,7 @@ class FitnessController extends Controller
     {
         $user = $request->user();
         $coverage = $this->query->coverage($user);
-        $sources = $user->dataSources()->orderByDesc('last_ingested_at')->get()->each(function ($s) use ($coverage) {
+        $sources = $user->dataSources()->with('measurements')->orderByDesc('last_ingested_at')->get()->each(function ($s) use ($coverage) {
             $s->latest_date = $coverage->get($s->id)['latest_date'] ?? null;
             $s->received = $coverage->get($s->id)['received'] ?? [];
         });

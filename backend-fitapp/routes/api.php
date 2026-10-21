@@ -4,7 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FitnessController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\IngestController;
-use App\Http\Controllers\IngestTokenController;
 use App\Http\Controllers\Journal\CycleDayController;
 use App\Http\Controllers\Journal\HydrationController;
 use App\Http\Controllers\Journal\MealController;
@@ -35,10 +34,8 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
     Route::get('/fitness/heart-rate/{date}', [FitnessController::class, 'heartRate'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/readings/{kind}/{date}', [FitnessController::class, 'readings'])->whereIn('kind', ['stress', 'spo2'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/status', [FitnessController::class, 'status']);
-
-    Route::get('/ingest-tokens', [IngestTokenController::class, 'index']);
-    Route::post('/ingest-tokens', [IngestTokenController::class, 'store']);
-    Route::delete('/ingest-tokens/{id}', [IngestTokenController::class, 'destroy'])->whereNumber('id');
+    // The phone uploads what it reads from the watch, Health Connect or Apple Health.
+    Route::post('/ingest', IngestController::class)->middleware('throttle:60,1');
 
     // Manually entered records (never written by ingestion).
     Route::prefix('journal')->group(function () {
@@ -53,6 +50,3 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
         Route::delete('/cycle-days/{date}', [CycleDayController::class, 'destroy'])->where('date', '\d{4}-\d{2}-\d{2}');
     });
 });
-
-// External providers and bridges.
-Route::post('/ingest', IngestController::class)->middleware(['auth:sanctum', 'abilities:ingest', 'throttle:60,1']);

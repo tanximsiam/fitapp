@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSource;
 use Illuminate\Database\Eloquent\Model;
 
 class HeartRateDay extends Model
 {
-    protected $fillable = ['user_id', 'data_source_id', 'date', 'resting_bpm'];
+    use BelongsToSource;
+
+    protected $fillable = ['data_source_id', 'date', 'resting_bpm'];
 }

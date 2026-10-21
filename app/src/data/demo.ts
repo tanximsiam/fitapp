@@ -11,7 +11,7 @@ import { MEASUREMENTS, type DaySummary, type HeartRateSample, type ISODate, type
 /** Six months of simulated history, so every range stays populated when browsing back. */
 export const DEMO_WINDOW_DAYS = 180
 export const DEMO_SOURCE = 'demo'
-export const DEMO_DEVICE = 'Simulated watch'
+export const DEMO_DEVICE = 'FitApp Watch'
 /** The simulated watch provides everything the ingestion contract supports. */
 export const DEMO_MEASUREMENTS = [...MEASUREMENTS]
 const WORKOUT_TYPES = ['running', 'strength', 'cycling'] as const

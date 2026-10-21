@@ -5,6 +5,7 @@
       <FormInput v-model="form.activeKcal" label="Active energy (kcal)" type="number" inputmode="numeric" :min="10" :max="10000" :step="10" :error="!!errors.activeKcal" :hint="errors.activeKcal" />
       <FormInput v-model="form.distanceKm" label="Distance (km)" type="number" inputmode="decimal" :min="0.1" :max="200" step="0.1" :error="!!errors.distanceKm" :hint="errors.distanceKm" />
       <FormInput v-model="form.sleepHours" label="Sleep (hours)" type="number" inputmode="decimal" :min="1" :max="16" step="0.25" :error="!!errors.sleepHours" :hint="errors.sleepHours" />
+      <FormInput v-if="journal.prefs.hydration" v-model="form.waterMl" label="Water (ml)" type="number" inputmode="numeric" :min="250" :max="8000" :step="250" :error="!!errors.waterMl" :hint="errors.waterMl" />
     </div>
     <div class="mt-5 flex flex-wrap items-center gap-3">
       <PrimaryButton type="submit" :label="saving ? 'Saving…' : 'Save goals'" :disabled="saving" />
@@ -19,13 +20,13 @@ import FormInput from '@/components/FormInput.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { errorMessage } from '@/api/client'
 import { useFitnessStore } from '@/stores/fitness'
-import { useModeStore } from '@/stores/mode'
+import { useJournalStore } from '@/stores/journal'
 
 const fitness = useFitnessStore()
-const mode = useModeStore()
+const journal = useJournalStore()
 
-const form = reactive({ steps: '', activeKcal: '', distanceKm: '', sleepHours: '' })
-const errors = reactive<Record<keyof typeof form, string | undefined>>({ steps: undefined, activeKcal: undefined, distanceKm: undefined, sleepHours: undefined })
+const form = reactive({ steps: '', activeKcal: '', distanceKm: '', sleepHours: '', waterMl: '' })
+const errors = reactive<Record<keyof typeof form, string | undefined>>({ steps: undefined, activeKcal: undefined, distanceKm: undefined, sleepHours: undefined, waterMl: undefined })
 const saving = ref(false)
 const message = ref<{ ok: boolean; text: string } | null>(null)
 
@@ -36,6 +37,7 @@ watch(
     form.activeKcal = String(g.activeKcal)
     form.distanceKm = String(g.distanceM / 1000)
     form.sleepHours = String(g.sleepMin / 60)
+    form.waterMl = String(g.waterMl)
   },
   { immediate: true },
 )
@@ -53,7 +55,8 @@ async function save() {
   const activeKcal = check('activeKcal', 10, 10000)
   const distanceKm = check('distanceKm', 0.1, 200)
   const sleepHours = check('sleepHours', 1, 16)
-  if (steps === null || activeKcal === null || distanceKm === null || sleepHours === null) return
+  const waterMl = journal.prefs.hydration ? check('waterMl', 250, 8000) : fitness.goals.waterMl
+  if (steps === null || activeKcal === null || distanceKm === null || sleepHours === null || waterMl === null) return
 
   saving.value = true
   try {
@@ -62,8 +65,9 @@ async function save() {
       activeKcal: Math.round(activeKcal),
       distanceM: Math.round(distanceKm * 1000),
       sleepMin: Math.round(sleepHours * 60),
+      waterMl: Math.round(waterMl),
     })
-    message.value = { ok: true, text: mode.isDemo ? 'Saved on this device.' : 'Saved to your account.' }
+    message.value = { ok: true, text: 'Saved.' }
   } catch (err) {
     message.value = { ok: false, text: errorMessage(err, 'Goals could not be saved.') }
   } finally {
