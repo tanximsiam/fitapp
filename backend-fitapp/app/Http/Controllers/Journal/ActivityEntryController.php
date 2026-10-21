@@ -7,20 +7,26 @@ use App\Http\Requests\FitnessRangeRequest;
 use App\Http\Resources\JournalResources;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ActivityEntryController extends JournalController
 {
     public function index(FitnessRangeRequest $request): JsonResponse
     {
         $user = $request->user();
-        $entries = $user->activityEntries()->whereBetween('date', $this->range($request))->orderBy('started_at')->get();
+        $entries = $user->activityEntries()->with('exercises')->whereBetween('date', $this->range($request))->orderBy('started_at')->get();
 
         return response()->json(['data' => $entries->map(fn ($a) => JournalResources::activity($a, $user->timezone))]);
     }
 
     public function store(ActivityEntryRequest $request): JsonResponse
     {
-        $entry = $request->user()->activityEntries()->create($this->fields($request));
+        $entry = DB::transaction(function () use ($request) {
+            $entry = $request->user()->activityEntries()->create($this->fields($request));
+            $entry->setExercises($request->validated('exercises') ?? []);
+
+            return $entry;
+        });
 
         return response()->json(['data' => JournalResources::activity($entry, $request->user()->timezone)], 201);
     }
@@ -29,7 +35,10 @@ class ActivityEntryController extends JournalController
     {
         $entry = $request->user()->activityEntries()->findOrFail($id);
         $this->assertFresh($request, $entry);
-        $entry->update($this->fields($request));
+        DB::transaction(function () use ($request, $entry) {
+            $entry->update($this->fields($request));
+            $entry->setExercises($request->validated('exercises') ?? []);
+        });
 
         return response()->json(['data' => JournalResources::activity($entry, $request->user()->timezone)]);
     }

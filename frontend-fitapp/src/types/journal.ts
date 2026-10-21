@@ -53,8 +53,16 @@ export interface HydrationEntry extends Entry {
   volumeMl: number
 }
 
-export const ACTIVITY_TYPES = ['chores', 'walking', 'jogging', 'running', 'cycling', 'swimming', 'strength', 'yoga', 'other'] as const
+export const ACTIVITY_TYPES = ['chores', 'walking', 'jogging', 'running', 'cycling', 'swimming', 'workout', 'yoga', 'other'] as const
 export type ActivityType = (typeof ACTIVITY_TYPES)[number]
+
+/** One line of a logged workout. */
+export interface WorkoutExercise {
+  name: string
+  sets: number
+  reps: number | null
+  durationMin: number | null
+}
 
 /** An activity logged by hand in the mobile app; never added to the watch's activity totals. */
 export interface ActivityEntry extends Entry {
@@ -63,6 +71,7 @@ export interface ActivityEntry extends Entry {
   durationMin: number
   energyKcal: number | null
   energySource: 'estimated' | 'entered' | null
+  exercises: WorkoutExercise[]
 }
 
 export const FLOWS = ['spotting', 'light', 'medium', 'heavy'] as const

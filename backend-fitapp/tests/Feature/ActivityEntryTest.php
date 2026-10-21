@@ -57,6 +57,28 @@ class ActivityEntryTest extends TestCase
             ->assertJsonValidationErrors(['started_at', 'activity_type', 'duration_min', 'energy_source']);
     }
 
+    public function test_a_workout_keeps_its_exercises_and_replaces_them_on_edit(): void
+    {
+        $this->signIn();
+        $workout = ['started_at' => '2026-10-17T19:00:00+06:00', 'activity_type' => 'workout', 'duration_min' => 25, 'energy_kcal' => 150, 'energy_source' => 'estimated',
+            'exercises' => [['name' => 'Bench press', 'sets' => 3, 'reps' => 10, 'duration_min' => 12], ['name' => 'Plank', 'sets' => 3, 'duration_min' => 5]]];
+
+        $entry = $this->postJson('/api/journal/activities', $workout)
+            ->assertCreated()
+            ->assertJsonPath('data.exercises.0', ['name' => 'Bench press', 'sets' => 3, 'reps' => 10, 'duration_min' => 12])
+            ->assertJsonPath('data.exercises.1.reps', null)
+            ->json('data');
+
+        $this->putJson("/api/journal/activities/{$entry['id']}", [...$workout, 'exercises' => [['name' => 'Squats', 'sets' => 4, 'reps' => 8]]])
+            ->assertOk()
+            ->assertJsonCount(1, 'data.exercises')
+            ->assertJsonPath('data.exercises.0.name', 'Squats');
+        $this->assertDatabaseCount('activity_entry_exercises', 1);
+
+        $this->deleteJson("/api/journal/activities/{$entry['id']}")->assertOk();
+        $this->assertDatabaseCount('activity_entry_exercises', 0);
+    }
+
     public function test_entries_are_private_to_their_owner(): void
     {
         $this->signIn();

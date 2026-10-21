@@ -57,8 +57,16 @@ export interface HydrationEntry extends Entry {
   volumeMl: number
 }
 
-export const ACTIVITY_TYPES = ['chores', 'walking', 'jogging', 'running', 'cycling', 'swimming', 'strength', 'yoga', 'other'] as const
+export const ACTIVITY_TYPES = ['chores', 'walking', 'jogging', 'running', 'cycling', 'swimming', 'workout', 'yoga', 'other'] as const
 export type ActivityType = (typeof ACTIVITY_TYPES)[number]
+
+/** One line of a logged workout. Minutes are optional; without them a set counts as two minutes. */
+export interface WorkoutExercise {
+  name: string
+  sets: number
+  reps: number | null
+  durationMin: number | null
+}
 
 /** An activity the person logged by hand; never added to the watch's activity totals. */
 export interface ActivityEntry extends Entry {
@@ -68,6 +76,8 @@ export interface ActivityEntry extends Entry {
   energyKcal: number | null
   /** "estimated" by the app from the activity and time, or "entered" by the person. */
   energySource: 'estimated' | 'entered' | null
+  /** For a workout: what was done. Empty for other activities. */
+  exercises: WorkoutExercise[]
 }
 
 export const FLOWS = ['spotting', 'light', 'medium', 'heavy'] as const
@@ -99,7 +109,7 @@ export interface TrackerPrefs {
 export type MoodInput = Pick<MoodEntry, 'recordedAt' | 'mood' | 'energy' | 'stress' | 'emotions' | 'note'>
 export type MealInput = Pick<Meal, 'eatenAt' | 'mealType' | 'note' | 'items'>
 export type HydrationInput = Pick<HydrationEntry, 'recordedAt' | 'volumeMl'>
-export type ActivityInput = Pick<ActivityEntry, 'startedAt' | 'activityType' | 'durationMin' | 'energyKcal' | 'energySource'>
+export type ActivityInput = Pick<ActivityEntry, 'startedAt' | 'activityType' | 'durationMin' | 'energyKcal' | 'energySource' | 'exercises'>
 export type CycleDayInput = Pick<CycleDay, 'flow' | 'symptoms' | 'note'>
 
 export interface JournalAdapter {

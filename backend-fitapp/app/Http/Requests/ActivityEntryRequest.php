@@ -16,6 +16,11 @@ class ActivityEntryRequest extends FormRequest
             'duration_min' => ['required', 'integer', 'between:1,1440'],
             'energy_kcal' => ['nullable', 'integer', 'between:0,5000'],
             'energy_source' => ['nullable', 'required_with:energy_kcal', Rule::in(ActivityEntry::ENERGY_SOURCES)],
+            'exercises' => ['nullable', 'array', 'max:30'],
+            'exercises.*.name' => ['required', 'string', 'max:60'],
+            'exercises.*.sets' => ['required', 'integer', 'between:1,50'],
+            'exercises.*.reps' => ['nullable', 'integer', 'between:1,1000'],
+            'exercises.*.duration_min' => ['nullable', 'integer', 'between:1,600'],
             'updated_at' => JournalRules::SEEN,
         ];
     }

@@ -7,11 +7,12 @@
     :saving="saving"
     :error="error"
     :blocked="step === 0 && mealType === null"
+    :hide-next="step === 0"
     :check="check"
     @exit="emit('exit')"
     @save="save"
   >
-    <ChoiceCards v-if="step === 0" v-model="mealType" label="Which meal is this?" :options="MEAL_CHOICES" :columns="2" required large />
+    <ChoiceCards v-if="step === 0" v-model="mealType" label="Which meal is this?" :options="MEAL_CHOICES" :columns="2" required large @pick="advance" />
     <fieldset v-else-if="step === 1" class="min-w-0">
       <legend class="mb-1 text-lg font-semibold tracking-tight">What did you eat?</legend>
       <p class="mb-4 text-xs text-muted">Search the food list, then set the amount. Nutrients are estimated for you.</p>
@@ -59,6 +60,8 @@ const { saving, error, run } = useEntryForm(() => emit('saved'))
 
 const hour = new Date().getHours()
 const step = ref(0)
+// After a pick: a short pause so the selection is seen, then the next step.
+const advance = () => setTimeout(() => step.value++, 180)
 const mealType = ref<MealType | null>(hour < 11 ? 'breakfast' : hour < 16 ? 'lunch' : hour < 18 ? 'snack' : 'dinner')
 const items = reactive<FoodDraft[]>([blankDraft()])
 const itemErrors = ref<string[]>([])

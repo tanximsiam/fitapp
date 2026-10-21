@@ -4,7 +4,7 @@ import { workoutLabel } from '@/data/connection'
 import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
 import { formatClock, formatDuration, formatInt, formatKm } from '@/lib/format'
 import type { DaySummary } from '@/types/fitness'
-import { activityKind } from '@/data/activities'
+import { activityKind, activityTitle } from '@/data/activities'
 import type { ActivityEntry, CycleDay, HydrationEntry, Meal, MoodEntry, TrackerPrefs } from '@/types/journal'
 
 export type Source = EntryBadgeKind
@@ -58,7 +58,7 @@ export function dayRows(d: DaySummary | null, j: JournalDay, prefs: TrackerPrefs
         time: formatClock(a.startedAt),
         area: 'Logged activity',
         icon: activityKind(a.activityType).icon,
-        text: `${activityKind(a.activityType).label} · ${formatDuration(a.durationMin)}${a.energyKcal != null ? ` · ${formatInt(a.energyKcal)} kcal${a.energySource === 'estimated' ? ' (estimated)' : ''}` : ''}`,
+        text: `${activityTitle(a)} · ${formatDuration(a.durationMin)}${a.energyKcal != null ? ` · ${formatInt(a.energyKcal)} kcal${a.energySource === 'estimated' ? ' (estimated)' : ''}` : ''}`,
         source: a.syncState ?? a.provenance,
         to: '/health/activity',
       })

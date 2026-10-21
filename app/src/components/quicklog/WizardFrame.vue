@@ -23,9 +23,10 @@
     <p v-if="error" role="alert" class="mt-4 text-sm text-danger">{{ error }}</p>
     <div class="mt-6 flex items-center gap-2">
       <button type="button" class="rounded-full px-4 py-2.5 text-sm font-medium text-ink-2 transition-colors duration-150 hover:bg-page hover:text-ink" @click="onBack">
-        {{ step === 0 ? 'All log types' : 'Back' }}
+        Back
       </button>
-      <PrimaryButton class="ml-auto min-w-28" type="submit" :disabled="saving || blocked" :label="nextLabel" />
+      <!-- Single-choice steps move on when an option is picked; optional ones keep Skip. -->
+      <PrimaryButton v-if="!hideNext || skippable" class="ml-auto min-w-28" type="submit" :disabled="saving || blocked" :label="nextLabel" />
     </div>
   </form>
 </template>
@@ -34,7 +35,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 
-const props = defineProps<{ title: string; color: string; total: number; saving: boolean; error: string | null; blocked?: boolean; skippable?: boolean; check?: () => boolean }>()
+const props = defineProps<{ title: string; color: string; total: number; saving: boolean; error: string | null; blocked?: boolean; skippable?: boolean; hideNext?: boolean; check?: () => boolean }>()
 const emit = defineEmits<{ exit: []; save: [] }>()
 const step = defineModel<number>('step', { required: true })
 const direction = ref(1)
@@ -54,6 +55,9 @@ function onBack() {
   direction.value = -1
   step.value--
 }
+
+// Steps that advance themselves (on a pick) still slide the right way.
+watch(step, (now, before) => (direction.value = now > before ? 1 : -1))
 
 // Move focus to the new page so screen readers announce it and keyboard users continue from the top.
 watch(step, () => nextTick(() => setTimeout(() => page.value?.focus({ preventScroll: true }), 200)))

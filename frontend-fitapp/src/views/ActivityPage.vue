@@ -91,7 +91,7 @@
               <ul v-if="logged.length" class="divide-y divide-line overflow-y-auto" :style="{ height: `${AREA}px` }">
                 <li v-for="e in logged" :key="e.id" class="flex items-center gap-3 py-2 text-sm first:pt-0">
                   <ion-icon :icon="activityKind(e.activityType).icon" aria-hidden="true" class="shrink-0 text-base text-[var(--heart)]" />
-                  <span class="min-w-0 flex-1 truncate font-medium">{{ activityKind(e.activityType).label }}</span>
+                  <span class="min-w-0 flex-1 truncate font-medium">{{ activityTitle(e) }}</span>
                   <span class="tabular shrink-0 text-ink-2">
                     {{ formatClock(e.startedAt) }} · {{ formatDuration(e.durationMin) }}<template v-if="e.energyKcal != null"> · {{ formatInt(e.energyKcal) }} kcal{{ e.energySource === 'estimated' ? ' (est.)' : '' }}</template>
                   </span>
@@ -165,7 +165,7 @@ import ShowMore from '@/components/ShowMore.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
 import { IonIcon } from '@ionic/vue'
 import { useFitnessData } from '@/composables/useFitnessData'
-import { activityKind } from '@/data/activities'
+import { activityKind, activityTitle } from '@/data/activities'
 import { useJournalStore } from '@/stores/journal'
 import { dailyLine, dailyTicks, lastValues, metricBars } from '@/data/chartData'
 import { workoutLabel } from '@/data/connection'

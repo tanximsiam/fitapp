@@ -100,6 +100,15 @@ describe.skipIf(!URL)('FitApp API contract', () => {
     await journal.remove('mood', first.id)
   })
 
+  it('stores a logged workout with its exercises, apart from watch data', async () => {
+    const exercises = [{ name: 'Bench press', sets: 4, reps: 8, durationMin: 12 }, { name: 'Plank', sets: 3, reps: null, durationMin: null }]
+    await journal.saveActivity({ startedAt: '2026-10-16T19:00:00+06:00', activityType: 'workout', durationMin: 18, energyKcal: 95, energySource: 'estimated', exercises })
+    const saved = (await listOct()).activities.find((a) => a.activityType === 'workout')!
+    expect(saved).toEqual(expect.objectContaining({ date: '2026-10-16', durationMin: 18, energyKcal: 95, energySource: 'estimated', exercises, provenance: 'manual' }))
+    await journal.remove('activities', saved.id)
+    expect((await listOct()).activities.some((a) => a.id === saved.id)).toBe(false)
+  })
+
   it('upserts and deletes a cycle day by date', async () => {
     await journal.saveCycleDay('2026-10-16', { flow: 'light', symptoms: ['cramps'], note: null })
     const day = (await listOct()).cycleDays.find((d) => d.date === '2026-10-16')!
