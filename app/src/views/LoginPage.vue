@@ -53,17 +53,14 @@ import FormInput from '@/components/FormInput.vue'
 import GoogleButton from '@/components/GoogleButton.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { useSignIn } from '@/composables/useSignIn'
+import { exploreSampleData, useSignIn } from '@/composables/useSignIn'
 import { onboarding } from '@/lib/onboarding'
-import { useModeStore } from '@/stores/mode'
-import { resetDataStores } from '@/stores/reset'
 
 const email = ref('')
 const password = ref('')
 const router = useRouter()
 const ionRouter = useIonRouter()
 const route = useRoute()
-const mode = useModeStore()
 const { auth, providers, done, google } = useSignIn()
 
 async function handleLogin() {
@@ -72,12 +69,7 @@ async function handleLogin() {
   await done()
 }
 
-function useDemo() {
-  mode.setMode('demo')
-  resetDataStores()
-  // The welcome flow lets the person choose trackers before the demo starts.
-  router.replace(onboarding.done() ? '/home' : '/welcome')
-}
+const useDemo = () => exploreSampleData(router)
 
 /** Back to wherever sign-in was opened from; the welcome screen when opened directly. */
 function back() {
