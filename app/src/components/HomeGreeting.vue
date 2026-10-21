@@ -45,11 +45,11 @@
         <p class="flex items-center gap-1.5 text-[12px] font-medium tracking-wide text-ink-2 uppercase">
           <ion-icon :icon="sparklesOutline" aria-hidden="true" class="text-sm" />Daily reminder
         </p>
-        <p class="relative mt-2 pr-6 text-[22px] leading-snug font-semibold tracking-tight">{{ reminder }}</p>
+        <p class="relative mt-2 pr-6 text-[22px] leading-snug font-semibold tracking-tight">{{ quote ?? reminder }}</p>
         <!-- The health score and the one thing that would raise it most. -->
         <p v-if="score" class="mt-4 flex items-start gap-2.5 border-t border-white/20 pt-3 text-[13px] leading-snug text-ink-2">
           <span class="tabular shrink-0 rounded-full bg-white/15 px-2 py-0.5 text-[12px] font-semibold text-ink" :aria-label="`Health score ${score.score} out of 100`">{{ score.score }}<span class="font-normal text-ink-2">/100</span></span>
-          <span>{{ tip ?? fallbackTip(score) }}</span>
+          <span>{{ coach?.tip ?? fallbackCoach(score).tip }}</span>
         </p>
         <p v-else-if="nudge" class="mt-4 flex items-center gap-2 border-t border-white/20 pt-3 text-[13px] text-ink-2">
           <ion-icon :icon="nudge.icon" aria-hidden="true" class="shrink-0 text-base" />{{ nudge.text }}
@@ -68,12 +68,13 @@ import WeekStrip from '@/components/WeekStrip.vue'
 import { MOOD_CHOICES } from '@/components/forms/choices'
 import { progress } from '@/data/derive'
 import { loggingStreak } from '@/data/journalDerive'
+import { addDays } from '@/lib/dates'
 import { dayPart } from '@/lib/dayPart'
 import { formatInt } from '@/lib/format'
 import { localInputToIso } from '@/lib/instants'
-import { aiScoreTip, fromAi } from '@/api/ai'
-import { fallbackTip } from '@/data/aiFallback'
-import { scorePayload } from '@/data/aiPayload'
+import { aiCoach, aiQuote, fromAi, type AiCoach } from '@/api/ai'
+import { fallbackCoach } from '@/data/aiFallback'
+import { coachPayload, todayPayload } from '@/data/aiPayload'
 import { healthScore } from '@/data/healthScore'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
@@ -156,16 +157,28 @@ const reminder = computed(() => {
   return REMINDERS[dayNumber % REMINDERS.length]
 })
 
-/** The week's health score (Life's Essential 8 activity and sleep), only while today is shown. */
-const score = computed(() => (fitness.isToday ? healthScore(fitness.days, journal.data.activities ?? [], fitness.today) : null))
-const tip = ref<string | null>(null)
+/** The week's health score, only while today is shown. */
+const score = computed(() => (fitness.isToday ? healthScore(fitness.days, journal.data, fitness.today, journal.prefs.hydration ? fitness.goals.waterMl : null) : null))
+const coachBody = computed(() => (score.value ? coachPayload(score.value, todayPayload(fitness.today, fitness.days, journal.data, fitness.goals)) : null))
+const coach = ref<AiCoach | null>(null)
+// Any new log changes today's numbers, so the tip is written again for the new picture.
 watch(
-  () => (score.value ? JSON.stringify(scorePayload(score.value)) : null),
+  () => (coachBody.value ? JSON.stringify(coachBody.value) : null),
   async (key) => {
-    tip.value = null
     if (!key || !score.value) return
     const s = score.value
-    tip.value = await fromAi(() => aiScoreTip(scorePayload(s)), fallbackTip(s))
+    coach.value = await fromAi(() => aiCoach(coachBody.value!), fallbackCoach(s))
+  },
+  { immediate: true },
+)
+
+/** Today's personal line, written once a day; the fixed reminders are the fallback. */
+const quote = ref<string | null>(null)
+watch(
+  () => `${fitness.today}:${part.value.key}:${score.value?.focus ?? ''}`,
+  async () => {
+    const recent = todayPayload(addDays(fitness.today, -1), fitness.days, journal.data, fitness.goals)
+    quote.value = await fromAi(() => aiQuote({ date: fitness.today, part_of_day: part.value.key, focus: score.value?.focus ?? null, recent }), null)
   },
   { immediate: true },
 )

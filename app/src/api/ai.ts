@@ -2,7 +2,10 @@ import { useAuthStore } from '@/stores/auth'
 import { useModeStore } from '@/stores/mode'
 import { api } from './client'
 
-/** Personal text from the AI service on the FitApp server (see backend AiController). */
+/**
+ * Personal text from the AI service on the FitApp server (see backend AiController).
+ * A signed-in account uses /ai; sample data uses /demo/ai, which the server may switch off.
+ */
 
 export interface AiInsight {
   area: 'activity' | 'sleep' | 'heart' | 'stress' | 'mood' | 'food' | 'hydration' | 'cycle' | 'general'
@@ -10,14 +13,24 @@ export interface AiInsight {
   body: string
   action: string | null
 }
+export interface AiCoach {
+  summary: string
+  tip: string
+}
 
-export const aiInsights = async (summary: object) => (await api.post<{ data: { insights: AiInsight[] } }>('/ai/insights', { summary })).data.data.insights
-export const aiFeedback = async (kind: string, entry: object, today: object) => (await api.post<{ data: { feedback: string } }>('/ai/feedback', { kind, entry, today })).data.data.feedback
-export const aiScoreTip = async (body: object) => (await api.post<{ data: { tip: string } }>('/ai/score-tip', body)).data.data.tip
+const base = () => (useModeStore().isDemo ? '/demo/ai' : '/ai')
+const post = async <T>(path: string, body: object) => (await api.post<{ data: T }>(`${base()}/${path}`, body)).data.data
 
-/** The AI's answer for a signed-in account, or the fallback (sample data, offline, service off). */
+export const aiInsights = async (summary: object) => (await post<{ insights: AiInsight[] }>('insights', { summary })).insights
+export const aiFeedback = async (kind: string, entry: object, today: object) => (await post<{ feedback: string }>('feedback', { kind, entry, today })).feedback
+export const aiCoach = (body: object) => post<AiCoach>('coach', body)
+export const aiQuote = async (body: object) => (await post<{ quote: string }>('quote', body)).quote
+
+/** The AI's answer when a server can be asked, otherwise (or on any failure) the fallback. */
 export async function fromAi<T>(call: () => Promise<T>, fallback: T): Promise<T> {
-  if (useModeStore().isDemo || !useAuthStore().user) return fallback
+  const mode = useModeStore()
+  const reachable = mode.isDemo ? mode.backendConfigured : !!useAuthStore().user
+  if (!reachable) return fallback
   try {
     return await call()
   } catch {

@@ -1,17 +1,35 @@
+import type { AiCoach } from '@/api/ai'
 import type { SavedEntry } from '@/data/aiPayload'
-import type { HealthScore } from '@/data/healthScore'
+import { STEP_TARGET, type HealthScore, type ScorePart } from '@/data/healthScore'
+import { formatInt } from '@/lib/format'
 
-/** Wording used when the AI service is off, offline or showing sample data. */
+/** Wording used when the AI service cannot be asked (offline, no server, or it is switched off). */
 
-export function fallbackTip(s: HealthScore): string {
-  if (s.focus === 'activity' && s.activityMinutes != null) {
-    const left = Math.max(10, Math.ceil((150 - s.activityMinutes) / 10) * 10)
-    return `Add ${left} active minutes this week, a brisk walk counts.`
+const TIPS: Record<ScorePart, (value: number) => string> = {
+  activity: (min) => `Add ${Math.max(10, Math.ceil((150 - min) / 10) * 10)} active minutes this week; a brisk walk counts.`,
+  steps: (steps) => `Aim for ${formatInt(STEP_TARGET)} steps a day, about ${formatInt(Math.max(500, Math.ceil((STEP_TARGET - steps) / 500) * 500))} more than now.`,
+  sleep: (h) => (h < 7 ? 'Get to bed 30 minutes earlier to reach 7 to 9 hours.' : 'Keep sleep under 9 hours with a steady wake-up time.'),
+  regularity: () => 'Go to bed and wake up at the same times, weekends included.',
+  heart: () => 'Regular walks and steady sleep help bring your resting heart rate down.',
+  hydration: () => 'Spread your water through the day to reach your goal.',
+}
+
+const STRENGTHS: Record<ScorePart, string> = {
+  activity: 'You moved plenty this week',
+  steps: 'Your daily steps were on target',
+  sleep: 'You slept 7 to 9 hours',
+  regularity: 'Your sleep times were steady',
+  heart: 'Your resting heart rate stayed low',
+  hydration: 'You kept up with water',
+}
+
+export function fallbackCoach(s: HealthScore): AiCoach {
+  const best = [...s.parts].sort((a, b) => b.points - a.points)[0]
+  const weak = s.parts.find((p) => p.part === s.focus)
+  return {
+    summary: `${s.label} week. ${STRENGTHS[best.part]}.`,
+    tip: weak ? TIPS[weak.part](weak.value) : 'Keep it up: everything is where it should be.',
   }
-  if (s.focus === 'sleep' && s.sleepHours != null) {
-    return s.sleepHours < 7 ? 'Aim for 7 to 9 hours of sleep: try going to bed 30 minutes earlier.' : 'Keep sleep under 9 hours with a steady wake-up time.'
-  }
-  return 'Keep it up: your activity and sleep are right where they should be.'
 }
 
 export function fallbackFeedback(e: SavedEntry): string {

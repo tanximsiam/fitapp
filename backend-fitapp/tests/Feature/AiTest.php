@@ -25,13 +25,15 @@ class AiTest extends TestCase
         Http::fake(['api.groq.com/*' => Http::response(['choices' => [['message' => ['content' => json_encode($json)]]]])]);
     }
 
-    public function test_score_tip_comes_from_the_model(): void
+    public function test_coach_and_quote_come_from_the_model(): void
     {
-        $this->fakeReply(['tip' => 'Walk 20 minutes after dinner on three days.']);
+        $this->fakeReply(['summary' => 'Good week: 7.2 h of sleep on average.', 'tip' => 'Walk 20 minutes after dinner on three days.', 'quote' => '"Small walks add up."']);
 
-        $this->postJson('/api/ai/score-tip', ['score' => 64, 'focus' => 'activity', 'week' => ['active_minutes' => 95, 'sleep_hours' => 7.2]])
+        $this->postJson('/api/ai/coach', ['score' => 64, 'label' => 'Fair', 'focus' => 'activity', 'week' => ['active_minutes' => 95, 'sleep_hours' => 7.2]])
             ->assertOk()
-            ->assertJsonPath('data.tip', 'Walk 20 minutes after dinner on three days.');
+            ->assertJsonPath('data.tip', 'Walk 20 minutes after dinner on three days.')
+            ->assertJsonPath('data.summary', 'Good week: 7.2 h of sleep on average.');
+        $this->postJson('/api/ai/quote', ['date' => '2026-10-21', 'focus' => 'activity'])->assertOk()->assertJsonPath('data.quote', 'Small walks add up.');
 
         Http::assertSent(fn (Request $r) => $r['model'] === 'openai/gpt-oss-20b' && $r['response_format']['type'] === 'json_object' && $r->hasHeader('Authorization', 'Bearer test-key'));
     }
@@ -66,22 +68,33 @@ class AiTest extends TestCase
 
     public function test_the_same_question_is_answered_from_the_cache(): void
     {
-        $this->fakeReply(['tip' => 'Go to bed 30 minutes earlier.']);
-        $body = ['score' => 70, 'focus' => 'sleep', 'week' => ['sleep_hours' => 6.2]];
+        $this->fakeReply(['quote' => 'Rest is part of the plan.']);
+        $body = ['date' => '2026-10-21', 'focus' => 'sleep'];
 
-        $this->postJson('/api/ai/score-tip', $body)->assertOk();
-        $this->postJson('/api/ai/score-tip', $body)->assertOk();
+        $this->postJson('/api/ai/quote', $body)->assertOk();
+        $this->postJson('/api/ai/quote', $body)->assertOk();
         Http::assertSentCount(1);
     }
 
     public function test_off_without_a_key_or_when_the_model_fails(): void
     {
         config(['services.groq.key' => null]);
-        $this->postJson('/api/ai/score-tip', ['score' => 70, 'week' => ['sleep_hours' => 6]])->assertStatus(503);
+        $this->postJson('/api/ai/quote', ['date' => '2026-10-21'])->assertStatus(503);
 
         config(['services.groq.key' => 'test-key']);
         Http::fake(['api.groq.com/*' => Http::response(['error' => 'down'], 500)]);
         $this->postJson('/api/ai/feedback', ['kind' => 'mood', 'entry' => ['mood' => 4]])->assertStatus(503);
+    }
+
+    public function test_demo_routes_answer_only_when_the_server_allows_it(): void
+    {
+        $this->app['auth']->forgetGuards();
+        config(['services.groq.demo' => false]);
+        $this->fakeReply(['quote' => 'Keep going.']);
+
+        $this->postJson('/api/demo/ai/quote', ['date' => '2026-10-21'])->assertNotFound();
+        config(['services.groq.demo' => true]);
+        $this->postJson('/api/demo/ai/quote', ['date' => '2026-10-21'])->assertOk()->assertJsonPath('data.quote', 'Keep going.');
     }
 
     public function test_input_is_validated_and_needs_an_app_token(): void

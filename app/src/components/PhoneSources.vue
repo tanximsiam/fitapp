@@ -19,11 +19,16 @@
           <span class="text-muted">Not from this source: {{ missing(r.source.provides) }}.</span>
         </p>
 
+        <!-- The FitApp Watch can always be paired from here: on a phone for real, otherwise as a preview. -->
+        <div v-if="r.source.id === 'fitapp-watch' && !r.state && (!r.available || mode.isDemo)" class="mt-3">
+          <PrimaryButton label="Pair" @click="pairing = true" />
+        </div>
         <div v-if="r.available && !mode.isDemo" class="mt-3 flex flex-wrap gap-2">
           <template v-if="r.state">
             <PrimaryButton :label="sources.syncing ? 'Syncing…' : 'Sync now'" :disabled="sources.syncing" @click="run(r.source.id, () => syncAll())" />
             <PrimaryButton variant="secondary" label="Disconnect" @click="run(r.source.id, () => disconnectSource(r.source.id))" />
           </template>
+          <PrimaryButton v-else-if="r.source.id === 'fitapp-watch'" label="Pair" @click="pairing = true" />
           <PrimaryButton v-else :label="busy === r.source.id ? 'Connecting…' : 'Connect'" :disabled="!!busy" @click="run(r.source.id, () => connectSource(r.source.id))" />
           <PrimaryButton v-if="r.source.openSettings" variant="secondary" label="Permissions" @click="r.source.openSettings!()" />
         </div>
@@ -40,6 +45,7 @@
           : 'Each measurement comes from one source only, the watch first, so nothing is counted twice. Disconnecting stops new uploads; data already uploaded stays.'
       }}
     </p>
+    <PairWatchSheet :open="pairing" @close="pairing = false" @paired="fitness.load()" />
   </section>
 </template>
 
@@ -47,6 +53,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { heartCircleOutline, watchOutline } from 'ionicons/icons'
+import PairWatchSheet from '@/components/PairWatchSheet.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { MEASUREMENT_LABELS } from '@/data/connection'
 import { formatRelative } from '@/lib/format'
@@ -64,6 +71,7 @@ const fitness = useFitnessStore()
 const availability = reactive<Partial<Record<SourceId, Availability>>>({})
 const errors = reactive<Partial<Record<SourceId, string>>>({})
 const busy = ref<SourceId | null>(null)
+const pairing = ref(false)
 
 watch(() => (mode.isDemo ? null : auth.user?.id ?? null), useAccount, { immediate: true })
 onMounted(async () => {

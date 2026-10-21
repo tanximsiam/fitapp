@@ -19,6 +19,14 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::get('/auth/providers', [AuthController::class, 'providers']);
 
+// The same AI text for people exploring sample data, only when the server allows it (AI_DEMO).
+Route::prefix('demo/ai')->middleware('throttle:10,1')->group(function () {
+    Route::post('/insights', [AiController::class, 'insights']);
+    Route::post('/feedback', [AiController::class, 'feedback']);
+    Route::post('/coach', [AiController::class, 'coach']);
+    Route::post('/quote', [AiController::class, 'quote']);
+});
+
 // Sign in with Google: browser redirects, then a one-time code for a token (see GoogleAuthController).
 Route::prefix('auth/google')->middleware('throttle:20,1')->group(function () {
     Route::get('/redirect', [GoogleAuthController::class, 'redirect']);
@@ -40,7 +48,8 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
     Route::prefix('ai')->middleware('throttle:30,1')->group(function () {
         Route::post('/insights', [AiController::class, 'insights']);
         Route::post('/feedback', [AiController::class, 'feedback']);
-        Route::post('/score-tip', [AiController::class, 'scoreTip']);
+        Route::post('/coach', [AiController::class, 'coach']);
+        Route::post('/quote', [AiController::class, 'quote']);
     });
 
     // The phone uploads what it reads from the watch, Health Connect or Apple Health.

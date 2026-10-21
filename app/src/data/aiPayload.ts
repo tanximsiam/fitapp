@@ -13,11 +13,23 @@ import type { ActivityInput, HydrationInput, JournalData, MealInput, MoodInput }
 
 const round1 = (n: number | null | undefined) => (n == null ? null : Math.round(n * 10) / 10)
 
-export function scorePayload(s: HealthScore) {
+const PART_NAMES = {
+  activity: 'active_minutes_per_week (target 150)',
+  steps: 'average_daily_steps (target 8000)',
+  sleep: 'average_sleep_hours (target 7-9)',
+  regularity: 'sleep_midpoint_spread_minutes (lower is better, 30 or less is best)',
+  heart: 'average_resting_heart_rate_bpm (60 or less is best)',
+  hydration: 'percent_of_water_goal',
+} as const
+
+/** The score, the week's numbers behind it and today so far: a new log changes it, so the coach answers anew. */
+export function coachPayload(s: HealthScore, today: ReturnType<typeof todayPayload>) {
   return {
     score: s.score,
+    label: s.label,
     focus: s.focus,
-    week: { active_minutes: s.activityMinutes, active_minutes_target: 150, sleep_hours: s.sleepHours, sleep_hours_target: '7-9' },
+    week: Object.fromEntries(s.parts.map((p) => [PART_NAMES[p.part], p.value])),
+    today,
   }
 }
 

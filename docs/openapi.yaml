@@ -165,11 +165,11 @@ paths:
                       token: { type: string, description: 'Send as `Authorization: Bearer <token>`.' }
         '401': { $ref: '#/components/responses/Error' }
 
-  /ai/score-tip:
+  /ai/coach:
     post:
       tags: [AI]
-      summary: One tip for raising the health score
-      description: The app computes the score (Life's Essential 8 activity and sleep bands) and sends it with the week's numbers. 503 when the AI service is off or fails; the app then shows its own wording.
+      summary: A summary of the week behind the health score and one tip to raise it
+      description: The app computes the score from what FitApp collects (activity, steps, sleep duration and regularity, resting heart rate, water) and sends it with the week's numbers. The summary affirms what went well without numbers. 503 when the AI service is off or fails; the app then shows its own wording.
       requestBody:
         required: true
         content:
@@ -179,10 +179,33 @@ paths:
               required: [score, week]
               properties:
                 score: { type: integer, minimum: 0, maximum: 100 }
-                focus: { type: string, enum: [activity, sleep] }
-                week: { type: object, description: 'Aggregates such as active_minutes and sleep_hours.' }
+                label: { type: string }
+                focus: { type: string, enum: [activity, steps, sleep, regularity, heart, hydration] }
+                week: { type: object, description: 'Aggregates such as active minutes and sleep hours.' }
+                today: { type: object }
       responses:
-        '200': { description: 'Tip', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { tip: { type: string } } } } } } } }
+        '200': { description: 'Summary and tip', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { summary: { type: string }, tip: { type: string } } } } } } } }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /ai/quote:
+    post:
+      tags: [AI]
+      summary: A personal line for the daily reminder
+      description: Written once per day, part of day and focus. The same four AI routes exist under /demo/ai/* without sign-in when the server sets AI_DEMO=true (10 requests a minute).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date]
+              properties:
+                date: { type: string, format: date }
+                part_of_day: { type: string, enum: [morning, afternoon, evening, night] }
+                focus: { type: string }
+                recent: { type: object }
+      responses:
+        '200': { description: 'Quote', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { quote: { type: string } } } } } } } }
         '503': { $ref: '#/components/responses/Error' }
 
   /ai/feedback:

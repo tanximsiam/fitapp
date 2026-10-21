@@ -32,6 +32,7 @@ class AiController extends Controller
 
     public function insights(Request $request): JsonResponse
     {
+        $this->allowed($request);
         $data = $request->validate(['summary' => ['required', 'array']]);
         $answer = $this->ask(<<<'TXT'
             From the summary of recent days, give up to 3 insights that connect different areas (for example
@@ -56,6 +57,7 @@ class AiController extends Controller
 
     public function feedback(Request $request): JsonResponse
     {
+        $this->allowed($request);
         $data = $request->validate([
             'kind' => ['required', 'in:mood,meal,drink,activity'],
             'entry' => ['required', 'array'],
@@ -72,22 +74,53 @@ class AiController extends Controller
             : $this->unavailable();
     }
 
-    public function scoreTip(Request $request): JsonResponse
+    /** A summary of the week behind the health score and the one thing that would raise it most. */
+    public function coach(Request $request): JsonResponse
     {
+        $this->allowed($request);
         $data = $request->validate([
             'score' => ['required', 'integer', 'between:0,100'],
-            'focus' => ['nullable', 'in:activity,sleep'],
+            'label' => ['required', 'string', 'max:20'],
+            'focus' => ['nullable', 'in:activity,steps,sleep,regularity,heart,hydration'],
             'week' => ['required', 'array'],
+            'today' => ['nullable', 'array'],
         ]);
         $answer = $this->ask(<<<'TXT'
-            The person has a health score out of 100. Suggest the one thing that would raise it most this week,
-            based on the focus area and the week's numbers. One sentence, max 110 characters, starting with a verb.
-            Say "your score" if needed; never name parts of it (no "activity score" or "sleep score").
-            JSON: {"tip": "..."}
+            The person has a health score out of 100 for the past week, built from activity, steps, sleep length,
+            sleep regularity, resting heart rate and water. "week" has the numbers behind it; "focus" is the part
+            with the most room to grow; "today" is what happened so far today.
+            Write a summary: 1-2 sentences (max 200 characters) that recognise what went well this week in plain words, warm and specific to the habits, with no numbers.
+            Write a tip: the one thing to do next that would raise the score most, starting with a verb,
+            max 110 characters, using today's numbers when they help (for example what is left today).
+            Never state the score number (the app shows it) and never name parts of the score
+            (no "activity score" or "sleep score").
+            JSON: {"summary": "...", "tip": "..."}
+            TXT, $data, 400);
+
+        return filled($answer['tip'] ?? null) && filled($answer['summary'] ?? null)
+            ? response()->json(['data' => ['summary' => Str::limit((string) $answer['summary'], 240), 'tip' => Str::limit((string) $answer['tip'], 140)]])
+            : $this->unavailable();
+    }
+
+    /** A short personal line for the day, shown as the daily reminder on Home. */
+    public function quote(Request $request): JsonResponse
+    {
+        $this->allowed($request);
+        $data = $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'part_of_day' => ['nullable', 'in:morning,afternoon,evening,night'],
+            'focus' => ['nullable', 'string', 'max:20'],
+            'recent' => ['nullable', 'array'],
+        ]);
+        $answer = $this->ask(<<<'TXT'
+            Write today's short encouraging line for this person: an original sentence of your own (not a famous
+            quote), max 90 characters, warm and specific to their recent days and the area they are working on.
+            No emojis, no hashtags, no quotation marks.
+            JSON: {"quote": "..."}
             TXT, $data, 200);
 
-        return filled($answer['tip'] ?? null)
-            ? response()->json(['data' => ['tip' => Str::limit((string) $answer['tip'], 140)]])
+        return filled($answer['quote'] ?? null)
+            ? response()->json(['data' => ['quote' => Str::limit(trim((string) $answer['quote'], " \"'“”"), 120)]])
             : $this->unavailable();
     }
 
@@ -108,6 +141,12 @@ class AiController extends Controller
         }
 
         return $clean;
+    }
+
+    /** Without an account the demo routes answer only when the server allows it (AI_DEMO). */
+    private function allowed(Request $request): void
+    {
+        abort_unless($request->user() || config('services.groq.demo'), 404);
     }
 
     private function unavailable(): JsonResponse

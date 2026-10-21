@@ -277,3 +277,9 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Unlayered so it beats the components' scoped badge colours. Dark mode: full-strength hues glare on near-black, so badges take a calmer tint and a softened icon. */
+:root[data-theme="dark"] .badge {
+  background: color-mix(in oklab, var(--tone) 16%, var(--surface));
+  color: color-mix(in oklab, var(--tone) 70%, var(--ink-2));
+}
