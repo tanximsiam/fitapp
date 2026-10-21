@@ -11,7 +11,7 @@
         :class="[large ? 'py-4' : 'py-2.5', selected(opt) ? 'is-selected' : 'bg-page hover:bg-[color-mix(in_srgb,var(--c)_8%,var(--page))]']"
         :style="{ '--c': opt.color }"
       >
-        <input v-model="value" type="radio" :name="name" :value="opt.value" class="sr-only" />
+        <input v-model="value" type="radio" :name="name" :value="opt.value" class="sr-only" @click="emit('pick', opt.value)" />
         <ChoiceGlyph v-if="opt.glyph" :kind="opt.glyph.kind" :level="opt.glyph.level" :color="opt.color" class="glyph" :class="large ? 'size-12 sm:size-14' : 'size-9'" />
         <ion-icon v-else-if="opt.icon" :icon="opt.icon" aria-hidden="true" class="glyph" :class="large ? 'text-4xl' : 'text-2xl'" :style="{ color: opt.color }" />
         <span class="text-[12px] leading-tight font-medium sm:text-[13px]" :class="selected(opt) ? 'text-ink' : 'text-ink-2'">{{ opt.label }}</span>
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{ modelValue: T | null; label: string; op
   large: false,
   columns: undefined,
 })
-const emit = defineEmits<{ 'update:modelValue': [T | null] }>()
+const emit = defineEmits<{ 'update:modelValue': [T | null]; pick: [T] }>()
 const name = useId()
 const value = computed({ get: () => props.modelValue, set: (v) => emit('update:modelValue', v) })
 const selected = (o: Choice<T>) => o.value === props.modelValue

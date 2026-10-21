@@ -19,7 +19,8 @@ type MoodPayload = Meta & { recorded_at: string; mood: number; energy: number | 
 type ItemPayload = { name: string; quantity: number | null; unit: string | null; energy_kcal: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null; nutrition_source: 'database' | 'entered' | null }
 type MealPayload = Meta & { eaten_at: string; meal_type: Meal['mealType']; note: string | null; items: ItemPayload[] }
 type HydrationPayload = Meta & { recorded_at: string; volume_ml: number }
-type ActivityPayload = Meta & { started_at: string; activity_type: ActivityEntry['activityType']; duration_min: number; energy_kcal: number | null; energy_source: ActivityEntry['energySource'] }
+type ExercisePayload = { name: string; sets: number; reps: number | null; duration_min: number | null }
+type ActivityPayload = Meta & { started_at: string; activity_type: ActivityEntry['activityType']; duration_min: number; energy_kcal: number | null; energy_source: ActivityEntry['energySource']; exercises?: ExercisePayload[] }
 type CyclePayload = Meta & { flow: CycleDay['flow']; symptoms: CycleDay['symptoms']; note: string | null }
 
 const meta = (p: Meta) => ({ id: p.id, date: p.date, provenance: p.provenance, updatedAt: p.updated_at })
@@ -43,7 +44,7 @@ export const toMeal = (p: MealPayload): Meal => ({
 })
 
 export const toHydration = (p: HydrationPayload): HydrationEntry => ({ ...meta(p), recordedAt: p.recorded_at, volumeMl: p.volume_ml })
-export const toActivity = (p: ActivityPayload): ActivityEntry => ({ ...meta(p), startedAt: p.started_at, activityType: p.activity_type, durationMin: p.duration_min, energyKcal: p.energy_kcal, energySource: p.energy_source })
+export const toActivity = (p: ActivityPayload): ActivityEntry => ({ ...meta(p), startedAt: p.started_at, activityType: p.activity_type, durationMin: p.duration_min, energyKcal: p.energy_kcal, energySource: p.energy_source, exercises: (p.exercises ?? []).map((x) => ({ name: x.name, sets: x.sets, reps: x.reps, durationMin: x.duration_min })) })
 export const toCycleDay = (p: CyclePayload): CycleDay => ({ ...meta(p), flow: p.flow, symptoms: p.symptoms, note: p.note })
 
 const moodBody = (m: MoodInput) => ({ recorded_at: m.recordedAt, mood: m.mood, energy: m.energy, stress: m.stress, emotions: m.emotions, note: m.note })

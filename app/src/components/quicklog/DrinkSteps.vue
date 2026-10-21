@@ -11,7 +11,7 @@
     @save="save"
   >
     <template v-if="step === 0">
-      <ChoiceCards v-model="preset" label="How much did you drink?" :options="DRINK_CHOICES" :columns="4" required large />
+      <ChoiceCards v-model="preset" label="How much did you drink?" :options="DRINK_CHOICES" :columns="4" required large @pick="advance" />
       <FormInput v-model="volume" class="max-w-48" label="Or another amount (ml)" type="number" inputmode="numeric" :min="10" :max="5000" :error="!!volumeError" :hint="volumeError" />
     </template>
     <template v-else>
@@ -38,6 +38,8 @@ const journal = useJournalStore()
 const { saving, error, run } = useEntryForm(() => emit('saved'))
 
 const step = ref(0)
+// After a pick: a short pause so the selection is seen, then the next step.
+const advance = () => setTimeout(() => step.value++, 180)
 const volume = ref('250')
 const when = ref(defaultInputFor(props.date))
 const volumeError = ref<string>()

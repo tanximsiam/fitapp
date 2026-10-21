@@ -7,10 +7,11 @@
     :saving="saving"
     :error="error"
     :skippable="step === 1 && !symptoms.length"
+    :hide-next="step === 0"
     @exit="emit('exit')"
     @save="save"
   >
-    <ChoiceCards v-if="step === 0" v-model="flow" label="Any bleeding today?" :options="FLOW_CHOICES" required large />
+    <ChoiceCards v-if="step === 0" v-model="flow" label="Any bleeding today?" :options="FLOW_CHOICES" required large @pick="advance" />
     <ChipToggles v-else-if="step === 1" v-model="symptoms" :options="SYMPTOMS" label="Any symptoms?" />
     <template v-else>
       <FormInput v-model="date" label="Date" type="date" :error="!!dateError" :hint="dateError" />
@@ -42,6 +43,8 @@ const journal = useJournalStore()
 const { saving, error, run } = useEntryForm(() => emit('saved'))
 
 const step = ref(0)
+// After a pick: a short pause so the selection is seen, then the next step.
+const advance = () => setTimeout(() => step.value++, 180)
 const date = ref(props.date)
 const existing = computed(() => journal.onDate(date.value).cycleDay ?? undefined)
 const flow = ref<Flow | null>(existing.value?.flow ?? null)

@@ -8,13 +8,14 @@
     :error="error"
     :blocked="step === 0 && mood === null"
     :skippable="(step === 1 && energy === null) || (step === 2 && stress === null) || (step === 3 && !emotions.length && !note.trim())"
+    :hide-next="step <= 2"
     @exit="emit('exit')"
     @save="save"
   >
-    <ChoiceCards v-if="step === 0" v-model="mood" label="How are you feeling?" :options="MOOD_CHOICES" required large />
-    <ChoiceCards v-else-if="step === 1" v-model="energy" label="How is your energy?" :options="ENERGY_CHOICES" large />
+    <ChoiceCards v-if="step === 0" v-model="mood" label="How are you feeling?" :options="MOOD_CHOICES" required large @pick="advance" />
+    <ChoiceCards v-else-if="step === 1" v-model="energy" label="How is your energy?" :options="ENERGY_CHOICES" large @pick="advance" />
     <template v-else-if="step === 2">
-      <ChoiceCards v-model="stress" label="How stressed do you feel?" :options="STRESS_CHOICES" large />
+      <ChoiceCards v-model="stress" label="How stressed do you feel?" :options="STRESS_CHOICES" large @pick="advance" />
       <p class="-mt-2 text-xs text-muted">Your own rating. It's kept separate from the stress estimate a watch makes.</p>
     </template>
     <template v-else-if="step === 3">
@@ -52,6 +53,8 @@ const journal = useJournalStore()
 const { saving, error, run } = useEntryForm(() => emit('saved'))
 
 const step = ref(0)
+// After a pick: a short pause so the selection is seen, then the next step.
+const advance = () => setTimeout(() => step.value++, 180)
 const mood = ref<number | null>(null)
 const energy = ref<number | null>(null)
 const stress = ref<number | null>(null)

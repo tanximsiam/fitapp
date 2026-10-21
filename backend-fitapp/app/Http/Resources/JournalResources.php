@@ -70,6 +70,7 @@ final class JournalResources
             'duration_min' => $a->duration_min,
             'energy_kcal' => $a->energy_kcal,
             'energy_source' => $a->energy_source,
+            'exercises' => $a->exercises->map(fn ($x) => ['name' => $x->name, 'sets' => $x->sets, 'reps' => $x->reps, 'duration_min' => $x->duration_min])->all(),
         ] + self::meta($a);
     }
 

@@ -1,6 +1,6 @@
 import { addDays, dateRange, daysBetween, offsetString, wallMinutes } from '@/lib/dates'
 import { DEMO_WINDOW_DAYS, type DemoClock, generateDay } from './demo'
-import { estimateKcal } from './activities'
+import { estimateKcal, estimateWorkoutKcal, workoutMinutes } from './activities'
 import type {
   CycleDay,
   EntryId,
@@ -145,11 +145,18 @@ function activitiesFor(date: ISODate, clock: DemoClock): ActivityEntry[] {
   const r = rng(dayNo(date) * 617 + 23)
   const out: ActivityEntry[] = []
   const add = (i: number, type: ActivityEntry['activityType'], minute: number, durationMin: number) =>
-    out.push({ id: `demo:activity:${date}:${i}`, date, provenance: 'simulated', updatedAt: null, startedAt: at(date, minute, clock.offset), activityType: type, durationMin, energyKcal: estimateKcal(type, durationMin), energySource: 'estimated' })
+    out.push({ id: `demo:activity:${date}:${i}`, date, provenance: 'simulated', updatedAt: null, startedAt: at(date, minute, clock.offset), activityType: type, durationMin, energyKcal: estimateKcal(type, durationMin), energySource: 'estimated', exercises: [] })
   if (r() < 0.45) add(0, 'chores', 18 * 60 + 30, 20 + Math.floor(r() * 4) * 10)
   const morning = r()
   if (morning < 0.2) add(1, 'jogging', 6 * 60 + 30, 30)
   else if (morning < 0.35) add(1, 'walking', 7 * 60, 40)
+  // Gym twice a week in the evening, logged set by set.
+  if (dayNo(date) % 7 === 2 || dayNo(date) % 7 === 5) {
+    const exercises = dayNo(date) % 7 === 2
+      ? [{ name: 'Bench press', sets: 4, reps: 8, durationMin: 12 }, { name: 'Pull-ups', sets: 3, reps: 8, durationMin: null }, { name: 'Plank', sets: 3, reps: null, durationMin: 5 }]
+      : [{ name: 'Squats', sets: 4, reps: 10, durationMin: 14 }, { name: 'Lunges', sets: 3, reps: 12, durationMin: null }, { name: 'Kettlebell swings', sets: 3, reps: 15, durationMin: 6 }]
+    out.push({ id: `demo:activity:${date}:2`, date, provenance: 'simulated', updatedAt: null, startedAt: at(date, 19 * 60, clock.offset), activityType: 'workout', durationMin: workoutMinutes(exercises), energyKcal: estimateWorkoutKcal(exercises), energySource: 'estimated', exercises })
+  }
   return out
 }
 
