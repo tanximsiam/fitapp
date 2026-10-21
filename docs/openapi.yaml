@@ -64,6 +64,108 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { description: Too many attempts }
 
+  /register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Create an account and get an app token
+      description: Off when the server sets `FITAPP_REGISTRATION=false` (403).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, maxLength: 255 }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                timezone: { type: string, description: IANA zone, defaults to UTC }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '201':
+          description: Account created and signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: '#/components/schemas/User' }
+                      token: { type: string, description: 'Send as `Authorization: Bearer <token>`.' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { description: Too many attempts }
+
+  /auth/providers:
+    get:
+      tags: [Auth]
+      security: []
+      summary: Sign-in options this server offers
+      responses:
+        '200':
+          description: Options
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      registration: { type: boolean }
+                      google: { type: boolean, description: True once GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set. }
+
+  /auth/google/redirect:
+    get:
+      tags: [Auth]
+      security: []
+      summary: Start Google sign-in (open in a browser)
+      description: See docs/google-sign-in.md. Google returns to `/auth/google/callback`, which redirects to `return` with `?code=` or `?error=`.
+      parameters:
+        - name: return
+          in: query
+          required: true
+          description: The app's URL scheme (`fitapp://…`) or an address on an origin in FRONTEND_ORIGINS.
+          schema: { type: string }
+      responses:
+        '302': { description: To Google's sign-in page }
+        '404': { description: Google sign-in is not set up on this server }
+        '422': { description: Return address not allowed }
+
+  /auth/google/token:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Trade the one-time code from the Google return for an app token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string, description: Valid once, for two minutes. }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: '#/components/schemas/User' }
+                      token: { type: string, description: 'Send as `Authorization: Bearer <token>`.' }
+        '401': { $ref: '#/components/responses/Error' }
+
   /logout:
     post:
       tags: [Auth]

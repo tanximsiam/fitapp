@@ -28,6 +28,16 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    // Sign in with Google; off until the client id and secret are set (docs/google-sign-in.md).
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        // Defaults to APP_URL/api/auth/google/callback; must match the redirect URI registered with Google.
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+        // Custom URL scheme the mobile app is opened with after signing in.
+        'app_scheme' => env('FITAPP_APP_SCHEME', 'fitapp'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

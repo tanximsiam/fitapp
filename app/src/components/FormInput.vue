@@ -30,7 +30,7 @@
         <ion-icon :icon="showPassword ? eyeOffOutline : eyeOutline" aria-hidden="true" class="text-lg" />
       </button>
     </div>
-    <p v-if="hint" :id="`${inputId}-hint`" class="mt-1 text-xs text-muted">{{ hint }}</p>
+    <p v-if="hint" :id="`${inputId}-hint`" class="mt-1 text-xs" :class="error ? 'text-danger' : 'text-muted'">{{ hint }}</p>
   </div>
 </template>
 

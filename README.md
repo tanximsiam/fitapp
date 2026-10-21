@@ -156,7 +156,7 @@ Any host with PHP 8.2+ works (a small VPS, or a PaaS that runs Laravel). In prod
 - The ingestion contract carries steps, distance, active energy and minutes, workouts, sleep (with stages and score), resting heart rate, heart-rate readings, watch-estimated stress, SpO₂ readings and nightly skin-temperature deviation. HRV is not part of it yet.
 - Food nutrients come from a built-in list of about 60 common foods with typical values per 100 g (rounded from USDA FoodData Central). They are estimates: real food varies by recipe, brand and portion. Foods outside the list have only the values the user types.
 - The wellbeing overview describes co-occurrence in the user's own records. It is not medical advice, and the cycle tracker makes no predictions.
-- Single-user accounts created on the server; no password reset or self-service sign-up.
+- Accounts: sign-up with email and password in the mobile app (can be turned off with `FITAPP_REGISTRATION=false`), and Google sign-in once you add your own Google client ([docs/google-sign-in.md](docs/google-sign-in.md)). No password reset yet.
 
 ## Credits
 

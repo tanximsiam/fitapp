@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FitnessController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\IngestController;
 use App\Http\Controllers\IngestTokenController;
 use App\Http\Controllers\Journal\CycleDayController;
@@ -14,6 +15,15 @@ use Illuminate\Support\Facades\Route;
 // Contract: docs/openapi.yaml
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+Route::get('/auth/providers', [AuthController::class, 'providers']);
+
+// Sign in with Google: browser redirects, then a one-time code for a token (see GoogleAuthController).
+Route::prefix('auth/google')->middleware('throttle:20,1')->group(function () {
+    Route::get('/redirect', [GoogleAuthController::class, 'redirect']);
+    Route::get('/callback', [GoogleAuthController::class, 'callback']);
+    Route::post('/token', [GoogleAuthController::class, 'token']);
+});
 
 // Frontend app tokens.
 Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {

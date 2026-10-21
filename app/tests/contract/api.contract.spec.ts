@@ -37,6 +37,14 @@ describe.skipIf(!URL)('FitApp API contract', () => {
     expect(user).toEqual({ id: expect.any(Number), name: 'Contract Test', email: 'contract@fitapp.test' })
   })
 
+  it('lists the sign-in options and registers a new account', async () => {
+    expect(await authApi.providers()).toEqual({ registration: true, google: expect.any(Boolean) })
+    const email = `new-${Date.now()}@fitapp.test`
+    const { user, token } = await authApi.register({ name: 'New Person', email, password: 'long-enough-pass', timezone: 'Asia/Dhaka' })
+    expect(user).toEqual({ id: expect.any(Number), name: 'New Person', email })
+    expect(token).toMatch(/^\d+\|/)
+  })
+
   it('returns the signed-in user', async () => {
     expect((await authApi.fetchCurrentUser()).email).toBe('contract@fitapp.test')
   })

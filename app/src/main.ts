@@ -25,6 +25,10 @@ function followSystemTextSize() {
 if (Capacitor.isNativePlatform()) {
   followSystemTextSize()
   NativeApp.addListener('resume', followSystemTextSize)
+  // Back from Google sign-in in the system browser: fitapp://auth/google?code=… (see useSignIn).
+  NativeApp.addListener('appUrlOpen', ({ url }) => {
+    if (url.startsWith('fitapp://auth/google')) router.replace(`/auth/google${new URL(url).search}`)
+  })
 }
 
 // Platform page transitions (iOS slide, Android fade-up), off when the system asks for reduced motion.
