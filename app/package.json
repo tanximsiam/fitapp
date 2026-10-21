@@ -12,7 +12,8 @@
     "test:unit": "vitest",
     "test:contract": "vitest run tests/contract",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.vue --fix",
-    "sync": "npm run build && cap sync"
+    "sync": "npm run build && cap sync",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "7.1.6",
@@ -48,6 +49,7 @@
     "eslint": "^8.35.0",
     "eslint-plugin-vue": "^9.9.0",
     "jsdom": "^22.1.0",
+    "patch-package": "^8.0.1",
     "terser": "^5.4.0",
     "typescript": "~5.6.2",
     "vite": "~5.2.0",

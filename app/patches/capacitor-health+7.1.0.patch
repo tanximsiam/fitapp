@@ -1,0 +1,36 @@
+diff --git a/node_modules/capacitor-health/android/src/main/java/com/fit_up/health/capacitor/HealthPlugin.kt b/node_modules/capacitor-health/android/src/main/java/com/fit_up/health/capacitor/HealthPlugin.kt
+index 7b76023..0a914b3 100644
+--- a/node_modules/capacitor-health/android/src/main/java/com/fit_up/health/capacitor/HealthPlugin.kt
++++ b/node_modules/capacitor-health/android/src/main/java/com/fit_up/health/capacitor/HealthPlugin.kt
+@@ -353,8 +353,7 @@ class HealthPlugin : Plugin() {
+             AggregateGroupByPeriodRequest(
+                 metrics = setOf(metricAndMapper.metric),
+                 timeRangeFilter = timeRange,
+-                timeRangeSlicer = period,
+-                dataOriginsFilter = dataOrigins
++                timeRangeSlicer = period
+             )
+         )
+ 
+@@ -391,17 +390,16 @@ class HealthPlugin : Plugin() {
+                 return
+             }
+ 
+-            if (!hasPermission(CapHealthPermission.READ_STEPS)) {
+-                call.reject("READ_STEPS permission not granted")
+-                return
+-            }
+-
+             val startInstant = Instant.parse(startDate)
+             val endInstant = Instant.parse(endDate)
+             val timeRange = TimeRangeFilter.between(startInstant, endInstant)
+             val request = ReadRecordsRequest(StepsRecord::class, timeRange)
+ 
+             CoroutineScope(Dispatchers.IO).launch {
++                if (!hasPermission(CapHealthPermission.READ_STEPS)) {
++                    call.reject("READ_STEPS permission not granted")
++                    return@launch
++                }
+                 try {
+                     val response = healthConnectClient.readRecords(request)
+                     val recordsArray = JSArray()
