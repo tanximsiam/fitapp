@@ -222,9 +222,3 @@ export interface StatusPayload {
   timezone: string
 }
 
-export interface IngestToken {
-  id: number
-  name: string
-  lastUsedAt: string | null
-  createdAt: string | null
-}

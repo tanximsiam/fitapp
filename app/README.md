@@ -80,10 +80,10 @@ Live data is cached per account, encrypted with AES-GCM under a random key kept 
 ```
 FitApp watch ─ transport ─ bindings ─┐
 Health Connect / Apple Health ───────┼─► HealthSource ─► sync ─► POST /api/ingest ─► FitApp server
-(more adapters)  ────────────────────┘    (src/sources)          (this phone's ingest-only token)
+(more adapters)  ────────────────────┘    (src/sources)          (the signed-in account)
 ```
 
-Every source implements one interface (`src/sources/types.ts`) and returns records in the ingest format. The sync pipeline gives each measurement to one connected source in priority order (the watch first), so nothing is counted twice, and uploads with an ingest token created for this phone. Health Connect and Apple Health totals come from the platforms' own aggregation, which already de-duplicates phone and watch.
+Every source implements one interface (`src/sources/types.ts`) and returns records in the ingest format. The sync pipeline gives each measurement to one connected source in priority order (the watch first), so nothing is counted twice, and uploads as the signed-in account. Health Connect and Apple Health totals come from the platforms' own aggregation, which already de-duplicates phone and watch.
 
 **Bringing your own wearable or platform.** The FitApp watch connection lives in `src/sources/watch/`:
 

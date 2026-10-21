@@ -24,9 +24,9 @@ describe('auth store', () => {
     const auth = useAuthStore()
 
     expect(await auth.login('a@x.test', 'pw')).toBe(true)
-    expect(auth.user).toEqual({ id: 7, name: 'Ana', email: 'a@x.test' })
+    expect(auth.user).toEqual({ id: 7, name: 'Ana', email: 'a@x.test', onboarded: true })
     expect(await tokenStorage.load()).toBe('tok')
-    expect(await tokenStorage.getUser()).toEqual({ id: 7, name: 'Ana', email: 'a@x.test' })
+    expect(await tokenStorage.getUser()).toEqual({ id: 7, name: 'Ana', email: 'a@x.test', onboarded: true })
     expect(localStorage.getItem('fitapp.token')).toBeNull()
   })
 

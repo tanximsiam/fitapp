@@ -126,7 +126,7 @@ class JournalTest extends TestCase
     public function test_journal_requires_an_app_token(): void
     {
         $this->getJson('/api/journal/mood')->assertUnauthorized();
-        Sanctum::actingAs(User::factory()->create(), ['ingest']);
+        Sanctum::actingAs(User::factory()->create(), []);
         $this->postJson('/api/journal/hydration', ['recorded_at' => '2026-10-17T08:00:00+06:00', 'volume_ml' => 250])->assertForbidden();
     }
 
@@ -142,10 +142,10 @@ class JournalTest extends TestCase
     public function test_tracker_preferences(): void
     {
         $this->actingUser();
-        $this->getJson('/api/user')->assertJsonPath('data.preferences.trackers', ['mood' => true, 'food' => true, 'cycle' => false]);
+        $this->getJson('/api/user')->assertJsonPath('data.preferences.trackers', ['mood' => true, 'food' => true, 'hydration' => true, 'cycle' => false]);
         $this->patchJson('/api/user', ['preferences' => ['trackers' => ['cycle' => true]]])
             ->assertOk()
-            ->assertJsonPath('data.preferences.trackers', ['mood' => true, 'food' => true, 'cycle' => true]);
+            ->assertJsonPath('data.preferences.trackers', ['mood' => true, 'food' => true, 'hydration' => true, 'cycle' => true]);
         $this->patchJson('/api/user', ['preferences' => ['trackers' => ['gender' => 'x']]])->assertUnprocessable();
     }
 }

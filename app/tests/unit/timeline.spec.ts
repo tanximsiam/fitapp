@@ -16,7 +16,7 @@ const day: DaySummary = {
 const mood: MoodEntry = { id: 1, date: '2026-10-20', provenance: 'manual', updatedAt: null, recordedAt: '2026-10-20T09:15:00+06:00', mood: 4, energy: null, stress: null, emotions: [], note: null }
 const water: HydrationEntry = { id: 2, date: '2026-10-20', provenance: 'simulated', updatedAt: null, recordedAt: '2026-10-20T06:00:00+06:00', volumeMl: 250 }
 const journal = { mood: [mood], meals: [], hydration: [water], cycleDay: null }
-const prefs = { mood: true, food: true, cycle: false }
+const prefs = { mood: true, food: true, hydration: true, cycle: false }
 
 describe('dayRows', () => {
   it('orders timed records by clock time and puts day totals last', () => {

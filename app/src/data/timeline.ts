@@ -47,9 +47,10 @@ export function dayRows(d: DaySummary | null, j: JournalDay, prefs: TrackerPrefs
         const e = enteredEnergy([m])
         rows.push({ time: formatClock(m.eatenAt), area: 'Meal', icon: ICONS.meals, text: `${m.mealType[0].toUpperCase()}${m.mealType.slice(1)}: ${m.items.map((i) => i.name).join(', ')}${e.kcal != null ? ` · ${formatInt(e.kcal)} kcal ${energyOrigin(e)}` : ''}`, source: m.syncState ?? m.provenance, to: '/journal/food' })
       }
+    }
+    if (prefs.hydration)
       for (const h of j.hydration)
         rows.push({ time: formatClock(h.recordedAt), area: 'Water', icon: ICONS.water, text: `${formatInt(h.volumeMl)} ml`, source: h.syncState ?? h.provenance, to: '/journal/food' })
-    }
     if (prefs.cycle && j.cycleDay)
       rows.push({ time: null, area: 'Period', icon: ICONS.cycle, text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · ') || 'Note', source: j.cycleDay.syncState ?? j.cycleDay.provenance, to: '/journal/cycle' })
   }

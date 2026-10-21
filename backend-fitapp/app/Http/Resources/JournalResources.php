@@ -23,7 +23,7 @@ final class JournalResources
             'mood' => $e->mood,
             'energy' => $e->energy,
             'stress' => $e->stress,
-            'emotions' => $e->emotions ?? [],
+            'emotions' => $e->emotions->pluck('emotion')->all(),
             'note' => $e->note,
         ] + self::meta($e);
     }
@@ -65,7 +65,7 @@ final class JournalResources
             'id' => $c->id,
             'date' => $c->date,
             'flow' => $c->flow,
-            'symptoms' => $c->symptoms ?? [],
+            'symptoms' => $c->symptoms->pluck('symptom')->all(),
             'note' => $c->note,
         ] + self::meta($c);
     }

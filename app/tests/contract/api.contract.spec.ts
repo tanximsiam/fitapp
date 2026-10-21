@@ -34,14 +34,14 @@ describe.skipIf(!URL)('FitApp API contract', () => {
     api.defaults.baseURL = `${URL}/api`
     const { token, user } = await authApi.login(env.FITAPP_CONTRACT_EMAIL ?? process.env.FITAPP_CONTRACT_EMAIL!, env.FITAPP_CONTRACT_PASSWORD ?? process.env.FITAPP_CONTRACT_PASSWORD!)
     api.defaults.headers.common.Authorization = `Bearer ${token}`
-    expect(user).toEqual({ id: expect.any(Number), name: 'Contract Test', email: 'contract@fitapp.test' })
+    expect(user).toEqual({ id: expect.any(Number), name: 'Contract Test', email: 'contract@fitapp.test', onboarded: false })
   })
 
   it('lists the sign-in options and registers a new account', async () => {
     expect(await authApi.providers()).toEqual({ registration: true, google: expect.any(Boolean) })
     const email = `new-${Date.now()}@fitapp.test`
     const { user, token } = await authApi.register({ name: 'New Person', email, password: 'long-enough-pass', timezone: 'Asia/Dhaka' })
-    expect(user).toEqual({ id: expect.any(Number), name: 'New Person', email })
+    expect(user).toEqual({ id: expect.any(Number), name: 'New Person', email, onboarded: false })
     expect(token).toMatch(/^\d+\|/)
   })
 
@@ -74,7 +74,7 @@ describe.skipIf(!URL)('FitApp API contract', () => {
   })
 
   it('reads goals in app units', async () => {
-    expect(await fitnessApi.getGoals()).toEqual({ steps: expect.any(Number), activeKcal: expect.any(Number), distanceM: expect.any(Number), sleepMin: expect.any(Number) })
+    expect(await fitnessApi.getGoals()).toEqual({ steps: expect.any(Number), activeKcal: expect.any(Number), distanceM: expect.any(Number), sleepMin: expect.any(Number), waterMl: expect.any(Number) })
   })
 
   it('creates, updates, and deletes a mood entry with a concurrency token', async () => {
@@ -108,8 +108,7 @@ describe.skipIf(!URL)('FitApp API contract', () => {
     expect((await listOct()).cycleDays.some((d) => d.date === '2026-10-16')).toBe(false)
   })
 
-  it('accepts phone-source records uploaded with this phone’s ingest token', async () => {
-    const token = await fitnessApi.createIngestToken('FitApp mobile (contract)')
+  it('accepts phone-source records uploaded as the signed-in account', async () => {
     const records = platformRecords(
       {
         steps: [{ startDate: '2026-10-10T00:00', value: 6543 }],
@@ -118,7 +117,7 @@ describe.skipIf(!URL)('FitApp API contract', () => {
       },
       ['steps', 'active_energy', 'workouts', 'heart_rate'],
     )
-    await uploadIngest(token, { source: { key: 'health-connect', name: 'Health Connect', device: null, measurements: ['steps', 'active_energy', 'workouts', 'heart_rate'] }, timezone: 'UTC', ...records })
+    await uploadIngest({ source: { key: 'health-connect', name: 'Health Connect', device: null, measurements: ['steps', 'active_energy', 'workouts', 'heart_rate'] }, timezone: 'UTC', ...records })
 
     const status = await fitnessApi.getStatus()
     expect(status.sources.map((s) => s.key)).toContain('health-connect')
@@ -126,9 +125,6 @@ describe.skipIf(!URL)('FitApp API contract', () => {
     expect(day.activity).toEqual(expect.objectContaining({ steps: 6543, activeKcal: 321, distanceM: null, source: 'health-connect' }))
     expect(day.workouts[0]).toEqual(expect.objectContaining({ type: 'walking', durationMin: 30, avgBpm: 101 }))
 
-    // An ingest token can only upload, never read.
-    const read = await api.get('/user', { headers: { Authorization: `Bearer ${token}` } }).catch((e) => e)
-    expect(read.response?.status).toBe(403)
   })
 
   it('queues an offline edit, holds back the conflict, and applies "keep mine" when chosen', async () => {

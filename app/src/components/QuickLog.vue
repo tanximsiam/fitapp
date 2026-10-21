@@ -35,7 +35,7 @@
 
       <template v-else-if="ui.quickLog === 'choose'">
         <p class="mb-4 text-sm text-ink-2">
-          What would you like to log?<span class="text-muted"> Saved as your own entry{{ mode.isDemo ? ' on this device (demo)' : '' }}.</span>
+          What would you like to log?<span class="text-muted"> Saved as your own entry.</span>
         </p>
         <div class="grid grid-cols-2 gap-3">
           <button
@@ -82,7 +82,6 @@ import MoodSteps from '@/components/quicklog/MoodSteps.vue'
 import { loggingStreak } from '@/data/journalDerive'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
-import { useModeStore } from '@/stores/mode'
 import { useUiStore, type LogKind } from '@/stores/ui'
 
 const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal logged', drink: 'Drink logged', cycle: 'Period day saved' }
@@ -90,7 +89,6 @@ const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal l
 const ui = useUiStore()
 const journal = useJournalStore()
 const fitness = useFitnessStore()
-const mode = useModeStore()
 const openCount = ref(0)
 const saved = ref<LogKind | null>(null)
 const streak = computed(() => loggingStreak(journal.data, fitness.today))
@@ -100,7 +98,7 @@ const tabs = computed(() =>
     [
       { kind: 'mood', label: 'Mood', hint: 'How you feel', icon: ICONS.mood, tone: 'mood', on: journal.prefs.mood },
       { kind: 'meal', label: 'Meal', hint: 'Foods and nutrients', icon: ICONS.meals, tone: 'energy', on: journal.prefs.food },
-      { kind: 'drink', label: 'Drink', hint: 'Water you drank', icon: ICONS.water, tone: 'activity', on: journal.prefs.food },
+      { kind: 'drink', label: 'Drink', hint: 'Water you drank', icon: ICONS.water, tone: 'activity', on: journal.prefs.hydration },
       { kind: 'cycle', label: 'Period', hint: 'Flow and symptoms', icon: ICONS.cycle, tone: 'spo2', on: journal.prefs.cycle },
     ] as { kind: LogKind; label: string; hint: string; icon: string; tone: Tone; on: boolean }[]
   ).filter((t) => t.on),

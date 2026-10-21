@@ -36,8 +36,8 @@
     <p class="mt-2 px-1 text-xs leading-relaxed text-muted">
       {{
         mode.isDemo
-          ? 'Connecting a source uploads to a FitApp server account, so it needs sign-in. The demo uses its simulated watch.'
-          : 'Readings are uploaded to your FitApp server with a token for this phone. Each measurement comes from one source only, the watch first, so nothing is counted twice. Disconnecting stops new uploads; data already uploaded stays.'
+          ? 'Sample data has its own watch. Sign in to connect yours.'
+          : 'Each measurement comes from one source only, the watch first, so nothing is counted twice. Disconnecting stops new uploads; data already uploaded stays.'
       }}
     </p>
   </section>

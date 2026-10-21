@@ -7,13 +7,14 @@ use App\Http\Requests\FitnessRangeRequest;
 use App\Http\Resources\JournalResources;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /** Cycle tracking is stored per calendar day; one record per user and date. */
 class CycleDayController extends JournalController
 {
     public function index(FitnessRangeRequest $request): JsonResponse
     {
-        $days = $request->user()->cycleDays()->whereBetween('date', $this->range($request))->orderBy('date')->get();
+        $days = $request->user()->cycleDays()->with('symptoms')->whereBetween('date', $this->range($request))->orderBy('date')->get();
 
         return response()->json(['data' => $days->map(fn ($d) => JournalResources::cycleDay($d))]);
     }
@@ -24,8 +25,11 @@ class CycleDayController extends JournalController
         if ($day->exists) {
             $this->assertFresh($request, $day);
         }
-        $day->fill(['flow' => $request->validated('flow'), 'symptoms' => $request->validated('symptoms') ?? [], 'note' => $request->validated('note')]);
-        $day->touch();
+        DB::transaction(function () use ($request, $day) {
+            $day->fill(['flow' => $request->validated('flow'), 'note' => $request->validated('note')]);
+            $day->touch();
+            $day->setSymptoms($request->validated('symptoms') ?? []);
+        });
 
         return response()->json(['data' => JournalResources::cycleDay($day)], $day->wasRecentlyCreated ? 201 : 200);
     }

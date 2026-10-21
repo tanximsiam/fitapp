@@ -1,30 +1,24 @@
-# Connecting a data source
+# How watch data reaches FitApp
 
-FitApp is built around data from a wearable. The web app never talks to a device directly. Data reaches it through **FitApp's own ingestion API**, which FitApp devices, or any exporter or bridge you control, can call.
+FitApp never talks to a watch maker's cloud. The watch's own app (Zepp, Samsung Health, Fitbit, Garmin Connect, …) shares with the phone's health platform, and the FitApp app reads it there and uploads it to the person's account:
 
 ```
- device ──► its companion app or a bridge ──► POST /api/ingest ──► FitApp backend ──► web app
-            (you build or configure this)     (ingest token)        (Laravel)           (Vue)
+ watch ──► its own app ──► Health Connect / Apple Health ──► FitApp app ──► POST /api/ingest ──► FitApp backend
+                           (the person allows sharing)        (reads)       (signed-in token)
 ```
 
-There are two different connections, and FitApp treats them separately:
+The FitApp app walks the person through it during setup: turn on sharing in the watch's app, then allow FitApp to read. Apple Watch data is in Apple Health already. Uploads use the person's normal sign-in token; there is no separate key to create.
 
-| Connection | What it is | Status in this repository |
-| --- | --- | --- |
-| Website → FitApp API | The Vue frontend reads `/api/fitness/*` and `/api/journal/*` with a signed-in user's token. | Implemented and tested. |
-| Provider or bridge → FitApp ingestion API | Anything that can send HTTPS JSON uploads data with an **ingest-only** token. | Implemented and tested with representative payloads. No real device has been connected. |
+A successful upload proves that *a source* reached FitApp. It does not prove which watch recorded the data, and FitApp never labels it as a verified watch connection.
 
-A successful upload proves that *a source* reached FitApp. It does not prove which watch recorded the data, and the website never labels it as a verified watch connection.
+## 1. Uploading from your own code
 
-## 1. Create a token for your source
-
-In the FitApp mobile app, open **Settings → Ingest tokens** and create a token, or on the server:
+Anything else (a script, an exporter) can use the same endpoint with a token from `POST /api/login`:
 
 ```bash
-php artisan fitapp:ingest-token you@example.com --name=my-bridge
+TOKEN=$(curl -s -X POST "$FITAPP_URL/api/login" -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"email":"you@example.com","password":"…","device_name":"my-script"}' | jq -r .data.token)
 ```
-
-Ingest tokens can only call `POST /api/ingest`. They cannot read data.
 
 ## 2. Send data
 
@@ -32,7 +26,7 @@ The full contract is in [`openapi.yaml`](openapi.yaml) (`IngestPayload`). A comp
 
 ```bash
 curl -X POST "$FITAPP_URL/api/ingest" \
-  -H "Authorization: Bearer $FITAPP_INGEST_TOKEN" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
   --data @docs/examples/ingest-sample.json
@@ -45,7 +39,7 @@ The response reports what was stored:
             "received": { "activity_days": 2, "sleep_sessions": 1, "workouts": 1, "resting_heart_rate_days": 1, "heart_rate_samples": 4 } } }
 ```
 
-Validation errors return `422` with field paths such as `activity.0.steps`; a token without the `ingest` ability gets `403`; uploads are limited to 60 requests per minute.
+Validation errors return `422` with field paths such as `activity.0.steps`; a missing or invalid token gets `401`; uploads are limited to 60 requests per minute.
 
 ## 3. Map your source's fields
 

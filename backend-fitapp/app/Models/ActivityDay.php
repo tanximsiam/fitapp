@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSource;
 use Illuminate\Database\Eloquent\Model;
 
 /** Cumulative daily totals; a re-upload for the same source and date replaces the values. */
 class ActivityDay extends Model
 {
-    protected $fillable = ['user_id', 'data_source_id', 'date', 'steps', 'distance_m', 'active_kcal', 'active_minutes'];
+    use BelongsToSource;
+
+    protected $fillable = ['data_source_id', 'date', 'steps', 'distance_m', 'active_kcal', 'active_minutes'];
 }

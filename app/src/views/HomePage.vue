@@ -95,7 +95,7 @@ const latestHr = computed(() => {
 const { path: hrTrace } = useHeartTrace(120)
 const restingText = computed(() => (day.value?.heartRate?.restingBpm != null ? ` · resting ${day.value.heartRate.restingBpm}` : ''))
 
-const anyTracker = computed(() => journal.prefs.mood || journal.prefs.food || journal.prefs.cycle)
+const anyTracker = computed(() => Object.values(journal.prefs).some(Boolean))
 const { layout } = useHomeLayout()
 const editing = ref(false)
 /** Visible cards in the saved order; the journal card needs at least one tracker turned on. */

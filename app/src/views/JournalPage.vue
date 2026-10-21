@@ -81,14 +81,14 @@ const AREAS: Record<Exclude<Category, 'all'>, string[]> = {
 const DAYS_LOADED = 60
 
 const { fitness, journal, mode, days } = useJournalData()
-const anyTracker = computed(() => journal.prefs.mood || journal.prefs.food || journal.prefs.cycle)
+const anyTracker = computed(() => Object.values(journal.prefs).some(Boolean))
 
 const categories = computed(() =>
   [
     { value: 'all' as const, label: 'All', icon: null, on: true },
     { value: 'mood' as const, label: 'Mood', icon: ICONS.mood, on: journal.prefs.mood },
     { value: 'meals' as const, label: 'Meals', icon: ICONS.meals, on: journal.prefs.food },
-    { value: 'water' as const, label: 'Water', icon: ICONS.water, on: journal.prefs.food },
+    { value: 'water' as const, label: 'Water', icon: ICONS.water, on: journal.prefs.hydration },
     { value: 'cycle' as const, label: 'Periods', icon: ICONS.cycle, on: journal.prefs.cycle },
     { value: 'watch' as const, label: 'Watch', icon: watchOutline, on: true },
   ].filter((c) => c.on),

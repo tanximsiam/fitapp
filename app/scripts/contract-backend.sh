@@ -21,7 +21,7 @@ cd "$BACKEND"
 php artisan migrate --force --no-interaction -q
 CONTRACT_PASSWORD="$PASSWORD" php artisan tinker --execute \
   "\App\Models\User::create(['name' => 'Contract Test', 'email' => '$EMAIL', 'password' => \Illuminate\Support\Facades\Hash::make(getenv('CONTRACT_PASSWORD'))]);" >/dev/null
-INGEST="$(php artisan fitapp:ingest-token "$EMAIL" --name=contract | tail -n 1)"
+TOKEN="$(php artisan tinker --execute "echo \App\Models\User::where('email', '$EMAIL')->first()->createToken('contract', ['app'])->plainTextToken;" | tail -n 1)"
 
 php artisan serve --port="$PORT" --no-reload >"$TMP/serve.log" 2>&1 &
 SERVER=$!
@@ -29,7 +29,7 @@ SERVER=$!
 trap 'kill $SERVER 2>/dev/null; rm -rf "$TMP" "$OUT"' EXIT
 for _ in $(seq 50); do curl -sf "http://127.0.0.1:$PORT/up" >/dev/null && break; sleep 0.2; done
 
-curl -sf -X POST "http://127.0.0.1:$PORT/api/ingest" -H "Authorization: Bearer $INGEST" -H 'Content-Type: application/json' -H 'Accept: application/json' \
+curl -sf -X POST "http://127.0.0.1:$PORT/api/ingest" -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -H 'Accept: application/json' \
   --data @"$BACKEND/../docs/examples/ingest-sample.json" >/dev/null
 
 printf 'FITAPP_CONTRACT_URL=http://127.0.0.1:%s\nFITAPP_CONTRACT_EMAIL=%s\nFITAPP_CONTRACT_PASSWORD=%s\n' "$PORT" "$EMAIL" "$PASSWORD" >"$OUT"

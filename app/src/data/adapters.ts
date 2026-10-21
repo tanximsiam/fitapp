@@ -3,7 +3,7 @@ import { dateRange } from '@/lib/dates'
 import { DEMO_DEVICE, DEMO_MEASUREMENTS, DEMO_SOURCE, clockFrom, generateDay } from './demo'
 import type { FitnessAdapter, Goals } from '@/types/fitness'
 
-export const DEFAULT_GOALS: Goals = { steps: 8000, activeKcal: 450, distanceM: 6000, sleepMin: 450 }
+export const DEFAULT_GOALS: Goals = { steps: 8000, activeKcal: 450, distanceM: 6000, sleepMin: 450, waterMl: 2000 }
 
 const DEMO_GOALS_KEY = 'fitapp.demo.goals'
 const DEMO_SCENARIO_KEY = 'fitapp.demo.scenario'
@@ -72,7 +72,7 @@ export function createDemoAdapter(now: () => Date = () => new Date()): FitnessAd
         sources: [
           {
             key: DEMO_SOURCE,
-            name: 'FitApp demo',
+            name: 'FitApp Watch',
             device: DEMO_DEVICE,
             measurements: DEMO_MEASUREMENTS,
             received: ['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate', 'stress', 'spo2', 'skin_temperature'],

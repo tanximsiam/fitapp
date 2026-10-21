@@ -1,8 +1,5 @@
 import { reactive } from 'vue'
-import { Capacitor } from '@capacitor/core'
-import { SecureStorage } from '@aparajita/capacitor-secure-storage'
-import { errorMessage, isNetworkError, isUnauthorized } from '@/api/client'
-import { createIngestToken } from '@/api/fitness'
+import { errorMessage, isNetworkError } from '@/api/client'
 import { uploadIngest } from '@/api/ingest'
 import type { Measurement } from '@/types/fitness'
 import type { IngestPayload } from '@/types/ingest'
@@ -12,7 +9,7 @@ import type { SourceId } from './types'
 
 /**
  * Phone sources → FitApp backend. Each connected source reads what it is assigned, the records go to
- * POST /api/ingest with this phone's ingest token, and the backend's idempotent keys make re-sending safe.
+ * POST /api/ingest as the signed-in account, and the backend's idempotent keys make re-sending safe.
  * Only for a signed-in account: demo mode has its own simulated watch and never uploads.
  */
 
@@ -33,7 +30,6 @@ export const sources = reactive({
 })
 
 const stateKey = (account: number) => `fitapp.sources.u${account}`
-const tokenKey = (account: number) => `fitapp.ingestToken.u${account}`
 
 /** Loads which sources this account connected on this phone (not sensitive: names and timestamps only). */
 export function useAccount(account: number | null) {
@@ -50,13 +46,6 @@ function persist() {
   if (sources.account != null) localStorage.setItem(stateKey(sources.account), JSON.stringify(sources.state))
 }
 
-async function ingestToken(account: number, renew = false): Promise<string> {
-  const saved = renew ? null : await SecureStorage.getItem(tokenKey(account))
-  if (saved) return saved
-  const token = await createIngestToken(`FitApp mobile (${Capacitor.getPlatform()})`)
-  await SecureStorage.setItem(tokenKey(account), token)
-  return token
-}
 
 export async function connectSource(id: SourceId) {
   const source = sourceById(id)!
@@ -94,13 +83,7 @@ export async function syncAll(now = new Date()) {
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           ...records,
         }
-        try {
-          await uploadIngest(await ingestToken(account), payload)
-        } catch (err) {
-          // The token was revoked on the server (Settings → Ingest tokens): issue a new one once.
-          if (!isUnauthorized(err)) throw err
-          await uploadIngest(await ingestToken(account, true), payload)
-        }
+        await uploadIngest(payload)
         st.lastSyncAt = now.toISOString()
         st.error = null
       } catch (err) {
@@ -113,9 +96,8 @@ export async function syncAll(now = new Date()) {
   }
 }
 
-/** Sign-out: forget this account's connections and its ingest token on this phone. */
+/** Sign-out: forget this account's connections on this phone. */
 export async function forgetAccount(account: number) {
   localStorage.removeItem(stateKey(account))
-  await SecureStorage.removeItem(tokenKey(account))
   if (sources.account === account) sources.state = {}
 }

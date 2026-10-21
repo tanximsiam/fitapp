@@ -7,7 +7,7 @@ FitApp is an open-source health tracking platform: a mobile app and a read-only 
 
 FitApp is watch-centred holistic health tracking. A watch supplies the foundation (activity, workouts, sleep, heart rate); the person adds context the watch can't measure (mood, meals, water, periods and symptoms); FitApp explains what the combined records show. It replaces several separate apps with one place that is easy to read.
 
-Real mode uses watch-originated data delivered by a configured provider or bridge through FitApp's ingestion API. Demo mode simulates that experience entirely in the browser. Personal trackers always accept manual entries in the mobile app, including while the watch is not syncing or the phone is offline. The web dashboard only displays records.
+Real mode uses watch data that the watch's own app shares with Health Connect or Apple Health; the FitApp phone app reads it there and uploads it to the person's account. Demo mode simulates that experience entirely in the browser. Personal trackers always accept manual entries in the mobile app, including while the watch is not syncing or the phone is offline. The web dashboard only displays records.
 
 ## Who uses it
 - **Visitors to the public demo**: want to understand the product within a minute, on phone or desktop.

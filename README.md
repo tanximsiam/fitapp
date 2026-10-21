@@ -12,7 +12,7 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 - **Watch first.** A dashboard overview (today's goals as donuts, a month calendar, your journal and a widget per measurement), Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
 - **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker, logged in the mobile app and shown on both clients. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
-- **Open data path.** Any device, bridge or exporter you build sends data through one documented, authenticated ingestion API. See [docs/integration.md](docs/integration.md).
+- **Open data path.** Watches share through Health Connect or Apple Health, the phone app uploads to one documented API, and anything else you build can use the same API with a signed-in token. See [docs/integration.md](docs/integration.md).
 - **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser.
 
 ![Overview on desktop](docs/screenshots/desktop-overview.png)
@@ -38,7 +38,7 @@ Screenshots are from the demo. All values in them are simulated.
 | --- | --- |
 | Demo mode (simulated watch and journal fixtures) | Works offline in the browser; unit-tested and checked in Chromium at phone and desktop sizes |
 | FitApp backend: auth, fitness read API, journal CRUD, ingestion | Implemented; feature tests; checked end to end against a local server with `curl` and the website |
-| Ingestion from a device or bridge | Contract implemented and tested with representative payloads (`docs/examples/ingest-sample.json` and a 30-day generated payload) |
+| Uploads from the phone (`POST /api/ingest`) | Contract implemented and tested with representative payloads (`docs/examples/ingest-sample.json` and a 30-day generated payload) |
 | A real device | **Not tested.** No physical device was used |
 
 ## Repository layout
@@ -96,13 +96,14 @@ npm ci
 npm run dev
 ```
 
-Sign in with the account you created. Settings lets you switch between the demo and your backend.
+Sign in with the account you created.
 
 **Send some data**
 
 ```bash
 cd backend-fitapp
-TOKEN=$(php artisan fitapp:ingest-token you@example.com --name=try | tail -1)
+TOKEN=$(curl -s -X POST http://localhost:8000/api/login -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"email":"you@example.com","password":"your-password"}' | php -r 'echo json_decode(stream_get_contents(STDIN))->data->token;')
 curl -X POST http://localhost:8000/api/ingest \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -H "Accept: application/json" \
   --data @../docs/examples/ingest-sample.json
@@ -113,12 +114,11 @@ For realistic data, generate payloads from the demo generator (in `frontend-fita
 ## API
 
 - Contract: [`docs/openapi.yaml`](docs/openapi.yaml) (OpenAPI 3.1). Open it in any OpenAPI viewer.
-- Website endpoints use a token from `POST /api/login` (`app` ability): `/api/user`, `/api/fitness/days`, `/api/fitness/heart-rate/{date}`, `/api/fitness/status`, `/api/journal/{mood,meals,hydration,cycle-days}`, `/api/ingest-tokens`.
-- Sources use an ingest-only token: `POST /api/ingest`.
+- Website endpoints use a token from `POST /api/login` (`app` ability): `/api/user`, `/api/fitness/days`, `/api/fitness/heart-rate/{date}`, `/api/fitness/status`, `/api/journal/{mood,meals,hydration,cycle-days}`, and `POST /api/ingest` for uploads from the phone.
 - Units: metres, kilocalories (active energy only), minutes, bpm, millilitres. Local calendar dates are `YYYY-MM-DD`; instants carry an offset, are stored in UTC and returned in the user's timezone. Missing values are `null`.
 - Journal edits may send the `updated_at` they last saw; if the record changed since, the API answers `409` instead of overwriting it. Notes are encrypted at rest.
 
-How to connect a device or bridge, including field mapping: **[docs/integration.md](docs/integration.md)**.
+How watch data reaches FitApp, including field mapping: **[docs/integration.md](docs/integration.md)**.
 
 ## Tests
 

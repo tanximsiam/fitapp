@@ -1,11 +1,12 @@
 <template>
   <AppShell title="Watch & connection">
-    <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Devices and bridges that send data to your FitApp backend' }}</template>
+    <template #subtitle>Your watch and the apps that share with FitApp</template>
 
+    <!-- The connect controls stay visible before any data has arrived. -->
+    <PhoneSources class="mb-4" />
     <DataState>
       <div class="grid grid-cols-[minmax(0,1fr)] gap-4">
-        <PhoneSources />
-        <h2 class="-mb-2 px-1 text-xs font-medium tracking-wide text-muted uppercase">{{ mode.isDemo ? 'Demo source' : 'Received by your server' }}</h2>
+        <h2 class="-mb-2 px-1 text-xs font-medium tracking-wide text-muted uppercase">Received by FitApp</h2>
         <PanelSection v-for="s in sources" :key="s.key" :title="s.device ?? s.name">
           <template #aside>
             <span class="flex items-center gap-1.5 text-sm text-ink-2">
@@ -13,7 +14,7 @@
             </span>
           </template>
           <dl class="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-            <MetricItem label="Provider" :value="mode.isDemo ? 'Simulation' : s.name" :note="mode.isDemo ? undefined : s.key" />
+            <MetricItem label="Source" :value="s.name" />
             <MetricItem label="Last successful sync" :value="formatRelative(s.lastIngestedAt)" />
             <MetricItem label="Latest data for" :value="s.latestDate ? formatShortDate(s.latestDate) : EMPTY" />
             <MetricItem
@@ -45,11 +46,10 @@
           </p>
         </PanelSection>
 
-        <PanelSection v-if="mode.isDemo" title="Simulation controls">
-          <p class="mb-4 max-w-prose text-sm text-ink-2">
-            Try how FitApp shows different connection states. This changes only the simulated watch on this device.
-          </p>
-          <div role="radiogroup" aria-label="Simulated connection state" class="grid gap-3 sm:grid-cols-3">
+        <!-- Sample data only: a small way to preview the other connection states. -->
+        <PanelSection v-if="mode.isDemo" title="Sample data">
+          <p class="mb-4 max-w-prose text-[13px] text-ink-2">Preview how other connection states look.</p>
+          <div role="radiogroup" aria-label="Connection state to preview" class="grid gap-3 sm:grid-cols-3">
             <label v-for="opt in SCENARIOS" :key="opt.value" :class="optionClass(scenario === opt.value)">
               <input type="radio" name="scenario" class="mt-1 accent-[var(--accent)]" :checked="scenario === opt.value" @change="setScenario(opt.value)" />
               <span>
@@ -59,19 +59,11 @@
             </label>
           </div>
           <div class="mt-4 flex items-center gap-3">
-            <PrimaryButton variant="secondary" label="Simulate sync now" @click="syncNow" />
-            <p v-if="synced" role="status" class="text-sm text-ink-2">Simulated sync completed.</p>
+            <PrimaryButton variant="secondary" label="Sync now" @click="syncNow" />
+            <p v-if="synced" role="status" class="text-sm text-ink-2">Synced.</p>
           </div>
         </PanelSection>
 
-        <PanelSection v-else title="Connecting a source">
-          <p class="max-w-prose text-sm text-ink-2">
-            Watch data reaches FitApp through a provider or bridge that uploads to <code class="rounded bg-page px-1 text-xs">POST /api/ingest</code>
-            with an ingest token. A successful upload shows that the source reached FitApp; it does not by itself prove which watch
-            recorded the data.
-          </p>
-          <RouterLink to="/settings" class="mt-3 inline-block text-sm font-medium text-accent underline underline-offset-2">Manage ingest tokens</RouterLink>
-        </PanelSection>
       </div>
     </DataState>
   </AppShell>

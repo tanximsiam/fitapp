@@ -115,6 +115,7 @@ export interface Goals {
   activeKcal: number
   distanceM: number
   sleepMin: number
+  waterMl: number
 }
 
 export interface DataSourceStatus {
@@ -204,6 +205,7 @@ export interface GoalsPayload {
   active_kcal: number
   distance_m: number
   sleep_min: number
+  water_ml?: number
 }
 
 export interface StatusPayload {
@@ -222,9 +224,3 @@ export interface StatusPayload {
   timezone: string
 }
 
-export interface IngestToken {
-  id: number
-  name: string
-  lastUsedAt: string | null
-  createdAt: string | null
-}

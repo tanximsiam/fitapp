@@ -24,7 +24,7 @@ class FitnessQueryService
     public function days(User $user, string $from, string $to): array
     {
         $sources = $user->dataSources()->pluck('key', 'id');
-        $range = fn ($query) => $query->where('user_id', $user->id)->whereBetween('date', [$from, $to]);
+        $range = fn ($query) => $query->whereIn('data_source_id', $sources->keys())->whereBetween('date', [$from, $to]);
 
         $activity = $this->latestPerDate($range(ActivityDay::query())->get());
         $sleep = $this->latestPerDate($range(SleepSession::query())->get());
@@ -100,7 +100,7 @@ class FitnessQueryService
     /** @return list<array{at: string, bpm: int}> samples of the winning source for that date */
     public function heartRateSamples(User $user, string $date): array
     {
-        $latest = HeartRateSample::where('user_id', $user->id)->where('date', $date)
+        $latest = HeartRateSample::forUser($user)->where('date', $date)
             ->orderByDesc('updated_at')->orderByDesc('id')->first();
         if (! $latest) {
             return [];
@@ -117,7 +117,7 @@ class FitnessQueryService
     /** @return list<array{at: string, value: int}> stress or SpO₂ readings of the winning source for that date */
     public function bodySamples(User $user, string $kind, string $date): array
     {
-        $base = BodySample::where('user_id', $user->id)->where('kind', $kind)->where('date', $date);
+        $base = BodySample::forUser($user)->where('kind', $kind)->where('date', $date);
         $latest = (clone $base)->orderByDesc('updated_at')->orderByDesc('id')->first();
 
         return $latest ? $base->where('data_source_id', $latest->data_source_id)->orderBy('measured_at')->get()
@@ -144,7 +144,7 @@ class FitnessQueryService
         ];
 
         return collect($kinds)
-            ->flatMap(fn ($model, $kind) => $model::where('user_id', $user->id)
+            ->flatMap(fn ($model, $kind) => $model::forUser($user)
                 ->when($model === BodySample::class, fn ($q) => $q->where('kind', $kind))
                 ->groupBy('data_source_id')->selectRaw('data_source_id, max(date) as latest')->get()
                 ->map(fn ($row) => ['source' => $row->data_source_id, 'kind' => $kind, 'latest' => $row->latest]))
@@ -155,7 +155,7 @@ class FitnessQueryService
     /** Most recent heart-rate reading from any source. This is the latest upload, not a live value. */
     public function latestHeartRate(User $user): ?array
     {
-        $s = HeartRateSample::where('user_id', $user->id)->orderByDesc('measured_at')->first();
+        $s = HeartRateSample::forUser($user)->orderByDesc('measured_at')->first();
 
         return $s ? [
             'at' => $s->measured_at->setTimezone($user->timezone)->toIso8601String(),
