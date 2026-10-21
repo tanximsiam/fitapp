@@ -2,6 +2,8 @@
 
 # FitApp
 
+[![CI](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml)
+
 FitApp is a personal open-source health tracking project by Tanzim Siam. It is part of a bigger personal portfolio project that covers the whole path from brand and logo design through UI/UX to app development. FitApp is not a commercial product or a market brand.
 
 FitApp brings the activity, sleep and heart-rate data recorded by a wearable together with the things a wearable can't measure (mood, meals, water, periods and symptoms) and explains what the combined records show, with every calculation visible. It has two clients on one backend:
@@ -11,10 +13,9 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 
 - **Watch first.** A dashboard overview (today's goals as donuts, a month calendar, your journal and a widget per measurement), Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
 - **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker, logged in the mobile app and shown on both clients. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
-- **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
+- **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No diagnoses or predictions.
 - **Personal AI coach.** A weekly health score out of 100, built from published guidelines on what FitApp collects (WHO activity minutes, daily steps, 7 to 9 hours of sleep, sleep regularity, resting heart rate and water), shown as the Insights hero with a summary and one tip to raise it; a personal daily quote, a short reaction to every entry, and insights that connect areas. Text comes from an AI service on your own server (Groq, `openai/gpt-oss-20b` by default); it sees numbers and categories, never notes, and the app falls back to built-in wording without it.
 - **Open data path.** Watches share through Health Connect or Apple Health, the phone app uploads to one documented API, and anything else you build can use the same API with a signed-in token. See [docs/integration.md](docs/integration.md).
-- **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser.
 
 ### Mobile app
 
