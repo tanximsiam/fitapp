@@ -72,7 +72,7 @@ export function createDemoAdapter(now: () => Date = () => new Date()): FitnessAd
         sources: [
           {
             key: DEMO_SOURCE,
-            name: 'FitApp demo',
+            name: 'FitApp Watch',
             device: DEMO_DEVICE,
             measurements: DEMO_MEASUREMENTS,
             received: ['activity', 'workouts', 'sleep', 'resting_heart_rate', 'heart_rate', 'stress', 'spo2', 'skin_temperature'],

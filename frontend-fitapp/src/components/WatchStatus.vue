@@ -6,7 +6,7 @@
     </span>
     <span class="min-w-0">
       <span class="block truncate text-sm font-semibold">
-        {{ source?.device ?? source?.name ?? 'No watch data source' }}<span v-if="mode.isDemo" class="font-normal text-muted"> · simulated</span>
+        {{ source?.device ?? source?.name ?? 'No watch data source' }}
       </span>
       <span class="block truncate text-xs text-ink-2">
         {{ SYNC_LABELS[state] }}<template v-if="status?.lastIngestedAt">, {{ formatRelative(status.lastIngestedAt) }}</template>
@@ -23,10 +23,8 @@ import { chevronForwardOutline, watchOutline } from 'ionicons/icons'
 import { SYNC_LABELS, syncState } from '@/data/connection'
 import { formatRelative } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
-import { useModeStore } from '@/stores/mode'
 
 const fitness = useFitnessStore()
-const mode = useModeStore()
 const status = computed(() => fitness.status)
 const source = computed(() => status.value?.sources[0] ?? null)
 const state = computed(() => syncState(status.value))

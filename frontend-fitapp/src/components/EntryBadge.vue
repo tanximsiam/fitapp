@@ -5,8 +5,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-/** Where a value came from: the (simulated) watch, the user's own entry, or a demo fixture. */
+/** Where a value came from: the watch or the person's own entry (sample data reads the same). */
 const props = defineProps<{ kind: 'watch' | 'simulated-watch' | 'manual' | 'simulated' }>()
-const text = computed(() => ({ watch: 'Watch', 'simulated-watch': 'Simulated watch', manual: 'You logged', simulated: 'Sample entry' })[props.kind])
+const text = computed(() => ({ watch: 'Watch', 'simulated-watch': 'Watch', manual: 'You logged', simulated: 'You logged' })[props.kind])
 const cls = computed(() => (props.kind === 'watch' || props.kind === 'simulated-watch' ? 'border-activity/40 text-activity' : 'border-line-strong text-ink-2'))
 </script>

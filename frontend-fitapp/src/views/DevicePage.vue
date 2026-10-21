@@ -1,6 +1,6 @@
 <template>
   <AppShell title="Watch & connection">
-    <template #subtitle>{{ mode.isDemo ? 'Simulated watch for the demo' : 'Devices and bridges that send data to your FitApp backend' }}</template>
+    <template #subtitle>Your watch and the apps that share with FitApp</template>
 
     <DataState>
       <div class="grid gap-4">
@@ -11,7 +11,7 @@
             </span>
           </template>
           <dl class="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-            <MetricItem label="Provider" :value="mode.isDemo ? 'Simulation' : s.name" :note="mode.isDemo ? undefined : s.key" />
+            <MetricItem label="Source" :value="s.name" />
             <MetricItem label="Last successful sync" :value="formatRelative(s.lastIngestedAt)" />
             <MetricItem label="Latest data for" :value="s.latestDate ? formatShortDate(s.latestDate) : EMPTY" />
             <MetricItem
@@ -43,11 +43,12 @@
           </p>
         </PanelSection>
 
-        <PanelSection v-if="mode.isDemo" title="Simulation controls">
+        <!-- Sample data only: a small way to preview the other connection states. -->
+        <PanelSection v-if="mode.isDemo" title="Sample data">
           <p class="mb-4 max-w-prose text-sm text-ink-2">
-            Try how FitApp shows different connection states. This changes only the simulated watch in this browser.
+            Preview how other connection states look.
           </p>
-          <div role="radiogroup" aria-label="Simulated connection state" class="grid gap-3 sm:grid-cols-3">
+          <div role="radiogroup" aria-label="Connection state to preview" class="grid gap-3 sm:grid-cols-3">
             <label v-for="opt in SCENARIOS" :key="opt.value" :class="optionClass(scenario === opt.value)">
               <input type="radio" name="scenario" class="mt-1 accent-[var(--accent)]" :checked="scenario === opt.value" @change="setScenario(opt.value)" />
               <span>
@@ -57,8 +58,8 @@
             </label>
           </div>
           <div class="mt-4 flex items-center gap-3">
-            <PrimaryButton variant="secondary" label="Simulate sync now" @click="syncNow" />
-            <p v-if="synced" role="status" class="text-sm text-ink-2">Simulated sync completed.</p>
+            <PrimaryButton variant="secondary" label="Sync now" @click="syncNow" />
+            <p v-if="synced" role="status" class="text-sm text-ink-2">Synced.</p>
           </div>
         </PanelSection>
       </div>
