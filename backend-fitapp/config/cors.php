@@ -4,7 +4,7 @@ return [
     'paths' => ['api/*'],
     'allowed_methods' => ['*'],
     // Comma-separated list of frontend origins allowed to call the API.
-    'allowed_origins' => array_filter(array_map('trim', explode(',', env('FRONTEND_ORIGINS', 'http://localhost:8100,http://localhost:5173')))),
+    'allowed_origins' => array_filter(array_map('trim', explode(',', env('FRONTEND_ORIGINS', 'http://localhost:8100,http://localhost:5173,http://localhost:5174,capacitor://localhost,https://localhost')))),
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],

@@ -6,13 +6,6 @@
           <RouterLink to="/overview" class="mb-6 flex px-3 pt-1" aria-label="FitApp overview">
             <BrandLogo class="h-8" />
           </RouterLink>
-          <button
-            type="button"
-            class="mx-1 mb-5 flex items-center justify-center gap-2 rounded-full bg-accent px-3 py-2 text-sm font-medium text-accent-ink transition-[opacity,scale] duration-150 hover:opacity-90 active:scale-[0.97]"
-            @click="ui.openQuickLog()"
-          >
-            <ion-icon :icon="addOutline" aria-hidden="true" class="text-lg" />Quick log
-          </button>
           <nav aria-label="Sections" class="flex flex-col gap-5">
             <div v-for="group in groups" :key="group.label" class="flex flex-col gap-0.5">
               <p class="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted">{{ group.label }}</p>
@@ -53,8 +46,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { IonContent, IonIcon, IonPage } from '@ionic/vue'
-import { addOutline } from 'ionicons/icons'
+import { IonContent, IonPage } from '@ionic/vue'
 import BottomNav from '@/components/BottomNav.vue'
 import BrandLogo from '@/components/BrandLogo.vue'
 import DataModeBadge from '@/components/DataModeBadge.vue'
@@ -64,10 +56,8 @@ import { visibleGroups } from '@/components/navItems'
 import { useAuthStore } from '@/stores/auth'
 import { useJournalStore } from '@/stores/journal'
 import { useModeStore } from '@/stores/mode'
-import { useUiStore } from '@/stores/ui'
 
 defineProps<{ title: string }>()
-const ui = useUiStore()
 const journal = useJournalStore()
 const mode = useModeStore()
 const auth = useAuthStore()

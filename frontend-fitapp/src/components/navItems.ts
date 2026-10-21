@@ -1,4 +1,4 @@
-import { addCircleOutline, ellipsisHorizontal, gridOutline, listOutline, settingsOutline, watchOutline } from 'ionicons/icons'
+import { ellipsisHorizontal, gridOutline, listOutline, settingsOutline, watchOutline } from 'ionicons/icons'
 import { ICONS } from '@/components/metricIcons'
 import type { TrackerPrefs } from '@/types/journal'
 
@@ -42,11 +42,11 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 export const visibleGroups = (prefs: TrackerPrefs) =>
   NAV_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => !i.tracker || prefs[i.tracker]) }))
 
-/** Bottom bar on phones. `to: null` is the Quick log action; everything else is under More. */
-export const MOBILE_NAV: (NavItem | { to: null; label: string; icon: string })[] = [
+/** Bottom bar on phones; everything else is under More. */
+export const MOBILE_NAV: NavItem[] = [
   { to: '/overview', label: 'Overview', icon: gridOutline },
   { to: '/activity', label: 'Activity', icon: ICONS.activity },
-  { to: null, label: 'Log', icon: addCircleOutline },
+  { to: '/sleep', label: 'Sleep', icon: ICONS.sleep },
   { to: '/timeline', label: 'Timeline', icon: listOutline },
   { to: '/more', label: 'More', icon: ellipsisHorizontal },
 ]

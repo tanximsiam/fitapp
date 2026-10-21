@@ -9,7 +9,6 @@
         <section v-else aria-labelledby="goals-title">
           <div class="mb-3 flex items-baseline justify-between gap-4">
             <h2 id="goals-title" class="text-base font-semibold tracking-tight">Goals</h2>
-            <RouterLink to="/settings" class="text-xs text-muted underline-offset-2 hover:text-ink hover:underline">Edit goals</RouterLink>
           </div>
           <div class="grid gap-3 sm:grid-cols-3">
             <div class="tone tone-activity rounded-2xl p-5">

@@ -22,20 +22,15 @@
               { label: `${fitness.rangeDays}-day mood`, icon: ICONS.mood, value: avgText(mean([...moodByDay.values()])), ratio: ratio5(mean([...moodByDay.values()])) },
               { label: 'Days checked in', icon: ICONS.cycle, value: `${moodByDay.size} of ${fitness.rangeDays}`, ratio: moodByDay.size / fitness.rangeDays },
             ]"
-          >
-            <template #actions>
-              <PrimaryButton v-if="fitness.isToday" label="Log mood" @click="ui.openQuickLog('mood')" />
-            </template>
-          </ModuleHero>
+          />
 
           <div class="@container">
             <div class="grid items-start gap-4 @2xl:grid-cols-2 @[76rem]:grid-cols-3">
               <WidgetCard title="Check-ins" :icon="ICONS.mood" tone="mood" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(entries.length)">
-                <div class="overflow-y-auto" :style="editing || adding ? undefined : { height: `${AREA}px` }">
+                <div class="overflow-y-auto" :style="{ height: `${AREA}px` }">
                   <ul v-if="entries.length" class="divide-y divide-line">
                     <li v-for="e in entries" :key="e.id" class="py-2.5 first:pt-0">
-                      <MoodForm v-if="editing === e.id" :date="e.date" :existing="e" @done="editing = null" />
-                      <div v-else class="flex items-start gap-3 text-sm">
+                      <div class="flex items-start gap-3 text-sm">
                         <ChoiceGlyph kind="face" :level="e.mood" color="" class="size-8 shrink-0" still />
                         <div class="min-w-0 flex-1">
                           <p>
@@ -47,13 +42,10 @@
                             ><template v-if="e.emotions.length"> · {{ e.emotions.join(', ') }}</template>
                           </p>
                         </div>
-                        <button type="button" class="text-xs font-medium text-accent underline underline-offset-2" @click="editing = e.id">Edit</button>
                       </div>
                     </li>
                   </ul>
-                  <p v-else class="text-sm text-muted">No check-in on this day.</p>
-                  <div v-if="adding" class="mt-3 border-t border-line pt-3"><MoodForm :date="fitness.selectedDate" @done="adding = false" /></div>
-                  <button v-else-if="!fitness.isToday" type="button" class="mt-3 text-sm font-medium text-accent underline underline-offset-2" @click="adding = true">Add a check-in for this day</button>
+                  <p v-else class="text-sm text-muted">No check-in on this day. Check-ins are logged in the FitApp mobile app.</p>
                 </div>
               </WidgetCard>
 
@@ -99,7 +91,7 @@
 
 <script setup lang="ts">
 import { ICONS } from '@/components/metricIcons'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import AppShell from '@/components/AppShell.vue'
 import BarList from '@/components/charts/BarList.vue'
 import DonutChart from '@/components/charts/DonutChart.vue'
@@ -108,10 +100,8 @@ import LineChart from '@/components/charts/LineChart.vue'
 import DateToolbar from '@/components/DateToolbar.vue'
 import ChoiceGlyph from '@/components/forms/ChoiceGlyph.vue'
 import { MOOD_CHOICES } from '@/components/forms/choices'
-import MoodForm from '@/components/forms/MoodForm.vue'
 import JournalState from '@/components/JournalState.vue'
 import ModuleHero from '@/components/ModuleHero.vue'
-import PrimaryButton from '@/components/PrimaryButton.vue'
 import TrackerGate from '@/components/TrackerGate.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
 import { useJournalData } from '@/composables/useJournalData'
@@ -119,17 +109,12 @@ import { dailyTicks, lastValues } from '@/data/chartData'
 import { mean } from '@/data/derive'
 import { MOOD_LABELS, dailyMoodMean, topCounts } from '@/data/journalDerive'
 import { EMPTY, formatClock, formatLongDate, formatShortDate, formatWeekday } from '@/lib/format'
-import { useUiStore } from '@/stores/ui'
 import type { ISODate } from '@/types/fitness'
-import type { EntryId } from '@/types/journal'
 
 const CHART = 130
 const AREA = CHART + 28
 
 const { fitness, journal, rangeDaysList } = useJournalData()
-const ui = useUiStore()
-const editing = ref<EntryId | null>(null)
-const adding = ref(false)
 
 const entries = computed(() => journal.onDate(fitness.selectedDate).mood)
 const todayMood = computed(() => mean(entries.value.map((e) => e.mood)))
@@ -144,7 +129,7 @@ const emotionCounts = computed(() => topCounts(rangeEntries.value.flatMap((e) =>
 const avgText = (v: number | null) => (v == null ? EMPTY : `${v.toFixed(1)} / 5`)
 const ratio5 = (v: number | null) => (v == null ? null : v / 5)
 const sentence = computed(() => {
-  if (!entries.value.length) return fitness.isToday ? 'No check-in yet today. A few seconds is enough.' : 'No check-in on this day.'
+  if (!entries.value.length) return fitness.isToday ? 'No check-in yet today.' : 'No check-in on this day.'
   const emotions = [...new Set(entries.value.flatMap((e) => e.emotions))]
   return emotions.length ? `You felt ${emotions.slice(0, 3).join(', ')}.` : 'No emotions picked in these check-ins.'
 })

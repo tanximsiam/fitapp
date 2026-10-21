@@ -3,16 +3,16 @@
 _Written from the project brief without a separate interview; assumptions are marked._
 
 ## What it is
-FitApp is an open-source health tracking platform: this web app, with a mobile app, a promotional site and FitApp's own wearables planned under the same brand. It doubles as a portfolio study across brand and logo design, UI/UX and app development.
+FitApp is an open-source health tracking platform: a mobile app and a read-only web dashboard on one backend, with a promotional site and FitApp's own wearables planned under the same brand. It doubles as a portfolio study across brand and logo design, UI/UX and app development.
 
-The web app is a watch-centred holistic health website. A watch supplies the foundation (activity, workouts, sleep, heart rate); the person adds context the watch can't measure (mood, meals, water, periods and symptoms); FitApp explains what the combined records show. It replaces several separate apps with one place that is easy to read.
+FitApp is watch-centred holistic health tracking. A watch supplies the foundation (activity, workouts, sleep, heart rate); the person adds context the watch can't measure (mood, meals, water, periods and symptoms); FitApp explains what the combined records show. It replaces several separate apps with one place that is easy to read.
 
-Real mode uses watch-originated data delivered by a configured provider or bridge through FitApp's ingestion API. Demo mode simulates that experience entirely in the browser. Personal trackers always accept manual entries, including while the watch is not syncing.
+Real mode uses watch-originated data delivered by a configured provider or bridge through FitApp's ingestion API. Demo mode simulates that experience entirely in the browser. Personal trackers always accept manual entries in the mobile app, including while the watch is not syncing or the phone is offline. The web dashboard only displays records.
 
 ## Who uses it
 - **Visitors to the public demo**: want to understand the product within a minute, on phone or desktop.
 - **Self-hosters (developers)**: run the backend, map their device or vendor export to the ingestion contract, then use the site daily.
-- Assumption: one person reviews their own data, with quick logging on a phone and longer trend reading on desktop.
+- Assumption: one person reviews their own data, logging on the phone and reading longer trends on the desktop dashboard.
 
 ## Surfaces and mode
 All screens are **Operate** surfaces: scanability, honest data states and familiar patterns outrank expression. The watch stays first in navigation, the overview and the visual hierarchy.
@@ -25,7 +25,7 @@ All screens are **Operate** surfaces: scanability, honest data states and famili
 - Every visible control does something real.
 
 ## Out of scope
-AI coaching, social features, subscriptions, third-party vendor cloud integrations (data arrives through FitApp's own ingestion API). The mobile app, promotional site and devices are separate, later products.
+AI coaching, social features, subscriptions, third-party vendor cloud integrations (data arrives through FitApp's own ingestion API). The promotional site and devices are separate, later products.
 
 ## Visual direction (chosen)
 Calm dashboard: muted grey canvas, white borderless cards, the FitApp teal (see `brand/`) for accents and the overview hero, and a deep shade of each module's colour for its own hero. One validated data colour per metric (activity blue, energy amber, sleep violet ramp, heart orange, stress green, blood oxygen red). Poppins in the app; the logo wordmark is outlined Rubik Bold. Light and dark themes.

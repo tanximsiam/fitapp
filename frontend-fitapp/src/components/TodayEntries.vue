@@ -15,15 +15,6 @@
             <span class="tabular block truncate text-xs" :class="r.empty ? 'text-muted' : 'text-ink-2'">{{ r.value }}</span>
           </span>
         </RouterLink>
-        <button
-          v-if="fitness.isToday"
-          type="button"
-          class="grid size-8 shrink-0 place-items-center rounded-full text-ink-2 ring-1 ring-line transition-[background-color,color,scale] duration-150 ease-out hover:bg-surface hover:text-ink active:scale-[0.94]"
-          :aria-label="r.action"
-          @click="ui.openQuickLog(r.kind)"
-        >
-          <ion-icon :icon="add" aria-hidden="true" />
-        </button>
       </li>
     </ul>
 
@@ -54,7 +45,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
-import { add } from 'ionicons/icons'
 import { ICONS } from '@/components/metricIcons'
 import type { Tone } from '@/components/PanelSection.vue'
 import ChoiceGlyph from '@/components/forms/ChoiceGlyph.vue'
@@ -65,11 +55,9 @@ import { MOOD_LABELS } from '@/data/journalDerive'
 import { formatClock, formatInt, formatWeekday } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
-import { useUiStore, type LogKind } from '@/stores/ui'
 
 const fitness = useFitnessStore()
 const journal = useJournalStore()
-const ui = useUiStore()
 const day = computed(() => journal.onDate(fitness.selectedDate))
 
 /** Average mood per day for the seven days ending on the selected day. */
@@ -102,7 +90,7 @@ const latest = computed(() => {
     .map((e) => ({ ...e, when: e.date === end ? formatClock(e.at) : formatWeekday(e.date) }))
 })
 
-type Row = { kind: LogKind; label: string; action: string; icon: string; tone: Tone; to: string; value: string; empty: boolean; on: boolean }
+type Row = { kind: string; label: string; icon: string; tone: Tone; to: string; value: string; empty: boolean; on: boolean }
 
 const rows = computed(() => {
   const d = day.value
@@ -112,22 +100,22 @@ const rows = computed(() => {
   const c = d.cycleDay
   const all: Row[] = [
     {
-      kind: 'mood', label: 'Mood', action: 'Log mood', icon: ICONS.mood, tone: 'mood', to: '/mood', on: journal.prefs.mood,
+      kind: 'mood', label: 'Mood', icon: ICONS.mood, tone: 'mood', to: '/mood', on: journal.prefs.mood,
       value: m == null ? 'Not logged yet' : `${MOOD_LABELS[Math.round(m) - 1]} · ${d.mood.length} check-in${d.mood.length > 1 ? 's' : ''}`,
       empty: m == null,
     },
     {
-      kind: 'meal', label: 'Meals', action: 'Log a meal', icon: ICONS.meals, tone: 'energy', to: '/food', on: journal.prefs.food,
+      kind: 'meal', label: 'Meals', icon: ICONS.meals, tone: 'energy', to: '/food', on: journal.prefs.food,
       value: d.meals.length ? `${d.meals.length} meal${d.meals.length > 1 ? 's' : ''}${kcal ? ` · ${formatInt(kcal)} kcal` : ''}` : 'Not logged yet',
       empty: !d.meals.length,
     },
     {
-      kind: 'drink', label: 'Water', action: 'Log a drink', icon: ICONS.water, tone: 'activity', to: '/food', on: journal.prefs.food,
+      kind: 'drink', label: 'Water', icon: ICONS.water, tone: 'activity', to: '/food', on: journal.prefs.food,
       value: water ? `${formatInt(water)} ml` : 'Not logged yet',
       empty: !water,
     },
     {
-      kind: 'cycle', label: 'Cycle', action: 'Log a cycle day', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,
+      kind: 'cycle', label: 'Cycle', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,
       value: c ? [c.flow && `${c.flow} flow`, c.symptoms.length ? `${c.symptoms.length} symptoms` : null].filter(Boolean).join(' · ') || 'Note only' : 'Nothing logged',
       empty: !c,
     },

@@ -18,7 +18,7 @@ A successful upload proves that *a source* reached FitApp. It does not prove whi
 
 ## 1. Create a token for your source
 
-Sign in to the website, open **Settings → Ingest tokens** and create a token, or on the server:
+In the FitApp mobile app, open **Settings → Ingest tokens** and create a token, or on the server:
 
 ```bash
 php artisan fitapp:ingest-token you@example.com --name=my-bridge
