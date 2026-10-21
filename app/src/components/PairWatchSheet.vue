@@ -28,9 +28,9 @@
         </template>
         <template v-else-if="state === 'found'">
           <h2 id="pair-title" :class="TITLE">Choose your watch</h2>
-          <ul class="mt-4 grid gap-2 text-left">
+          <ul class="mt-4 grid gap-2">
             <li v-for="w in found" :key="w.id">
-              <button type="button" class="flex min-h-14 w-full items-center gap-3 rounded-2xl bg-page px-4 transition-colors duration-150 hover:bg-accent-soft" @click="choose(w)">
+              <button type="button" class="flex min-h-14 w-full items-center gap-3 rounded-2xl bg-page px-4 text-left transition-colors duration-150 hover:bg-accent-soft" @click="choose(w)">
                 <ion-icon :icon="watchOutline" aria-hidden="true" class="text-xl text-accent" />
                 <span class="min-w-0 flex-1">
                   <span class="block text-[15px] font-semibold">{{ w.name }}</span>

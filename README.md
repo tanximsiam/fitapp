@@ -21,19 +21,24 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 <p>
   <img src="docs/screenshots/app/01-welcome.png" width="180" alt="Welcome" />
   <img src="docs/screenshots/app/05-setup-watch.png" width="180" alt="Setup: which watch" />
+  <img src="docs/screenshots/app/07d-pair-choose.png" width="180" alt="Pairing a FitApp Watch" />
   <img src="docs/screenshots/app/08-home.png" width="180" alt="Home" />
-  <img src="docs/screenshots/app/10-activity.png" width="180" alt="Activity" />
 </p>
 <p>
+  <img src="docs/screenshots/app/18-insights.png" width="180" alt="Insights with the health score" />
+  <img src="docs/screenshots/app/10-activity.png" width="180" alt="Activity" />
   <img src="docs/screenshots/app/15-hydration.png" width="180" alt="Hydration" />
   <img src="docs/screenshots/app/24-log-workout.png" width="180" alt="Logging a workout" />
+</p>
+<p>
   <img src="docs/screenshots/app/30-home-dark.png" width="180" alt="Home, dark" />
+  <img src="docs/screenshots/app/35-insights-dark.png" width="180" alt="Insights, dark" />
   <img src="docs/screenshots/app/31-activity-dark.png" width="180" alt="Activity, dark" />
 </p>
 
-| Goals | Activity hero | Water per day |
-| --- | --- | --- |
-| ![Today's goals](docs/screenshots/components/goals-card.png) | ![Activity hero](docs/screenshots/components/hero-activity.png) | ![Water per day](docs/screenshots/components/chart-water-per-day.png) |
+| Health score | Goals | Activity hero | Water per day |
+| --- | --- | --- | --- |
+| ![Health score](docs/screenshots/components/score-hero.png) | ![Today's goals](docs/screenshots/components/goals-card.png) | ![Activity hero](docs/screenshots/components/hero-activity.png) | ![Water per day](docs/screenshots/components/chart-water-per-day.png) |
 
 ### Web dashboard
 
