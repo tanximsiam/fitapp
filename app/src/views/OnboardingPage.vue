@@ -2,13 +2,13 @@
   <ion-page>
     <ion-content>
       <main class="mx-auto flex min-h-full w-full max-w-md flex-col px-6 pt-[max(env(safe-area-inset-top),16px)] pb-[max(env(safe-area-inset-bottom),24px)]">
-        <div class="flex h-11 items-center gap-3">
-          <button v-if="step > 0" type="button" class="-ml-2 grid size-11 shrink-0 place-items-center rounded-full text-ink" aria-label="Back" @click="step--">
+        <div class="flex h-11 items-center">
+          <button v-if="step > 0 || mode.isDemo" type="button" class="-ml-2 grid size-11 shrink-0 place-items-center rounded-full text-ink" aria-label="Back" @click="back">
             <ion-icon :icon="arrowBack" aria-hidden="true" class="text-[22px]" />
           </button>
-          <div class="flex flex-1 gap-1.5" role="progressbar" :aria-valuenow="step + 1" aria-valuemin="1" :aria-valuemax="STEPS" :aria-label="`Step ${step + 1} of ${STEPS}`">
+        </div>
+        <div class="mt-3 flex gap-1.5" role="progressbar" :aria-valuenow="step + 1" aria-valuemin="1" :aria-valuemax="STEPS" :aria-label="`Step ${step + 1} of ${STEPS}`">
             <span v-for="i in STEPS" :key="i" class="h-1 flex-1 rounded-full transition-colors duration-300" :class="i <= step + 1 ? 'bg-accent' : 'bg-line'" />
-          </div>
         </div>
 
         <Transition :name="direction" mode="out-in">
@@ -122,7 +122,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonContent, IonIcon, IonPage } from '@ionic/vue'
+import { IonContent, IonIcon, IonPage, useBackButton } from '@ionic/vue'
 import { add, arrowBack, checkmark, eyeOffOutline, lockClosedOutline, optionsOutline, remove } from 'ionicons/icons'
 import * as authApi from '@/api/auth'
 import { errorMessage, tokenStorage } from '@/api/client'
@@ -135,6 +135,7 @@ import WatchDial from '@/components/WatchDial.vue'
 import { WEARABLES, wearableInfo } from '@/data/wearables'
 import { formatDuration, formatInt } from '@/lib/format'
 import { onboarding } from '@/lib/onboarding'
+import { sampleProfile } from '@/lib/sampleProfile'
 import { todayIn } from '@/lib/dates'
 import { useAuthStore } from '@/stores/auth'
 import { useFitnessStore } from '@/stores/fitness'
@@ -189,7 +190,7 @@ const step = ref(0)
 const direction = ref<'forward' | 'back'>('forward')
 watch(step, (now, before) => (direction.value = now > before ? 'forward' : 'back'))
 
-const name = ref(auth.user?.name ?? '')
+const name = ref(auth.user?.name ?? (mode.isDemo ? sampleProfile.name() : null) ?? '')
 const birthDate = ref('')
 const brand = ref<WearableBrand | null>(null)
 const model = ref('')
@@ -202,6 +203,14 @@ const birthDateInvalid = computed(() => !!birthDate.value && !(birthDate.value >
 const wearable = computed<Wearable | null>(() => (brand.value ? { brand: brand.value, model: brand.value === 'other' ? model.value.trim() || null : null } : null))
 const visibleGoals = computed(() => GOALS.filter((g) => g.key !== 'waterMl' || prefs.hydration))
 const canContinue = computed(() => [name.value.trim() !== '' && birthDate.value !== '' && !birthDateInvalid.value, brand.value !== null, true, true][step.value])
+
+/** A step back; from the first step, sample data returns to the welcome screen (an account stays here). */
+function back() {
+  if (step.value > 0) step.value--
+  else if (mode.isDemo) router.replace('/welcome')
+}
+// The phone's back button moves between steps instead of leaving setup.
+useBackButton(10, back)
 
 function nudge(g: GoalRow, dir: 1 | -1) {
   goals[g.key] = Math.min(g.max, Math.max(g.min, goals[g.key] + dir * g.step))
@@ -218,7 +227,8 @@ async function finish() {
   error.value = null
   try {
     await Promise.all([fitness.saveGoals({ ...fitness.goals, ...goals }), journal.savePrefs({ ...prefs })])
-    if (!mode.isDemo) {
+    if (mode.isDemo) sampleProfile.save(name.value.trim())
+    else {
       const user = await authApi.saveProfile({ name: name.value.trim(), birthDate: birthDate.value, wearable: wearable.value })
       auth.user = user
       await tokenStorage.setUser(user)

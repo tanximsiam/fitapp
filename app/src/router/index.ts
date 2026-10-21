@@ -80,6 +80,8 @@ router.beforeEach(async (to) => {
   if (!onboarding.done() && !PUBLIC.includes(to.path) && to.path !== '/onboarding') return '/welcome'
 
   const mode = useModeStore()
+  // Once set up, the welcome screen is behind you: back from Home stays in the app.
+  if (to.path === '/welcome' && onboarding.done()) return '/home'
   if (mode.isDemo) {
     return PUBLIC.slice(1).includes(to.path) && !mode.backendConfigured ? '/home' : undefined
   }
@@ -92,6 +94,8 @@ router.beforeEach(async (to) => {
   if ((to.path === '/login' || to.path === '/register') && auth.isAuthenticated) {
     return '/home'
   }
+  // Setup belongs to an account (or to sample data, handled above).
+  if (to.path === '/onboarding' && !auth.isAuthenticated) return '/welcome'
   // A new account answers the setup questions first; after that the screen is only reachable from the profile.
   if (auth.user && !auth.user.onboarded && to.path !== '/onboarding' && !PUBLIC.includes(to.path)) return '/onboarding'
 })

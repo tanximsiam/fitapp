@@ -4,11 +4,11 @@
       <!-- Who and what this app is showing. -->
       <section class="card flex items-center gap-4 p-4" aria-label="Account">
         <span class="grid size-12 shrink-0 place-items-center rounded-full bg-accent-soft text-lg font-semibold text-accent" aria-hidden="true">
-          <template v-if="auth.user">{{ initials }}</template>
+          <template v-if="initials">{{ initials }}</template>
           <ion-icon v-else :icon="personOutline" />
         </span>
         <span class="min-w-0 flex-1">
-          <span class="block truncate text-[15px] font-semibold">{{ auth.user?.name ?? (mode.isDemo ? 'Guest' : 'Not signed in') }}</span>
+          <span class="block truncate text-[15px] font-semibold">{{ displayName || (mode.isDemo ? 'Guest' : 'Not signed in') }}</span>
           <span class="block truncate text-[13px] text-ink-2">{{ auth.user?.email ?? (mode.isDemo ? 'Viewing sample data' : '') }}</span>
         </span>
         <RouterLink v-if="!auth.user && mode.backendConfigured" to="/login" class="min-h-9 shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-ink">Sign in</RouterLink>
@@ -135,6 +135,7 @@ import { demoControls } from '@/data/adapters'
 import { resetDemoJournal } from '@/data/demoJournal'
 import { formatRelative, formatShortDate } from '@/lib/format'
 import { onboarding } from '@/lib/onboarding'
+import { sampleProfile } from '@/lib/sampleProfile'
 import { useAuthStore } from '@/stores/auth'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
@@ -161,8 +162,9 @@ onMounted(async () => {
   if (auth.user) fitness.ensureLoaded()
 })
 
+const displayName = computed(() => auth.user?.name ?? (mode.isDemo ? sampleProfile.name() : null) ?? '')
 const initials = computed(() =>
-  (auth.user?.name ?? '')
+  displayName.value
     .split(/\s+/)
     .map((w) => w[0])
     .join('')
@@ -188,7 +190,9 @@ async function signOut() {
   connection.queue = []
   connection.offline = false
   resetDataStores()
-  router.replace('/login')
+  // Signed out: start again from the welcome screen.
+  onboarding.reset()
+  router.replace('/welcome')
 }
 
 function showWelcome() {

@@ -46,7 +46,7 @@ import { layersOutline, phonePortraitOutline, watchOutline } from 'ionicons/icon
 import BrandLogo from '@/components/BrandLogo.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { onboarding } from '@/lib/onboarding'
+import { exploreSampleData } from '@/composables/useSignIn'
 import { useModeStore } from '@/stores/mode'
 import { resetDataStores } from '@/stores/reset'
 
@@ -65,11 +65,5 @@ function go(path: string) {
   router.push(path)
 }
 
-/** Straight into the app with sample data and default trackers; setup questions are for real accounts. */
-function explore() {
-  mode.setMode('demo')
-  resetDataStores()
-  onboarding.complete()
-  router.replace('/home')
-}
+const explore = () => exploreSampleData(router)
 </script>

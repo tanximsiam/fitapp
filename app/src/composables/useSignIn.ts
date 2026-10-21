@@ -1,5 +1,5 @@
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, type Router } from 'vue-router'
 import { Capacitor } from '@capacitor/core'
 import * as authApi from '@/api/auth'
 import { onboarding } from '@/lib/onboarding'
@@ -9,6 +9,14 @@ import { resetDataStores } from '@/stores/reset'
 
 /** Custom URL scheme the backend returns to after Google sign-in (AndroidManifest.xml, Info.plist). */
 export const APP_AUTH_RETURN = 'fitapp://auth/google'
+
+/** Sample data skips signing in but asks the same setup questions as a new account. */
+export function exploreSampleData(router: Router) {
+  useModeStore().setMode('demo')
+  resetDataStores()
+  onboarding.reset()
+  router.push('/onboarding')
+}
 
 /** Shared by the sign-in, sign-up and Google return screens. */
 export function useSignIn() {
