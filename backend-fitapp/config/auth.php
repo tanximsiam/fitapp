@@ -37,8 +37,8 @@ return [
 
     'guards' => [
         'web' => [
-        'driver' => 'session',
-        'provider' => 'users',
+            'driver' => 'session',
+            'provider' => 'users',
         ],
 
         'api' => [
@@ -116,5 +116,8 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    // Self-service sign-up, with a password or Google. Set to false to create accounts only with `php artisan fitapp:create-user`.
+    'registration' => (bool) env('FITAPP_REGISTRATION', true),
 
 ];

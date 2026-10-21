@@ -23,6 +23,16 @@
             <p v-if="auth.error" role="alert" class="rounded-xl bg-danger-soft px-3.5 py-2.5 text-sm text-danger">{{ auth.error }}</p>
             <PrimaryButton class="mt-2" :label="auth.isLoading ? 'Signing in…' : 'Sign in'" type="submit" :disabled="auth.isLoading || !email || !password" />
           </form>
+
+          <template v-if="providers.google">
+            <p class="my-5 flex items-center gap-3 text-xs text-muted" aria-hidden="true"><span class="h-px flex-1 bg-line" />or<span class="h-px flex-1 bg-line" /></p>
+            <GoogleButton @click="google" />
+          </template>
+
+          <p v-if="providers.registration" class="mt-5 text-center text-sm text-ink-2">
+            New to FitApp?
+            <RouterLink :to="{ path: '/register', query: route.query }" class="inline-flex min-h-11 items-center font-medium text-accent">Create an account</RouterLink>
+          </p>
         </div>
 
         <button type="button" class="mx-auto min-h-11 px-4 text-sm font-medium text-ink-2" @click="useDemo">
@@ -40,10 +50,11 @@ import { IonContent, IonIcon, IonPage, useIonRouter } from '@ionic/vue'
 import { arrowBack } from 'ionicons/icons'
 import BrandLogo from '@/components/BrandLogo.vue'
 import FormInput from '@/components/FormInput.vue'
+import GoogleButton from '@/components/GoogleButton.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { useSignIn } from '@/composables/useSignIn'
 import { onboarding } from '@/lib/onboarding'
-import { useAuthStore } from '@/stores/auth'
 import { useModeStore } from '@/stores/mode'
 import { resetDataStores } from '@/stores/reset'
 
@@ -52,17 +63,13 @@ const password = ref('')
 const router = useRouter()
 const ionRouter = useIonRouter()
 const route = useRoute()
-const auth = useAuthStore()
 const mode = useModeStore()
+const { auth, providers, done, google } = useSignIn()
 
 async function handleLogin() {
   if (!(await auth.login(email.value.trim(), password.value))) return
   password.value = ''
-  mode.setMode('backend')
-  resetDataStores()
-  onboarding.complete()
-  const redirect = typeof route.query.redirect === 'string' && route.query.redirect.startsWith('/') ? route.query.redirect : '/home'
-  await router.replace(redirect)
+  await done()
 }
 
 function useDemo() {

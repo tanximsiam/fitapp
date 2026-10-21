@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -20,14 +21,41 @@ class AuthController extends Controller
             return response()->json(['message' => 'These credentials do not match our records.'], 401);
         }
 
-        $token = $user->createToken($request->validated('device_name') ?? 'web', ['app'])->plainTextToken;
+        return self::signedIn($user, $request->validated('device_name'));
+    }
 
+    /** Which sign-in options this server offers, so the app only shows working buttons. */
+    public function providers(): JsonResponse
+    {
+        return response()->json(['data' => [
+            'registration' => (bool) config('auth.registration'),
+            'google' => GoogleAuthController::configured(),
+        ]]);
+    }
+
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        abort_unless(config('auth.registration'), 403, 'New accounts are closed on this server.');
+        $data = $request->validated();
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'timezone' => $data['timezone'] ?? 'UTC',
+        ]);
+
+        return self::signedIn($user, $data['device_name'] ?? null, 201);
+    }
+
+    /** The user and a new token with the app ability; shared by every way of signing in. */
+    public static function signedIn(User $user, ?string $deviceName, int $status = 200): JsonResponse
+    {
         return response()->json([
             'data' => [
                 'user' => new UserResource($user),
-                'token' => $token,
+                'token' => $user->createToken($deviceName ?? 'web', ['app'])->plainTextToken,
             ],
-        ]);
+        ], $status);
     }
 
     public function logout(Request $request): JsonResponse

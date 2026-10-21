@@ -14,6 +14,11 @@ const InsightsPage = () => import('@/views/InsightsPage.vue')
 const DevicePage = () => import('@/views/DevicePage.vue')
 const WelcomePage = () => import('@/views/WelcomePage.vue')
 const LoginPage = () => import('@/views/LoginPage.vue')
+const RegisterPage = () => import('@/views/RegisterPage.vue')
+const AuthCallbackPage = () => import('@/views/AuthCallbackPage.vue')
+
+/** Open before onboarding and without an account. */
+const PUBLIC = ['/welcome', '/login', '/register', '/auth/google']
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -28,6 +33,8 @@ const data = { requiresData: true }
 const routes: Array<RouteRecordRaw> = [
   { path: '/welcome', component: WelcomePage, meta: { title: 'Welcome' } },
   { path: '/login', component: LoginPage, meta: { title: 'Sign in' } },
+  { path: '/register', component: RegisterPage, meta: { title: 'Create account' } },
+  { path: '/auth/google', component: AuthCallbackPage, meta: { title: 'Signing in' } },
   {
     path: '/',
     component: TabsLayout,
@@ -68,11 +75,11 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  if (!onboarding.done() && to.path !== '/welcome' && to.path !== '/login') return '/welcome'
+  if (!onboarding.done() && !PUBLIC.includes(to.path)) return '/welcome'
 
   const mode = useModeStore()
   if (mode.isDemo) {
-    return to.path === '/login' && !mode.backendConfigured ? '/home' : undefined
+    return PUBLIC.slice(1).includes(to.path) && !mode.backendConfigured ? '/home' : undefined
   }
 
   const auth = useAuthStore()
@@ -80,7 +87,7 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresData && !auth.isAuthenticated) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
-  if (to.path === '/login' && auth.isAuthenticated) {
+  if ((to.path === '/login' || to.path === '/register') && auth.isAuthenticated) {
     return '/home'
   }
 })
