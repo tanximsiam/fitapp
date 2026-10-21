@@ -15,20 +15,37 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 - **Open data path.** Watches share through Health Connect or Apple Health, the phone app uploads to one documented API, and anything else you build can use the same API with a signed-in token. See [docs/integration.md](docs/integration.md).
 - **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser.
 
+### Mobile app
+
+<p>
+  <img src="docs/screenshots/app/01-welcome.png" width="180" alt="Welcome" />
+  <img src="docs/screenshots/app/05-setup-watch.png" width="180" alt="Setup: which watch" />
+  <img src="docs/screenshots/app/08-home.png" width="180" alt="Home" />
+  <img src="docs/screenshots/app/10-activity.png" width="180" alt="Activity" />
+</p>
+<p>
+  <img src="docs/screenshots/app/15-hydration.png" width="180" alt="Hydration" />
+  <img src="docs/screenshots/app/24-log-workout.png" width="180" alt="Logging a workout" />
+  <img src="docs/screenshots/app/30-home-dark.png" width="180" alt="Home, dark" />
+  <img src="docs/screenshots/app/31-activity-dark.png" width="180" alt="Activity, dark" />
+</p>
+
+| Goals | Activity hero | Water per day |
+| --- | --- | --- |
+| ![Today's goals](docs/screenshots/components/goals-card.png) | ![Activity hero](docs/screenshots/components/hero-activity.png) | ![Water per day](docs/screenshots/components/chart-water-per-day.png) |
+
+### Web dashboard
+
 ![Overview on desktop](docs/screenshots/desktop-overview.png)
 
 | | | |
 | --- | --- | --- |
-| ![Wellbeing overview](docs/screenshots/desktop-wellbeing.png) | ![Activity](docs/screenshots/desktop-activity.png) | ![Sleep](docs/screenshots/desktop-sleep.png) |
-| ![Heart rate](docs/screenshots/desktop-heart-rate.png) | ![Watch & sync](docs/screenshots/desktop-device.png) | ![Timeline](docs/screenshots/desktop-timeline.png) |
+| ![Overview, dark](docs/screenshots/desktop-overview-dark.png) | ![Activity](docs/screenshots/desktop-activity.png) | ![Sleep](docs/screenshots/desktop-sleep.png) |
+| ![Hydration](docs/screenshots/desktop-hydration.png) | ![Heart rate](docs/screenshots/desktop-heart-rate.png) | ![Timeline](docs/screenshots/desktop-timeline.png) |
 | ![Stress](docs/screenshots/desktop-stress.png) | ![Blood oxygen](docs/screenshots/desktop-blood-oxygen.png) | ![Skin temperature](docs/screenshots/desktop-skin-temperature.png) |
-| ![Mood](docs/screenshots/desktop-mood.png) | ![Food & drink](docs/screenshots/desktop-food.png) | ![Cycle](docs/screenshots/desktop-cycle.png) |
+| ![Mood](docs/screenshots/desktop-mood.png) | ![Food](docs/screenshots/desktop-food.png) | ![Cycle](docs/screenshots/desktop-cycle.png) |
 
-<p>
-  <img src="docs/screenshots/mobile-overview.png" width="200" alt="Overview on a phone" />
-  <img src="docs/screenshots/mobile-sleep.png" width="200" alt="Sleep on a phone" />
-  <img src="docs/screenshots/mobile-mood.png" width="200" alt="Mood on a phone" />
-</p>
+Every screen and component, in light and dark: **[docs/screenshots](docs/screenshots/README.md)**.
 
 Screenshots are from the demo. All values in them are simulated.
 
