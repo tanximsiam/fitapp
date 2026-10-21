@@ -56,7 +56,8 @@ const routes: Array<RouteRecordRaw> = [
       { path: 'health/skin-temperature', component: () => import('@/views/SkinTemperaturePage.vue'), meta: { ...data, title: 'Skin temperature' } },
       { path: 'journal', component: JournalPage, meta: { ...data, title: 'Journal' } },
       { path: 'journal/mood', component: () => import('@/views/MoodPage.vue'), meta: { ...data, title: 'Mood' } },
-      { path: 'journal/food', component: () => import('@/views/FoodPage.vue'), meta: { ...data, title: 'Food & drink' } },
+      { path: 'journal/food', component: () => import('@/views/FoodPage.vue'), meta: { ...data, title: 'Food' } },
+      { path: 'journal/hydration', component: () => import('@/views/HydrationPage.vue'), meta: { ...data, title: 'Hydration' } },
       { path: 'journal/cycle', component: () => import('@/views/CyclePage.vue'), meta: { ...data, title: 'Periods' } },
       { path: 'insights', component: InsightsPage, meta: { ...data, title: 'Insights' } },
     ],
@@ -66,7 +67,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/settings', redirect: '/home/settings' },
   { path: '/device', redirect: '/home/device' },
   ...['activity', 'sleep', 'heart-rate', 'stress', 'blood-oxygen', 'skin-temperature'].map((p) => ({ path: `/${p}`, redirect: `/health/${p}` })),
-  ...['mood', 'food', 'cycle'].map((p) => ({ path: `/${p}`, redirect: `/journal/${p}` })),
+  ...['mood', 'food', 'hydration', 'cycle'].map((p) => ({ path: `/${p}`, redirect: `/journal/${p}` })),
   { path: '/timeline', redirect: '/journal' },
   { path: '/:pathMatch(.*)*', redirect: '/home' },
 ]

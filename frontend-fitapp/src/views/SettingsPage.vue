@@ -92,10 +92,11 @@
       </PanelSection>
 
       <PanelSection v-if="mode.isDemo || auth.user" title="Goals and trackers">
-        <dl class="grid gap-4 sm:grid-cols-3">
+        <dl class="grid gap-4 sm:grid-cols-4">
           <MetricItem label="Steps" :value="formatInt(fitness.goals.steps)" />
           <MetricItem label="Active energy" :value="`${formatInt(fitness.goals.activeKcal)} kcal`" />
           <MetricItem label="Sleep" :value="formatDuration(fitness.goals.sleepMin)" />
+          <MetricItem v-if="journal.prefs.hydration" label="Water" :value="`${formatInt(fitness.goals.waterMl)} ml`" />
         </dl>
         <p class="mt-4 text-sm text-ink-2">Trackers on: {{ TRACKERS.filter((t) => journal.prefs[t.key]).map((t) => t.label).join(', ') || 'none' }}</p>
         <p class="mt-2 max-w-prose text-xs text-muted">Goals, trackers and journal entries are set in the FitApp mobile app. This dashboard displays them.</p>
@@ -168,7 +169,8 @@ async function signOut() {
 
 const TRACKERS: { key: keyof TrackerPrefs; label: string }[] = [
   { key: 'mood', label: 'Mood' },
-  { key: 'food', label: 'Food and drink' },
+  { key: 'food', label: 'Food' },
+  { key: 'hydration', label: 'Hydration' },
   { key: 'cycle', label: 'Cycle' },
 ]
 </script>

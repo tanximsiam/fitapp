@@ -4,7 +4,8 @@ import { workoutLabel } from '@/data/connection'
 import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
 import { formatClock, formatDuration, formatInt, formatKm } from '@/lib/format'
 import type { DaySummary } from '@/types/fitness'
-import type { CycleDay, HydrationEntry, Meal, MoodEntry, TrackerPrefs } from '@/types/journal'
+import { activityKind } from '@/data/activities'
+import type { ActivityEntry, CycleDay, HydrationEntry, Meal, MoodEntry, TrackerPrefs } from '@/types/journal'
 
 export type Source = EntryBadgeKind
 export type TimelineFilter = 'all' | 'watch' | 'journal'
@@ -23,6 +24,7 @@ interface JournalDay {
   mood: MoodEntry[]
   meals: Meal[]
   hydration: HydrationEntry[]
+  activities?: ActivityEntry[]
   cycleDay: CycleDay | null
 }
 
@@ -50,7 +52,16 @@ export function dayRows(d: DaySummary | null, j: JournalDay, prefs: TrackerPrefs
     }
     if (prefs.hydration)
       for (const h of j.hydration)
-        rows.push({ time: formatClock(h.recordedAt), area: 'Water', icon: ICONS.water, text: `${formatInt(h.volumeMl)} ml`, source: h.syncState ?? h.provenance, to: '/journal/food' })
+        rows.push({ time: formatClock(h.recordedAt), area: 'Water', icon: ICONS.water, text: `${formatInt(h.volumeMl)} ml`, source: h.syncState ?? h.provenance, to: '/journal/hydration' })
+    for (const a of j.activities ?? [])
+      rows.push({
+        time: formatClock(a.startedAt),
+        area: 'Logged activity',
+        icon: activityKind(a.activityType).icon,
+        text: `${activityKind(a.activityType).label} · ${formatDuration(a.durationMin)}${a.energyKcal != null ? ` · ${formatInt(a.energyKcal)} kcal${a.energySource === 'estimated' ? ' (estimated)' : ''}` : ''}`,
+        source: a.syncState ?? a.provenance,
+        to: '/health/activity',
+      })
     if (prefs.cycle && j.cycleDay)
       rows.push({ time: null, area: 'Period', icon: ICONS.cycle, text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · ') || 'Note', source: j.cycleDay.syncState ?? j.cycleDay.provenance, to: '/journal/cycle' })
   }

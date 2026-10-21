@@ -3,7 +3,7 @@ import { dateRange } from '@/lib/dates'
 import { DEMO_DEVICE, DEMO_MEASUREMENTS, DEMO_SOURCE, clockFrom, generateDay } from './demo'
 import type { FitnessAdapter, Goals } from '@/types/fitness'
 
-export const DEFAULT_GOALS: Goals = { steps: 8000, activeKcal: 450, distanceM: 6000, sleepMin: 450 }
+export const DEFAULT_GOALS: Goals = { steps: 8000, activeKcal: 450, distanceM: 6000, sleepMin: 450, waterMl: 2000 }
 
 const DEMO_GOALS_KEY = 'fitapp.demo.goals'
 const DEMO_SCENARIO_KEY = 'fitapp.demo.scenario'

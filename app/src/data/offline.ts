@@ -4,7 +4,7 @@ import { dateRange } from '@/lib/dates'
 import { vault } from '@/lib/vault'
 import { applyOutbox, enqueue, isLocalId, type NewOp, type Op } from './outbox'
 import type { DaySummary, FitnessAdapter, HeartRateSample, Reading } from '@/types/fitness'
-import type { CycleDay, HydrationEntry, JournalAdapter, JournalData, Meal, MoodEntry, TrackerPrefs } from '@/types/journal'
+import type { ActivityEntry, CycleDay, HydrationEntry, JournalAdapter, JournalData, Meal, MoodEntry, TrackerPrefs } from '@/types/journal'
 
 /**
  * Live (backend) data with an encrypted local copy. Reads go to the server and refresh the copy;
@@ -118,9 +118,10 @@ export function createOfflineJournal(inner: JournalAdapter, scope: Scope): Offli
       return inner.removeCycleDay(op.date)
     }
     if (op.action === 'remove') return inner.remove(op.kind, op.targetId)
-    const existing = op.action === 'update' ? ({ id: op.targetId, updatedAt: op.updatedAt } as MoodEntry & Meal & HydrationEntry) : undefined
+    const existing = op.action === 'update' ? ({ id: op.targetId, updatedAt: op.updatedAt } as MoodEntry & Meal & HydrationEntry & ActivityEntry) : undefined
     if (op.kind === 'mood') return inner.saveMood(op.input as never, existing)
     if (op.kind === 'meals') return inner.saveMeal(op.input as never, existing)
+    if (op.kind === 'activities') return inner.saveActivity(op.input as never, existing)
     return inner.saveHydration(op.input as never, existing)
   }
 
@@ -164,7 +165,7 @@ export function createOfflineJournal(inner: JournalAdapter, scope: Scope): Offli
     }
   }
 
-  const entryOp = (kind: 'mood' | 'meals' | 'hydration', input: NewOp extends { input: infer I } ? I : never, existing?: { id: MoodEntry['id']; updatedAt: string | null }): NewOp =>
+  const entryOp = (kind: 'mood' | 'meals' | 'hydration' | 'activities', input: NewOp extends { input: infer I } ? I : never, existing?: { id: MoodEntry['id']; updatedAt: string | null }): NewOp =>
     existing
       ? ({ kind, action: 'update', targetId: existing.id, updatedAt: existing.updatedAt, input } as NewOp)
       : ({ kind, action: 'create', localId: `local-${crypto.randomUUID()}`, input } as NewOp)
@@ -178,6 +179,7 @@ export function createOfflineJournal(inner: JournalAdapter, scope: Scope): Offli
     saveMood: (input, existing) => queueAndSend(entryOp('mood', input as never, existing)),
     saveMeal: (input, existing) => queueAndSend(entryOp('meals', input as never, existing)),
     saveHydration: (input, existing) => queueAndSend(entryOp('hydration', input as never, existing)),
+    saveActivity: (input, existing) => queueAndSend(entryOp('activities', input as never, existing)),
     saveCycleDay: (date, input, existing) =>
       queueAndSend({ kind: 'cycle', action: 'save', date, input, updatedAt: existing && !isLocalId(existing.id) ? existing.updatedAt : null }),
     remove: (kind, id) => queueAndSend({ kind, action: 'remove', targetId: id }),

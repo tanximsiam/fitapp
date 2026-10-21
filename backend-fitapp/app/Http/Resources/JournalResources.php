@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ActivityEntry;
 use App\Models\CycleDay;
 use App\Models\HydrationEntry;
 use App\Models\Meal;
@@ -57,6 +58,19 @@ final class JournalResources
             'recorded_at' => $h->recorded_at->setTimezone($tz)->toIso8601String(),
             'volume_ml' => $h->volume_ml,
         ] + self::meta($h);
+    }
+
+    public static function activity(ActivityEntry $a, string $tz): array
+    {
+        return [
+            'id' => $a->id,
+            'date' => $a->date,
+            'started_at' => $a->started_at->setTimezone($tz)->toIso8601String(),
+            'activity_type' => $a->activity_type,
+            'duration_min' => $a->duration_min,
+            'energy_kcal' => $a->energy_kcal,
+            'energy_source' => $a->energy_source,
+        ] + self::meta($a);
     }
 
     public static function cycleDay(CycleDay $c): array

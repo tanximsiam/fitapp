@@ -87,6 +87,19 @@
               <GoalDots :height="AREA" :days="stepGoalDots" color="var(--activity)" what="Step goal" />
             </WidgetCard>
 
+            <WidgetCard title="Logged in the app" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(logged.length)" :note="loggedKcal ? `${formatInt(loggedKcal)} kcal` : undefined">
+              <ul v-if="logged.length" class="divide-y divide-line overflow-y-auto" :style="{ height: `${AREA}px` }">
+                <li v-for="e in logged" :key="e.id" class="flex items-center gap-3 py-2 text-sm first:pt-0">
+                  <ion-icon :icon="activityKind(e.activityType).icon" aria-hidden="true" class="shrink-0 text-base text-[var(--heart)]" />
+                  <span class="min-w-0 flex-1 truncate font-medium">{{ activityKind(e.activityType).label }}</span>
+                  <span class="tabular shrink-0 text-ink-2">
+                    {{ formatClock(e.startedAt) }} · {{ formatDuration(e.durationMin) }}<template v-if="e.energyKcal != null"> · {{ formatInt(e.energyKcal) }} kcal{{ e.energySource === 'estimated' ? ' (est.)' : '' }}</template>
+                  </span>
+                </li>
+              </ul>
+              <p v-else class="text-sm text-muted" :style="{ height: `${AREA}px` }">No activities logged on this day. Chores, walks and workouts are logged in the FitApp mobile app.</p>
+            </WidgetCard>
+
             <WidgetCard title="Workouts" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(day?.workouts.length ?? 0)" :note="`${rangeWorkouts} in the last ${fitness.rangeDays} days`">
               <!-- This day's workouts first, then the most recent ones in the period. -->
               <ul v-if="recentWorkouts.length" class="divide-y divide-line overflow-y-auto" :style="{ height: `${AREA}px` }">
@@ -150,7 +163,10 @@ import ModuleHero from '@/components/ModuleHero.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import ShowMore from '@/components/ShowMore.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
+import { IonIcon } from '@ionic/vue'
 import { useFitnessData } from '@/composables/useFitnessData'
+import { activityKind } from '@/data/activities'
+import { useJournalStore } from '@/stores/journal'
 import { dailyLine, dailyTicks, lastValues, metricBars } from '@/data/chartData'
 import { workoutLabel } from '@/data/connection'
 import { countMeasured, mean, progress } from '@/data/derive'
@@ -191,6 +207,10 @@ const stepGoalDots = computed(() =>
     }
   }),
 )
+
+const journal = useJournalStore()
+const logged = computed(() => journal.onDate(fitness.selectedDate).activities)
+const loggedKcal = computed(() => logged.value.reduce((n, e) => n + (e.energyKcal ?? 0), 0))
 
 const rangeWorkouts = computed(() => rangeDaysList.value.reduce((n, d) => n + d.workouts.length, 0))
 const recentWorkouts = computed(() =>

@@ -1,12 +1,12 @@
 <template>
-  <AppShell title="Food & drink">
-    <template #subtitle>{{ formatLongDate(fitness.selectedDate) }} · meals and drinks you logged</template>
+  <AppShell title="Food">
+    <template #subtitle>{{ formatLongDate(fitness.selectedDate) }} · meals you logged</template>
     <TrackerGate tracker="food">
       <DateToolbar />
       <JournalState>
         <div class="grid gap-4">
           <ModuleHero
-            title="Food and drink"
+            title="Food"
             tone="energy"
             :icon="ICONS.meals"
             :eyebrow="fitness.isToday ? 'What you logged today' : `What you logged, ${formatLongDate(fitness.selectedDate)}`"
@@ -16,7 +16,7 @@
             spark-label="Food energy logged over the last 7 days"
             :sentence="energyLine || 'No meals logged on this day.'"
             :stats="[
-              { label: 'Water', icon: ICONS.water, value: day.waterMl ? `${formatInt(day.waterMl)} ml` : EMPTY, note: `${day.hydration.length} drink${day.hydration.length === 1 ? '' : 's'}` },
+              { label: 'Meals', icon: ICONS.meals, value: String(day.meals.length) },
               { label: 'Protein', icon: ICONS.meals, value: grams(macros.protein), ratio: macroShare(macros.protein, 4) },
               { label: 'Carbs', icon: ICONS.meals, value: grams(macros.carbs), ratio: macroShare(macros.carbs, 4) },
               { label: 'Fat', icon: ICONS.meals, value: grams(macros.fat), ratio: macroShare(macros.fat, 9) },
@@ -57,30 +57,6 @@
                   description="Share of food energy from protein, carbohydrates and fat on this day (4 kcal per gram of protein or carbs, 9 per gram of fat)"
                 />
                 <p v-else class="text-sm text-muted">No nutrient values for this day's foods.</p>
-              </WidgetCard>
-
-              <WidgetCard title="Water" :icon="ICONS.water" tone="activity" :label="fitness.isToday ? 'Today' : 'This day'" :value="day.waterMl ? `${formatInt(day.waterMl)} ml` : EMPTY">
-                <div class="overflow-y-auto" :style="{ height: `${AREA}px` }">
-                  <ul v-if="day.hydration.length" class="flex flex-wrap gap-2">
-                    <li v-for="h in day.hydration" :key="h.id" class="rounded-lg bg-page px-3 py-1.5 text-sm">
-                      <span class="tabular font-medium">{{ h.volumeMl }} ml</span> <span class="text-xs text-muted">{{ formatClock(h.recordedAt) }}</span>
-                    </li>
-                  </ul>
-                  <p v-else class="text-sm text-muted">No drinks logged on this day.</p>
-                </div>
-              </WidgetCard>
-
-              <WidgetCard title="Water per day" :icon="ICONS.water" tone="activity" label="Average on logged days" :value="range.avgWater == null ? EMPTY : `${formatInt(range.avgWater)} ml`">
-                <BarChart
-                  :bars="dayBars((d) => range.water.get(d) ?? null, 'var(--activity)', (n) => `${formatInt(n)} ml`)"
-                  :selected-key="fitness.selectedDate"
-                  :height="CHART"
-                  value-name="Water"
-                  description="Water logged per day. Use arrow keys to inspect days and Enter to select one."
-                  @select="fitness.selectDate"
-                >
-                  <template #legend><span class="flex items-center gap-1.5"><span class="size-2 rounded-sm bg-activity" aria-hidden="true" />Millilitres logged</span></template>
-                </BarChart>
               </WidgetCard>
 
               <WidgetCard title="Food energy per day" :icon="ICONS.activeEnergy" tone="energy" label="Average on logged days" :value="mean([...kcalByDay.values()]) == null ? EMPTY : `${formatInt(mean([...kcalByDay.values()]))} kcal`">
@@ -138,7 +114,7 @@ const { fitness, journal, rangeDaysList } = useJournalData()
 
 const day = computed(() => {
   const entries = journal.onDate(fitness.selectedDate)
-  return { ...entries, waterMl: entries.hydration.reduce((a, h) => a + h.volumeMl, 0), watchKcal: fitness.selectedDay?.activity?.activeKcal ?? null }
+  return { ...entries, watchKcal: fitness.selectedDay?.activity?.activeKcal ?? null }
 })
 const energyLine = computed(() => {
   const e = enteredEnergy(day.value.meals)
@@ -163,9 +139,7 @@ const macroShare = (g: number, kcalPerG: number) => {
 const range = computed(() => {
   const dates = new Set(rangeDaysList.value.map((d) => d.date))
   const meals = journal.data.meals.filter((m) => dates.has(m.date))
-  const water = new Map<string, number>()
-  for (const h of journal.data.hydration) if (dates.has(h.date)) water.set(h.date, (water.get(h.date) ?? 0) + h.volumeMl)
-  return { meals, mealDays: new Set(meals.map((m) => m.date)).size, water, avgWater: mean([...water.values()]) }
+  return { meals, mealDays: new Set(meals.map((m) => m.date)).size }
 })
 const kcalByDay = computed(() => {
   const out = new Map<string, number>()

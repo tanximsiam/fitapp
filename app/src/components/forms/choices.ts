@@ -28,10 +28,10 @@ export const FLOW_CHOICES: Choice<Flow | null>[] = (['none', 'spotting', 'light'
 
 const WATER = '#3a8fe0'
 export const DRINK_CHOICES: Choice<number>[] = [
-  { value: 150, label: 'Cup', hint: '150 ml', color: WATER, glyph: { kind: 'glass', level: 150 } },
-  { value: 250, label: 'Glass', hint: '250 ml', color: WATER, glyph: { kind: 'glass', level: 250 } },
-  { value: 330, label: 'Can', hint: '330 ml', color: WATER, glyph: { kind: 'glass', level: 330 } },
-  { value: 500, label: 'Bottle', hint: '500 ml', color: WATER, glyph: { kind: 'glass', level: 500 } },
+  { value: 150, label: '150 ml', color: WATER, glyph: { kind: 'glass', level: 150 } },
+  { value: 250, label: '250 ml', color: WATER, glyph: { kind: 'glass', level: 250 } },
+  { value: 330, label: '330 ml', color: WATER, glyph: { kind: 'glass', level: 330 } },
+  { value: 500, label: '500 ml', color: WATER, glyph: { kind: 'glass', level: 500 } },
 ]
 
 export const MEAL_CHOICES: Choice<MealType>[] = [

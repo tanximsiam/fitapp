@@ -29,7 +29,8 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { to: '/timeline', label: 'Timeline', icon: listOutline },
       { to: '/mood', label: 'Mood', icon: ICONS.mood, tracker: 'mood' },
-      { to: '/food', label: 'Food & drink', icon: ICONS.meals, tracker: 'food' },
+      { to: '/food', label: 'Food', icon: ICONS.meals, tracker: 'food' },
+      { to: '/hydration', label: 'Hydration', icon: ICONS.water, tracker: 'hydration' },
       { to: '/cycle', label: 'Cycle', icon: ICONS.cycle, tracker: 'cycle' },
     ],
   },

@@ -77,6 +77,7 @@ export const toGoals = (g: GoalsPayload): Goals => ({
   activeKcal: g.active_kcal,
   distanceM: g.distance_m,
   sleepMin: g.sleep_min,
+  waterMl: g.water_ml ?? 2000,
 })
 
 export async function getDays(from: ISODate, to: ISODate): Promise<DaysResult> {
@@ -113,7 +114,7 @@ export async function getGoals(): Promise<Goals> {
 }
 
 export async function saveGoals(goals: Goals): Promise<Goals> {
-  const body = { goals: { steps: goals.steps, active_kcal: goals.activeKcal, distance_m: goals.distanceM, sleep_min: goals.sleepMin } }
+  const body = { goals: { steps: goals.steps, active_kcal: goals.activeKcal, distance_m: goals.distanceM, sleep_min: goals.sleepMin, water_ml: goals.waterMl } }
   return toGoals((await api.patch<{ data: { goals: GoalsPayload } }>('/user', body)).data.data.goals)
 }
 

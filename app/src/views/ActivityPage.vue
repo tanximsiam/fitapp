@@ -87,6 +87,24 @@
               <GoalDots :height="AREA" :days="stepGoalDots" color="var(--activity)" what="Step goal" />
             </WidgetCard>
 
+            <WidgetCard title="Logged by you" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(logged.length)" :note="loggedKcal ? `${formatInt(loggedKcal)} kcal` : undefined">
+              <ul v-if="logged.length" class="divide-y divide-line overflow-y-auto" tabindex="0" aria-label="Activities you logged" :style="{ height: `${AREA}px` }">
+                <li v-for="e in logged" :key="e.id" class="flex items-center gap-3 py-2 text-sm first:pt-0">
+                  <ion-icon :icon="activityKind(e.activityType).icon" aria-hidden="true" class="shrink-0 text-base text-[var(--heart)]" />
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium">{{ activityKind(e.activityType).label }}</span>
+                    <span class="tabular block text-xs text-muted">
+                      {{ formatClock(e.startedAt) }} · {{ formatDuration(e.durationMin) }}<template v-if="e.energyKcal != null"> · {{ formatInt(e.energyKcal) }} kcal{{ e.energySource === 'estimated' ? ' (est.)' : '' }}</template>
+                    </span>
+                  </span>
+                  <button type="button" class="grid size-8 shrink-0 place-items-center rounded-full text-muted hover:text-danger" :aria-label="`Remove ${activityKind(e.activityType).label} at ${formatClock(e.startedAt)}`" @click="removeLogged(e.id)">
+                    <ion-icon :icon="trashOutline" aria-hidden="true" />
+                  </button>
+                </li>
+              </ul>
+              <p v-else class="text-sm text-muted" :style="{ height: `${AREA}px` }">Nothing logged on this day. Tap + to add chores, a walk or a workout.</p>
+            </WidgetCard>
+
             <WidgetCard title="Workouts" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(day?.workouts.length ?? 0)" :note="`${rangeWorkouts} in the last ${fitness.rangeDays} days`">
               <!-- This day's workouts first, then the most recent ones in the period. -->
               <!-- Scrolls inside the card, so it takes keyboard focus to be scrollable without touch. -->
@@ -130,6 +148,8 @@
 <script setup lang="ts">
 import { ICONS } from '@/components/metricIcons'
 import { computed, ref } from 'vue'
+import { alertController, IonIcon } from '@ionic/vue'
+import { trashOutline } from 'ionicons/icons'
 import AppShell from '@/components/AppShell.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import GoalDots from '@/components/charts/GoalDots.vue'
@@ -142,6 +162,9 @@ import ShowMore from '@/components/ShowMore.vue'
 import HistoryList from '@/components/HistoryList.vue'
 import WidgetCard from '@/components/WidgetCard.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
+import { activityKind } from '@/data/activities'
+import { useJournalStore } from '@/stores/journal'
+import type { EntryId } from '@/types/journal'
 import { dailyLine, dailyTicks, lastValues, metricBars } from '@/data/chartData'
 import { workoutLabel } from '@/data/connection'
 import { countMeasured, mean, progress } from '@/data/derive'
@@ -182,6 +205,19 @@ const stepGoalDots = computed(() =>
     }
   }),
 )
+
+const journal = useJournalStore()
+const logged = computed(() => journal.onDate(fitness.selectedDate).activities)
+const loggedKcal = computed(() => logged.value.reduce((n, e) => n + (e.energyKcal ?? 0), 0))
+
+async function removeLogged(id: EntryId) {
+  const alert = await alertController.create({
+    header: 'Remove this activity?',
+    buttons: [{ text: 'Cancel', role: 'cancel' }, { text: 'Remove', role: 'destructive' }],
+  })
+  await alert.present()
+  if ((await alert.onDidDismiss()).role === 'destructive') await journal.remove('activities', id)
+}
 
 const rangeWorkouts = computed(() => rangeDaysList.value.reduce((n, d) => n + d.workouts.length, 0))
 const recentWorkouts = computed(() =>

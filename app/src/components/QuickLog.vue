@@ -60,6 +60,7 @@
         <MoodSteps v-if="ui.quickLog === 'mood'" :key="`m${openCount}`" :date="fitness.today" @exit="choose" @saved="onSaved" />
         <MealSteps v-else-if="ui.quickLog === 'meal'" :key="`f${openCount}`" :date="fitness.today" @exit="choose" @saved="onSaved" />
         <DrinkSteps v-else-if="ui.quickLog === 'drink'" :key="`d${openCount}`" :date="fitness.today" @exit="choose" @saved="onSaved" />
+        <ActivitySteps v-else-if="ui.quickLog === 'activity'" :key="`a${openCount}`" :date="fitness.today" @exit="choose" @saved="onSaved" />
         <CycleSteps v-else :key="`c${openCount}`" :date="fitness.today" @exit="choose" @saved="onSaved" />
       </template>
     </div>
@@ -83,8 +84,9 @@ import { loggingStreak } from '@/data/journalDerive'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import { useUiStore, type LogKind } from '@/stores/ui'
+import ActivitySteps from './quicklog/ActivitySteps.vue'
 
-const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal logged', drink: 'Drink logged', cycle: 'Period day saved' }
+const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal logged', drink: 'Drink logged', activity: 'Activity logged', cycle: 'Period day saved' }
 
 const ui = useUiStore()
 const journal = useJournalStore()
@@ -99,6 +101,7 @@ const tabs = computed(() =>
       { kind: 'mood', label: 'Mood', hint: 'How you feel', icon: ICONS.mood, tone: 'mood', on: journal.prefs.mood },
       { kind: 'meal', label: 'Meal', hint: 'Foods and nutrients', icon: ICONS.meals, tone: 'energy', on: journal.prefs.food },
       { kind: 'drink', label: 'Drink', hint: 'Water you drank', icon: ICONS.water, tone: 'activity', on: journal.prefs.hydration },
+      { kind: 'activity', label: 'Activity', hint: 'Chores, walks, workouts', icon: ICONS.workouts, tone: 'heart', on: true },
       { kind: 'cycle', label: 'Period', hint: 'Flow and symptoms', icon: ICONS.cycle, tone: 'spo2', on: journal.prefs.cycle },
     ] as { kind: LogKind; label: string; hint: string; icon: string; tone: Tone; on: boolean }[]
   ).filter((t) => t.on),

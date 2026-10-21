@@ -63,7 +63,7 @@ import { MOOD_CHOICES } from '@/components/forms/choices'
 import { addDays } from '@/lib/dates'
 import { mean } from '@/data/derive'
 import { MOOD_LABELS } from '@/data/journalDerive'
-import { formatClock, formatInt, formatWeekday } from '@/lib/format'
+import { formatClock, formatDuration, formatInt, formatWeekday } from '@/lib/format'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import { useUiStore, type LogKind } from '@/stores/ui'
@@ -125,9 +125,14 @@ const rows = computed(() => {
       empty: !d.meals.length,
     },
     {
-      kind: 'drink', label: 'Water', action: 'Log a drink', icon: ICONS.water, tone: 'activity', to: '/food', on: journal.prefs.hydration,
+      kind: 'drink', label: 'Water', action: 'Log a drink', icon: ICONS.water, tone: 'activity', to: '/hydration', on: journal.prefs.hydration,
       value: water ? `${formatInt(water)} ml` : 'Not logged yet',
       empty: !water,
+    },
+    {
+      kind: 'activity', label: 'Activities', action: 'Log an activity', icon: ICONS.workouts, tone: 'heart', to: '/health/activity', on: true,
+      value: d.activities.length ? `${d.activities.length} logged · ${formatDuration(d.activities.reduce((n, a) => n + a.durationMin, 0))}` : 'Not logged yet',
+      empty: !d.activities.length,
     },
     {
       kind: 'cycle', label: 'Periods', action: 'Log a period day', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,

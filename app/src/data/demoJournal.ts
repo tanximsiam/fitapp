@@ -1,9 +1,11 @@
 import { addDays, dateRange, daysBetween, offsetString, wallMinutes } from '@/lib/dates'
 import { DEMO_WINDOW_DAYS, type DemoClock, generateDay } from './demo'
+import { estimateKcal } from './activities'
 import type {
   CycleDay,
   EntryId,
   Flow,
+  ActivityEntry,
   HydrationEntry,
   JournalAdapter,
   JournalData,
@@ -138,6 +140,19 @@ function hydrationFor(date: ISODate, clock: DemoClock): HydrationEntry[] {
   }))
 }
 
+/** A few logged activities a week: evening chores and the odd morning jog or walk. */
+function activitiesFor(date: ISODate, clock: DemoClock): ActivityEntry[] {
+  const r = rng(dayNo(date) * 617 + 23)
+  const out: ActivityEntry[] = []
+  const add = (i: number, type: ActivityEntry['activityType'], minute: number, durationMin: number) =>
+    out.push({ id: `demo:activity:${date}:${i}`, date, provenance: 'simulated', updatedAt: null, startedAt: at(date, minute, clock.offset), activityType: type, durationMin, energyKcal: estimateKcal(type, durationMin), energySource: 'estimated' })
+  if (r() < 0.45) add(0, 'chores', 18 * 60 + 30, 20 + Math.floor(r() * 4) * 10)
+  const morning = r()
+  if (morning < 0.2) add(1, 'jogging', 6 * 60 + 30, 30)
+  else if (morning < 0.35) add(1, 'walking', 7 * 60, 40)
+  return out
+}
+
 /** Period start dates from a fixed anchor with varying cycle lengths (24–33 days). */
 function periodStarts(until: ISODate): { start: ISODate; length: number; seed: number }[] {
   const out = []
@@ -184,13 +199,16 @@ interface Overlay {
 }
 
 const emptyOverlay = (): Overlay => ({
-  upserts: { mood: {}, meals: {}, hydration: {}, cycleDays: {} },
-  deletes: { mood: [], meals: [], hydration: [], cycleDays: [] },
+  upserts: { mood: {}, meals: {}, hydration: {}, activities: {}, cycleDays: {} },
+  deletes: { mood: [], meals: [], hydration: [], activities: [], cycleDays: [] },
 })
 
 function readOverlay(): Overlay {
   try {
-    return { ...emptyOverlay(), ...JSON.parse(localStorage.getItem(OVERLAY_KEY) ?? '{}') }
+    // Merged per kind, so changes saved before a kind existed still load.
+    const saved = JSON.parse(localStorage.getItem(OVERLAY_KEY) ?? '{}') as Partial<Overlay>
+    const empty = emptyOverlay()
+    return { upserts: { ...empty.upserts, ...saved.upserts }, deletes: { ...empty.deletes, ...saved.deletes } }
   } catch {
     return emptyOverlay()
   }
@@ -240,6 +258,7 @@ export function createDemoJournal(clock: () => DemoClock): JournalAdapter {
         mood: sortBy(applyOverlay('mood', past(span.flatMap((d) => moodFor(d, c)), (e) => e.recordedAt), from, to, o), (e) => e.recordedAt),
         meals: sortBy(applyOverlay('meals', past(span.flatMap((d) => mealsFor(d, c)), (e) => e.eatenAt), from, to, o), (e) => e.eatenAt),
         hydration: sortBy(applyOverlay('hydration', past(span.flatMap((d) => hydrationFor(d, c)), (e) => e.recordedAt), from, to, o), (e) => e.recordedAt),
+        activities: sortBy(applyOverlay('activities', past(span.flatMap((d) => activitiesFor(d, c)), (e) => e.startedAt), from, to, o), (e) => e.startedAt),
         cycleDays: sortBy(
           applyOverlay('cycleDays', cycleDaysFor(cycleFrom > addDays(c.today, -DEMO_CYCLE_DAYS) ? cycleFrom : addDays(c.today, -DEMO_CYCLE_DAYS), to < c.today ? to : c.today), cycleFrom, to, o),
           (e) => e.date,
@@ -257,6 +276,10 @@ export function createDemoJournal(clock: () => DemoClock): JournalAdapter {
     async saveHydration(input, existing) {
       const date = input.recordedAt.slice(0, 10)
       upsert('hydration', { ...existing, ...input, id: existing?.id ?? newId('drink'), date, provenance: 'manual', updatedAt: null } satisfies HydrationEntry)
+    },
+    async saveActivity(input, existing) {
+      const date = input.startedAt.slice(0, 10)
+      upsert('activities', { ...existing, ...input, id: existing?.id ?? newId('activity'), date, provenance: 'manual', updatedAt: null } satisfies ActivityEntry)
     },
     async saveCycleDay(date, input) {
       upsert('cycleDays', { id: `demo:cycle:${date}`, date, ...input, provenance: 'manual', updatedAt: null } satisfies CycleDay)

@@ -26,8 +26,8 @@ let requestId = 0
 
 export const useJournalStore = defineStore('journal', {
   state: () => ({
-    data: { mood: [], meals: [], hydration: [], cycleDays: [] } as JournalData,
-    prefs: { mood: true, food: true, cycle: false } as TrackerPrefs,
+    data: { mood: [], meals: [], hydration: [], activities: [], cycleDays: [] } as JournalData,
+    prefs: { mood: true, food: true, hydration: true, cycle: false } as TrackerPrefs,
     loading: false,
     loaded: false,
     error: null as string | null,
@@ -37,6 +37,7 @@ export const useJournalStore = defineStore('journal', {
       mood: s.data.mood.filter((e) => e.date === date),
       meals: s.data.meals.filter((e) => e.date === date),
       hydration: s.data.hydration.filter((e) => e.date === date),
+      activities: s.data.activities.filter((e) => e.date === date),
       cycleDay: s.data.cycleDays.find((e) => e.date === date) ?? null,
     }),
   },

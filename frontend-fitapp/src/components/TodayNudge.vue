@@ -15,7 +15,7 @@
 
     <!-- One donut per goal: the ring shows progress, the centre names it and gives the value. -->
     <div class="shrink-0">
-      <ul class="grid grid-cols-3 gap-3 sm:gap-8 xl:gap-12" aria-label="Goals today">
+      <ul class="grid gap-3 sm:gap-8 xl:gap-12" :class="rings.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'" aria-label="Goals today">
         <li v-for="(r, i) in rings" :key="r.label" class="flex flex-col items-center text-center">
           <div class="relative size-24 sm:size-32">
             <svg viewBox="0 0 120 120" class="size-full -rotate-90" aria-hidden="true">
@@ -71,6 +71,8 @@ const hour = new Date().getHours()
 const greeting = hour < 5 ? 'Good night' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 const streak = computed(() => loggingStreak(journal.data, fitness.today))
 
+const water = computed(() => journal.onDate(props.day?.date ?? fitness.selectedDate).hydration.reduce((n, h) => n + h.volumeMl, 0))
+
 // Ring colours follow the theme (see the style block).
 const rings = computed(() => {
   const g = fitness.goals
@@ -93,6 +95,9 @@ const rings = computed(() => {
       valueText: formatDuration(props.day?.sleep?.durationMin),
       goalText: formatDuration(g.sleepMin),
     },
+    ...(journal.prefs.hydration
+      ? [{ label: 'Water', icon: ICONS.water, color: 'var(--ring-4)', ratio: progress(water.value, g.waterMl), valueText: `${formatInt(water.value)} ml`, goalText: `${formatInt(g.waterMl)} ml` }]
+      : []),
   ].map((r) => ({ ...r, reached: r.ratio !== null && r.ratio >= 1 }))
 })
 
@@ -101,14 +106,14 @@ const message = computed(() => {
   const g = fitness.goals
   const steps = props.day?.activity?.steps
   const reached = rings.value.filter((r) => r.ratio != null && r.ratio >= 1).length
-  if (reached === 3) return 'All three goals reached today. That is a great day.'
+  if (reached === rings.value.length) return 'All goals reached today. That is a great day.'
   if (steps != null && steps < g.steps) {
     const left = Math.ceil((g.steps - steps) / 100) * 100
     // ~100 steps a minute is a typical walking cadence.
     const minutes = Math.max(5, Math.round(left / 100 / 5) * 5)
-    return `${formatInt(left)} steps to your goal${reached ? `, with ${reached} of 3 goals already reached` : ''}. A ${minutes}-minute walk would roughly cover it.`
+    return `${formatInt(left)} steps to your goal${reached ? `, with ${reached} of ${rings.value.length} goals already reached` : ''}. A ${minutes}-minute walk would roughly cover it.`
   }
-  if (reached) return `${reached} of 3 goals reached so far. Keep it up.`
+  if (reached) return `${reached} of ${rings.value.length} goals reached so far. Keep it up.`
   return 'Your watch data for today will appear here as it syncs.'
 })
 </script>
@@ -119,11 +124,13 @@ const message = computed(() => {
   --ring-1: #bef264;
   --ring-2: #fcd34d;
   --ring-3: #67e8f9;
+  --ring-4: #bae6fd;
 }
 :root[data-theme='dark'] .hero {
   --ring-1: #ffffff;
   --ring-2: #ccfbf1;
   --ring-3: #99f6e4;
+  --ring-4: #5eead4;
 }
 .ring {
   animation: fill 900ms cubic-bezier(0.23, 1, 0.32, 1) both;

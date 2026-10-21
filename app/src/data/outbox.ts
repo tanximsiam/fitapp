@@ -1,5 +1,7 @@
 import type { ISODate } from '@/types/fitness'
 import type {
+  ActivityEntry,
+  ActivityInput,
   CycleDay,
   CycleDayInput,
   EntryId,
@@ -18,8 +20,8 @@ import type {
  * persists the queue and sends it; this file decides how operations merge and how they show up locally.
  */
 
-export type EntryKind = 'mood' | 'meals' | 'hydration'
-type EntryInput = { mood: MoodInput; meals: MealInput; hydration: HydrationInput }
+export type EntryKind = 'mood' | 'meals' | 'hydration' | 'activities'
+type EntryInput = { mood: MoodInput; meals: MealInput; hydration: HydrationInput; activities: ActivityInput }
 
 interface Base {
   /** Queue id. */
@@ -78,13 +80,14 @@ function build(kind: EntryKind, id: EntryId, input: EntryInput[EntryKind], state
   const meta = { id, provenance: 'manual' as const, updatedAt, syncState: state }
   if (kind === 'mood') return { ...meta, ...(input as MoodInput), date: entryDate((input as MoodInput).recordedAt) } as MoodEntry
   if (kind === 'meals') return { ...meta, ...(input as MealInput), date: entryDate((input as MealInput).eatenAt) } as Meal
+  if (kind === 'activities') return { ...meta, ...(input as ActivityInput), date: entryDate((input as ActivityInput).startedAt) } as ActivityEntry
   return { ...meta, ...(input as HydrationInput), date: entryDate((input as HydrationInput).recordedAt) } as HydrationEntry
 }
 
 /** The server's records with the queued changes shown on top, each marked with its sync state. */
 export function applyOutbox(data: JournalData, queue: Op[]): JournalData {
-  const out: JournalData = { mood: [...data.mood], meals: [...data.meals], hydration: [...data.hydration], cycleDays: [...data.cycleDays] }
-  const list = (k: EntryKind) => (k === 'mood' ? 'mood' : k) as 'mood' | 'meals' | 'hydration'
+  const out: JournalData = { mood: [...data.mood], meals: [...data.meals], hydration: [...data.hydration], activities: [...(data.activities ?? [])], cycleDays: [...data.cycleDays] }
+  const list = (k: EntryKind) => k
   for (const op of queue) {
     if (op.kind === 'cycle') {
       out.cycleDays = out.cycleDays.filter((d) => d.date !== op.date)
@@ -92,7 +95,7 @@ export function applyOutbox(data: JournalData, queue: Op[]): JournalData {
       continue
     }
     const key = list(op.kind)
-    const arr = out[key] as (MoodEntry | Meal | HydrationEntry)[]
+    const arr = out[key] as (MoodEntry | Meal | HydrationEntry | ActivityEntry)[]
     if (op.action === 'create') arr.push(build(op.kind, op.localId, op.input, op.state, null))
     else if (op.action === 'update') {
       const i = arr.findIndex((e) => e.id === op.targetId)
@@ -106,10 +109,10 @@ export function applyOutbox(data: JournalData, queue: Op[]): JournalData {
 
 /** One line describing a queued change, for the "needs your decision" list. */
 export function describeOp(op: Op): string {
-  const what = { mood: 'Mood check-in', meals: 'Meal', hydration: 'Drink', cycle: 'Period day' }[op.kind]
+  const what = { mood: 'Mood check-in', meals: 'Meal', hydration: 'Drink', activities: 'Activity', cycle: 'Period day' }[op.kind]
   if (op.kind === 'cycle') return `${what} ${op.date}${op.action === 'remove' ? ' (deleted)' : ''}`
   if (op.action === 'remove') return `${what} (deleted)`
-  const input = op.input as Partial<MoodInput & MealInput & HydrationInput>
-  const at = input.recordedAt ?? input.eatenAt ?? ''
+  const input = op.input as Partial<MoodInput & MealInput & HydrationInput & ActivityInput>
+  const at = input.recordedAt ?? input.eatenAt ?? input.startedAt ?? ''
   return `${what}, ${at.slice(0, 10)} ${at.slice(11, 16)}`
 }
