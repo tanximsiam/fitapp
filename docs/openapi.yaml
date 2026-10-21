@@ -165,6 +165,80 @@ paths:
                       token: { type: string, description: 'Send as `Authorization: Bearer <token>`.' }
         '401': { $ref: '#/components/responses/Error' }
 
+  /ai/score-tip:
+    post:
+      tags: [AI]
+      summary: One tip for raising the health score
+      description: The app computes the score (Life's Essential 8 activity and sleep bands) and sends it with the week's numbers. 503 when the AI service is off or fails; the app then shows its own wording.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score, week]
+              properties:
+                score: { type: integer, minimum: 0, maximum: 100 }
+                focus: { type: string, enum: [activity, sleep] }
+                week: { type: object, description: 'Aggregates such as active_minutes and sleep_hours.' }
+      responses:
+        '200': { description: 'Tip', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { tip: { type: string } } } } } } } }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /ai/feedback:
+    post:
+      tags: [AI]
+      summary: A short reaction to an entry just logged
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, entry]
+              properties:
+                kind: { type: string, enum: [mood, meal, drink, activity] }
+                entry: { type: object, description: 'Numbers and categories only; notes are dropped.' }
+                today: { type: object }
+      responses:
+        '200': { description: 'Feedback', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { feedback: { type: string } } } } } } } }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /ai/insights:
+    post:
+      tags: [AI]
+      summary: Up to three insights across areas from a summary of recent days
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [summary]
+              properties:
+                summary: { type: object, description: 'Per-day aggregates and goals.' }
+      responses:
+        '200':
+          description: Insights
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      insights:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            area: { type: string }
+                            title: { type: string }
+                            body: { type: string }
+                            action: { type: string, nullable: true }
+        '503': { $ref: '#/components/responses/Error' }
+
   /logout:
     post:
       tags: [Auth]

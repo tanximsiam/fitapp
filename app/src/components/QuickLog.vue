@@ -26,7 +26,11 @@
         <p v-if="streak > 1" class="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-2">
           <ion-icon :icon="flameOutline" aria-hidden="true" :style="{ color: 'var(--energy)' }" />{{ streak }}-day logging streak. Keep it going!
         </p>
-        <p v-else class="mt-1 text-sm text-ink-2">Every entry makes your overview more useful.</p>
+        <!-- A personal reaction to this entry (AI on a signed-in account, built-in wording otherwise). -->
+        <p class="mt-4 max-w-xs rounded-2xl bg-page px-4 py-3 text-left text-[14px] leading-relaxed text-ink" aria-live="polite">
+          <span v-if="feedback">{{ feedback }}</span>
+          <span v-else class="text-muted">Looking at your day…</span>
+        </p>
         <div class="mt-6 flex gap-2">
           <PrimaryButton variant="secondary" label="Log something else" @click="choose" />
           <PrimaryButton label="Done" @click="close" />
@@ -85,6 +89,9 @@ import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import { useUiStore, type LogKind } from '@/stores/ui'
 import ActivitySteps from './quicklog/ActivitySteps.vue'
+import { aiFeedback, fromAi } from '@/api/ai'
+import { fallbackFeedback } from '@/data/aiFallback'
+import { entryPayload, todayPayload } from '@/data/aiPayload'
 
 const SAVED_TEXT: Record<LogKind, string> = { mood: 'Mood logged', meal: 'Meal logged', drink: 'Drink logged', activity: 'Activity logged', cycle: 'Period day saved' }
 
@@ -120,7 +127,17 @@ function choose() {
   openCount.value++
   ui.quickLog = 'choose'
 }
+const feedback = ref<string | null>(null)
+async function loadFeedback() {
+  feedback.value = null
+  const entry = journal.lastSaved
+  if (!entry) return
+  const today = todayPayload(fitness.today, fitness.days, journal.data, fitness.goals)
+  feedback.value = await fromAi(() => aiFeedback(entry.kind, entryPayload(entry), today), fallbackFeedback(entry))
+}
+
 function onSaved() {
+  loadFeedback()
   saved.value = ui.quickLog === 'choose' ? null : ui.quickLog
   if (Capacitor.isNativePlatform()) Haptics.notification({ type: NotificationType.Success }).catch(() => {})
 }

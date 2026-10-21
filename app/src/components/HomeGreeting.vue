@@ -46,7 +46,12 @@
           <ion-icon :icon="sparklesOutline" aria-hidden="true" class="text-sm" />Daily reminder
         </p>
         <p class="relative mt-2 pr-6 text-[22px] leading-snug font-semibold tracking-tight">{{ reminder }}</p>
-        <p v-if="nudge" class="mt-4 flex items-center gap-2 border-t border-white/20 pt-3 text-[13px] text-ink-2">
+        <!-- The health score and the one thing that would raise it most. -->
+        <p v-if="score" class="mt-4 flex items-start gap-2.5 border-t border-white/20 pt-3 text-[13px] leading-snug text-ink-2">
+          <span class="tabular shrink-0 rounded-full bg-white/15 px-2 py-0.5 text-[12px] font-semibold text-ink" :aria-label="`Health score ${score.score} out of 100`">{{ score.score }}<span class="font-normal text-ink-2">/100</span></span>
+          <span>{{ tip ?? fallbackTip(score) }}</span>
+        </p>
+        <p v-else-if="nudge" class="mt-4 flex items-center gap-2 border-t border-white/20 pt-3 text-[13px] text-ink-2">
           <ion-icon :icon="nudge.icon" aria-hidden="true" class="shrink-0 text-base" />{{ nudge.text }}
         </p>
       </div>
@@ -55,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { checkmarkCircleOutline, close, flameOutline, footstepsOutline, sparklesOutline } from 'ionicons/icons'
 import ChoiceGlyph from '@/components/forms/ChoiceGlyph.vue'
@@ -66,6 +71,10 @@ import { loggingStreak } from '@/data/journalDerive'
 import { dayPart } from '@/lib/dayPart'
 import { formatInt } from '@/lib/format'
 import { localInputToIso } from '@/lib/instants'
+import { aiScoreTip, fromAi } from '@/api/ai'
+import { fallbackTip } from '@/data/aiFallback'
+import { scorePayload } from '@/data/aiPayload'
+import { healthScore } from '@/data/healthScore'
 import { useFitnessStore } from '@/stores/fitness'
 import { useJournalStore } from '@/stores/journal'
 import type { DaySummary } from '@/types/fitness'
@@ -146,6 +155,20 @@ const reminder = computed(() => {
   const dayNumber = Math.floor(Date.parse(`${fitness.today}T00:00:00Z`) / 86_400_000)
   return REMINDERS[dayNumber % REMINDERS.length]
 })
+
+/** The week's health score (Life's Essential 8 activity and sleep), only while today is shown. */
+const score = computed(() => (fitness.isToday ? healthScore(fitness.days, journal.data.activities ?? [], fitness.today) : null))
+const tip = ref<string | null>(null)
+watch(
+  () => (score.value ? JSON.stringify(scorePayload(score.value)) : null),
+  async (key) => {
+    tip.value = null
+    if (!key || !score.value) return
+    const s = score.value
+    tip.value = await fromAi(() => aiScoreTip(scorePayload(s)), fallbackTip(s))
+  },
+  { immediate: true },
+)
 
 /** One line from the person's own day, when there is something worth saying. */
 const nudge = computed(() => {

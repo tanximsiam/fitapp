@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FitnessController;
 use App\Http\Controllers\GoogleAuthController;
@@ -35,6 +36,13 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
     Route::get('/fitness/heart-rate/{date}', [FitnessController::class, 'heartRate'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/readings/{kind}/{date}', [FitnessController::class, 'readings'])->whereIn('kind', ['stress', 'spo2'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/status', [FitnessController::class, 'status']);
+    // Personal text from the AI service; the app falls back to its own wording on 503.
+    Route::prefix('ai')->middleware('throttle:30,1')->group(function () {
+        Route::post('/insights', [AiController::class, 'insights']);
+        Route::post('/feedback', [AiController::class, 'feedback']);
+        Route::post('/score-tip', [AiController::class, 'scoreTip']);
+    });
+
     // The phone uploads what it reads from the watch, Health Connect or Apple Health.
     Route::post('/ingest', IngestController::class)->middleware('throttle:60,1');
 

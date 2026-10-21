@@ -6,6 +6,18 @@
     <DataState>
       <JournalState>
         <div class="stagger grid grid-cols-[minmax(0,1fr)] gap-6">
+          <!-- Patterns across areas, written by the AI service for a signed-in account. -->
+          <section v-if="ai.loading || ai.items.length" aria-labelledby="ai-title">
+            <h2 id="ai-title" :class="HEADING">For you</h2>
+            <ul class="card divide-y divide-line" aria-live="polite">
+              <li v-if="ai.loading" class="p-4 text-sm text-muted">Reading your last {{ fitness.rangeDays }} days…</li>
+              <li v-for="i in ai.items" :key="i.title" class="p-4">
+                <p class="text-[15px] font-semibold tracking-tight">{{ i.title }}</p>
+                <p class="mt-1 text-[14px] leading-relaxed text-ink-2">{{ i.body }}</p>
+                <p v-if="i.action" class="mt-2 text-[13px] font-medium text-accent">{{ i.action }}</p>
+              </li>
+            </ul>
+          </section>
           <p v-if="!supported.length" class="card p-4 text-sm text-muted">There are not enough records in this period for any observation yet.</p>
           <section v-else aria-labelledby="found-title">
             <h2 id="found-title" :class="HEADING">What your records show · {{ supported.length }}</h2>
@@ -45,7 +57,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive, watch } from 'vue'
+import { aiInsights, fromAi, type AiInsight } from '@/api/ai'
+import { insightsPayload } from '@/data/aiPayload'
 import AppShell from '@/components/AppShell.vue'
 import DataState from '@/components/DataState.vue'
 import InsightRow from '@/components/InsightRow.vue'
@@ -73,5 +87,18 @@ const insights = computed(() =>
 const rank = (id: string) => (LEAD.includes(id) ? LEAD.indexOf(id) : LEAD.length)
 const supported = computed(() => insights.value.filter((i) => i.status === 'ok').sort((a, b) => rank(a.id) - rank(b.id)))
 const withheld = computed(() => insights.value.filter((i) => i.status !== 'ok'))
+const ai = reactive({ loading: false, items: [] as AiInsight[] })
+watch(
+  () => (journal.loaded && fitness.loaded ? `${window.value.to}:${fitness.rangeDays}:${journal.data.mood.length}:${journal.data.meals.length}` : null),
+  async (key) => {
+    if (!key) return
+    ai.loading = true
+    const summary = insightsPayload(window.value.to, fitness.rangeDays, fitness.days, journal.data, fitness.goals)
+    ai.items = await fromAi(() => aiInsights(summary), [])
+    ai.loading = false
+  },
+  { immediate: true },
+)
+
 const coverage = computed(() => completeness(fitness.days, journal.data, window.value.from, window.value.to, journal.prefs))
 </script>

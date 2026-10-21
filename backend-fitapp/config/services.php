@@ -38,6 +38,12 @@ return [
         'app_scheme' => env('FITAPP_APP_SCHEME', 'fitapp'),
     ],
 
+    // The AI service (insights, entry feedback, score tips); off until the key is set.
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+        'model' => env('GROQ_MODEL', 'openai/gpt-oss-20b'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
