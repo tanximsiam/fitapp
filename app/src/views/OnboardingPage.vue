@@ -27,8 +27,23 @@
             <h1 id="wearable-title" :class="H1">Which watch or tracker do you use?</h1>
             <p :class="LEAD">This decides how FitApp connects to it.</p>
             <div class="mt-6 grid grid-cols-2 gap-3" role="radiogroup" aria-labelledby="wearable-title">
+              <!-- FitApp's own watch first, across the row: it pairs with the app directly. -->
               <button
-                v-for="w in WEARABLES"
+                type="button"
+                role="radio"
+                :aria-checked="brand === 'fitapp'"
+                class="choice col-span-2 flex items-center gap-4 rounded-2xl px-4 py-3.5 text-left transition-[background-color,box-shadow,scale] duration-200 ease-out active:scale-[0.98]"
+                :class="brand === 'fitapp' ? 'is-selected' : 'bg-surface shadow-[var(--card-shadow)]'"
+                @click="brand = 'fitapp'"
+              >
+                <WatchDial kind="fitapp" class="dial size-16 shrink-0" />
+                <span class="min-w-0">
+                  <span class="block text-[15px] font-semibold">FitApp Watch</span>
+                  <span class="block text-[13px] text-ink-2">Pair your watch</span>
+                </span>
+              </button>
+              <button
+                v-for="w in WEARABLES.filter((x) => x.brand !== 'fitapp')"
                 :key="w.brand"
                 type="button"
                 role="radio"

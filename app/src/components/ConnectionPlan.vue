@@ -23,13 +23,14 @@
         type="button"
         v-ripple
         class="min-h-9 shrink-0 rounded-full bg-accent px-4 text-sm font-medium text-accent-ink transition-[opacity,scale] duration-150 active:enabled:scale-[0.96] disabled:opacity-40"
-        :disabled="!!busy || !ready(s.source)"
-        @click="connect(s.source)"
+        :disabled="!!busy || (s.source !== 'fitapp-watch' && !ready(s.source))"
+        @click="s.source === 'fitapp-watch' ? (pairing = true) : connect(s.source)"
       >
         {{ busy === s.source ? 'Waiting…' : s.action }}
       </button>
     </li>
   </ol>
+  <PairWatchSheet :open="pairing" @close="pairing = false" @paired="paired = true" />
   <p v-if="note" class="mt-2 px-1 text-xs leading-relaxed text-muted">{{ note }}</p>
 </template>
 
@@ -38,6 +39,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { Capacitor } from '@capacitor/core'
 import { alertCircleOutline, checkmark } from 'ionicons/icons'
+import PairWatchSheet from '@/components/PairWatchSheet.vue'
 import { wearableInfo, type Platform } from '@/data/wearables'
 import { SOURCES } from '@/sources/registry'
 import { connectSource, sources, useAccount } from '@/sources/sync'
@@ -63,6 +65,9 @@ const unsupported = computed(() => routes.value.find((r) => !['direct', 'share',
 const availability = reactive<Partial<Record<SourceId, Availability>>>({})
 const errors = reactive<Record<string, string>>({})
 const busy = ref<SourceId | null>(null)
+const pairing = ref(false)
+/** A preview pairing (browser or sample data) has no real connection to show, so remember it here. */
+const paired = ref(false)
 
 watch(() => (mode.isDemo ? null : auth.user?.id ?? null), useAccount, { immediate: true })
 onMounted(async () => {
@@ -86,7 +91,7 @@ const steps = computed<Step[]>(() => {
   const out: Step[] = []
   const allow = (text: string): Step => ({ key: 'allow', title: `Allow access to ${store}`, text, source: storeSource, action: 'Allow', done: connected(storeSource) })
   if (routes.value.includes('direct')) {
-    out.push({ key: 'pair', title: `Pair your ${w.short}`, text: 'Keep the watch close and awake, then confirm on the watch.', source: 'fitapp-watch', action: 'Pair', done: connected('fitapp-watch') })
+    out.push({ key: 'pair', title: `Pair your ${w.short}`, text: 'Keep the watch close and awake, then confirm on the watch.', source: 'fitapp-watch', action: 'Pair', done: connected('fitapp-watch') || paired.value })
   }
   if (routes.value.includes('share')) {
     const app = w.app ?? (props.wearable?.model ? `the ${props.wearable.model} app` : "your watch's app")
@@ -100,8 +105,8 @@ const steps = computed<Step[]>(() => {
 })
 
 const note = computed(() => {
-  if (mode.isDemo) return 'Sample data comes with its own watch, so nothing to connect here.'
-  if (!native) return 'Connecting works in the FitApp app for Android and iPhone.'
+  if (mode.isDemo) return info.value.brand === 'fitapp' ? null : 'Sample data comes with its own watch, so nothing to connect here.'
+  if (!native) return info.value.brand === 'fitapp' ? null : 'Connecting works in the FitApp app for Android and iPhone.'
   const missing = steps.value.find((s) => s.source && !availability[s.source]?.available && availability[s.source])
   return missing ? availability[missing.source!]!.reason ?? null : null
 })

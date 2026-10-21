@@ -6,7 +6,7 @@ export interface User {
   onboarded: boolean
 }
 
-export const WEARABLE_BRANDS = ['amazfit', 'apple', 'samsung', 'google', 'garmin', 'other', 'none'] as const
+export const WEARABLE_BRANDS = ['fitapp', 'amazfit', 'apple', 'samsung', 'google', 'garmin', 'other', 'none'] as const
 export type WearableBrand = (typeof WEARABLE_BRANDS)[number]
 
 export interface Wearable {

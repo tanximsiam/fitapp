@@ -165,6 +165,103 @@ paths:
                       token: { type: string, description: 'Send as `Authorization: Bearer <token>`.' }
         '401': { $ref: '#/components/responses/Error' }
 
+  /ai/coach:
+    post:
+      tags: [AI]
+      summary: A summary of the week behind the health score and one tip to raise it
+      description: The app computes the score from what FitApp collects (activity, steps, sleep duration and regularity, resting heart rate, water) and sends it with the week's numbers. The summary affirms what went well without numbers. 503 when the AI service is off or fails; the app then shows its own wording.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [score, week]
+              properties:
+                score: { type: integer, minimum: 0, maximum: 100 }
+                label: { type: string }
+                focus: { type: string, enum: [activity, steps, sleep, regularity, heart, hydration] }
+                week: { type: object, description: 'Aggregates such as active minutes and sleep hours.' }
+                today: { type: object }
+      responses:
+        '200': { description: 'Summary and tip', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { summary: { type: string }, tip: { type: string } } } } } } } }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /ai/quote:
+    post:
+      tags: [AI]
+      summary: A personal line for the daily reminder
+      description: Written once per day, part of day and focus. The same four AI routes exist under /demo/ai/* without sign-in when the server sets AI_DEMO=true (10 requests a minute).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date]
+              properties:
+                date: { type: string, format: date }
+                part_of_day: { type: string, enum: [morning, afternoon, evening, night] }
+                focus: { type: string }
+                recent: { type: object }
+      responses:
+        '200': { description: 'Quote', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { quote: { type: string } } } } } } } }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /ai/feedback:
+    post:
+      tags: [AI]
+      summary: A short reaction to an entry just logged
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, entry]
+              properties:
+                kind: { type: string, enum: [mood, meal, drink, activity] }
+                entry: { type: object, description: 'Numbers and categories only; notes are dropped.' }
+                today: { type: object }
+      responses:
+        '200': { description: 'Feedback', content: { application/json: { schema: { type: object, properties: { data: { type: object, properties: { feedback: { type: string } } } } } } } }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /ai/insights:
+    post:
+      tags: [AI]
+      summary: Up to three insights across areas from a summary of recent days
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [summary]
+              properties:
+                summary: { type: object, description: 'Per-day aggregates and goals.' }
+      responses:
+        '200':
+          description: Insights
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      insights:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            area: { type: string }
+                            title: { type: string }
+                            body: { type: string }
+                            action: { type: string, nullable: true }
+        '503': { $ref: '#/components/responses/Error' }
+
   /logout:
     post:
       tags: [Auth]

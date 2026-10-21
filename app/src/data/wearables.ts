@@ -22,6 +22,8 @@ export interface WearableInfo {
 }
 
 export const WEARABLES: WearableInfo[] = [
+  // FitApp's own watch pairs with the app directly over Bluetooth.
+  { brand: 'fitapp', name: 'FitApp Watch', short: 'FitApp Watch', app: null, routes: { android: ['direct'], ios: ['direct'] } },
   { brand: 'amazfit', name: 'Amazfit / Zepp', short: 'Amazfit', app: 'Zepp', routes: { android: ['share'], ios: ['share'] } },
   { brand: 'apple', name: 'Apple Watch', short: 'Apple Watch', app: null, routes: { android: ['Apple Watch works only with an iPhone. Install FitApp on your iPhone instead.'], ios: ['built-in'] } },
   {

@@ -6,6 +6,19 @@
     <DataState>
       <JournalState>
         <div class="stagger grid grid-cols-[minmax(0,1fr)] gap-6">
+          <ScoreHero v-if="score" :score="score" :coach="coach" />
+          <!-- Patterns across areas, written by the AI service for a signed-in account. -->
+          <section v-if="ai.loading || ai.items.length" aria-labelledby="ai-title">
+            <h2 id="ai-title" :class="HEADING">For you</h2>
+            <ul class="card divide-y divide-line" aria-live="polite">
+              <li v-if="ai.loading" class="p-4 text-sm text-muted">Reading your last {{ fitness.rangeDays }} days…</li>
+              <li v-for="i in ai.items" :key="i.title" class="p-4">
+                <p class="text-[15px] font-semibold tracking-tight">{{ i.title }}</p>
+                <p class="mt-1 text-[14px] leading-relaxed text-ink-2">{{ i.body }}</p>
+                <p v-if="i.action" class="mt-2 text-[13px] font-medium text-accent">{{ i.action }}</p>
+              </li>
+            </ul>
+          </section>
           <p v-if="!supported.length" class="card p-4 text-sm text-muted">There are not enough records in this period for any observation yet.</p>
           <section v-else aria-labelledby="found-title">
             <h2 id="found-title" :class="HEADING">What your records show · {{ supported.length }}</h2>
@@ -45,7 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
+import { aiCoach, aiInsights, fromAi, type AiCoach, type AiInsight } from '@/api/ai'
+import ScoreHero from '@/components/ScoreHero.vue'
+import { fallbackCoach } from '@/data/aiFallback'
+import { coachPayload, insightsPayload, todayPayload } from '@/data/aiPayload'
+import { healthScore } from '@/data/healthScore'
 import AppShell from '@/components/AppShell.vue'
 import DataState from '@/components/DataState.vue'
 import InsightRow from '@/components/InsightRow.vue'
@@ -73,5 +91,32 @@ const insights = computed(() =>
 const rank = (id: string) => (LEAD.includes(id) ? LEAD.indexOf(id) : LEAD.length)
 const supported = computed(() => insights.value.filter((i) => i.status === 'ok').sort((a, b) => rank(a.id) - rank(b.id)))
 const withheld = computed(() => insights.value.filter((i) => i.status !== 'ok'))
+/** The same week score and coach text as on Home (the server answers the same question from its cache). */
+const score = computed(() => healthScore(fitness.days, journal.data, fitness.today, journal.prefs.hydration ? fitness.goals.waterMl : null))
+const coach = ref<AiCoach | null>(null)
+watch(
+  () => (score.value ? JSON.stringify(coachPayload(score.value, todayPayload(fitness.today, fitness.days, journal.data, fitness.goals))) : null),
+  async (key) => {
+    if (!key || !score.value) return
+    const s = score.value
+    coach.value = await fromAi(() => aiCoach(JSON.parse(key)), fallbackCoach(s))
+  },
+  { immediate: true },
+)
+
+const ai = reactive({ loading: false, items: [] as AiInsight[] })
+watch(
+  // Any new log changes the key, so the insights are written again.
+  () => (journal.loaded && fitness.loaded ? `${window.value.to}:${fitness.rangeDays}:${journal.data.mood.length}:${journal.data.meals.length}:${journal.data.hydration.length}:${journal.data.activities?.length ?? 0}` : null),
+  async (key) => {
+    if (!key) return
+    ai.loading = true
+    const summary = insightsPayload(window.value.to, fitness.rangeDays, fitness.days, journal.data, fitness.goals)
+    ai.items = await fromAi(() => aiInsights(summary), [])
+    ai.loading = false
+  },
+  { immediate: true },
+)
+
 const coverage = computed(() => completeness(fitness.days, journal.data, window.value.from, window.value.to, journal.prefs))
 </script>

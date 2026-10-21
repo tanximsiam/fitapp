@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { errorMessage } from '@/api/client'
 import { addDays } from '@/lib/dates'
 import { useFitnessStore } from './fitness'
+import type { SavedEntry } from '@/data/aiPayload'
 import { useModeStore } from './mode'
 import type { ISODate } from '@/types/fitness'
 import type {
@@ -33,6 +34,8 @@ export const useJournalStore = defineStore('journal', {
     loading: false,
     loaded: false,
     error: null as string | null,
+    /** The last entry saved from a log flow, for the feedback on the "Saved" screen. */
+    lastSaved: null as SavedEntry | null,
   }),
   getters: {
     onDate: (s) => (date: ISODate) => ({
@@ -81,15 +84,19 @@ export const useJournalStore = defineStore('journal', {
     },
 
     saveMood(input: MoodInput, existing?: MoodEntry) {
+      this.lastSaved = { kind: 'mood', input }
       return this.write(() => useModeStore().journal.saveMood(input, existing))
     },
     saveMeal(input: MealInput, existing?: Meal) {
+      this.lastSaved = { kind: 'meal', input }
       return this.write(() => useModeStore().journal.saveMeal(input, existing))
     },
     saveHydration(input: HydrationInput, existing?: HydrationEntry) {
+      this.lastSaved = { kind: 'drink', input }
       return this.write(() => useModeStore().journal.saveHydration(input, existing))
     },
     saveActivity(input: ActivityInput, existing?: ActivityEntry) {
+      this.lastSaved = { kind: 'activity', input }
       return this.write(() => useModeStore().journal.saveActivity(input, existing))
     },
     saveCycleDay(date: ISODate, input: CycleDayInput, existing?: CycleDay) {

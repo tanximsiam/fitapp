@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FitnessController;
 use App\Http\Controllers\GoogleAuthController;
@@ -18,6 +19,14 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 Route::get('/auth/providers', [AuthController::class, 'providers']);
 
+// The same AI text for people exploring sample data, only when the server allows it (AI_DEMO).
+Route::prefix('demo/ai')->middleware('throttle:10,1')->group(function () {
+    Route::post('/insights', [AiController::class, 'insights']);
+    Route::post('/feedback', [AiController::class, 'feedback']);
+    Route::post('/coach', [AiController::class, 'coach']);
+    Route::post('/quote', [AiController::class, 'quote']);
+});
+
 // Sign in with Google: browser redirects, then a one-time code for a token (see GoogleAuthController).
 Route::prefix('auth/google')->middleware('throttle:20,1')->group(function () {
     Route::get('/redirect', [GoogleAuthController::class, 'redirect']);
@@ -35,6 +44,14 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
     Route::get('/fitness/heart-rate/{date}', [FitnessController::class, 'heartRate'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/readings/{kind}/{date}', [FitnessController::class, 'readings'])->whereIn('kind', ['stress', 'spo2'])->where('date', '\d{4}-\d{2}-\d{2}');
     Route::get('/fitness/status', [FitnessController::class, 'status']);
+    // Personal text from the AI service; the app falls back to its own wording on 503.
+    Route::prefix('ai')->middleware('throttle:30,1')->group(function () {
+        Route::post('/insights', [AiController::class, 'insights']);
+        Route::post('/feedback', [AiController::class, 'feedback']);
+        Route::post('/coach', [AiController::class, 'coach']);
+        Route::post('/quote', [AiController::class, 'quote']);
+    });
+
     // The phone uploads what it reads from the watch, Health Connect or Apple Health.
     Route::post('/ingest', IngestController::class)->middleware('throttle:60,1');
 

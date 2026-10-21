@@ -20,6 +20,12 @@ Captured with the [Playwright CLI](https://playwright.dev/) against `npm run dev
 | --- | --- | --- | --- |
 | ![About you](app/04-setup-about-you.png) | ![Watch](app/05-setup-watch.png) | ![Track and goals](app/06-setup-track-and-goals.png) | ![Connect](app/07-setup-connect.png) |
 
+### Pairing a FitApp Watch
+
+| Pair | Searching | Choose your watch | Paired |
+| --- | --- | --- | --- |
+| ![Pair](app/07b-pair-watch.png) | ![Searching](app/07c-pair-searching.png) | ![Choose](app/07d-pair-choose.png) | ![Paired](app/07e-pair-done.png) |
+
 ### Every day
 
 | Home | Health | Activity | Sleep |
@@ -42,15 +48,17 @@ Captured with the [Playwright CLI](https://playwright.dev/) against `npm run dev
 
 ### Dark
 
-| Welcome | Home | Activity | Hydration | Sleep |
-| --- | --- | --- | --- | --- |
-| ![Welcome](app/34-welcome-dark.png) | ![Home](app/30-home-dark.png) | ![Activity](app/31-activity-dark.png) | ![Hydration](app/32-hydration-dark.png) | ![Sleep](app/33-sleep-dark.png) |
+| Welcome | Home | Activity | Hydration | Sleep | Insights |
+| --- | --- | --- | --- | --- | --- |
+| ![Welcome](app/34-welcome-dark.png) | ![Home](app/30-home-dark.png) | ![Activity](app/31-activity-dark.png) | ![Hydration](app/32-hydration-dark.png) | ![Sleep](app/33-sleep-dark.png) | ![Insights](app/35-insights-dark.png) |
 
 ### Full pages
 
 | Home | Activity | Sleep | Hydration |
 | --- | --- | --- | --- |
 | ![Home](app/08-home-full.png) | ![Activity](app/10-activity-full.png) | ![Sleep](app/11-sleep-full.png) | ![Hydration](app/15-hydration-full.png) |
+
+Also: [Insights, whole page](app/18-insights-full.png).
 
 Also: [Watch & connection](app/20-watch-and-connection.png).
 
@@ -65,6 +73,10 @@ Also: [Watch & connection](app/20-watch-and-connection.png).
 | Hydration | Mood | Home check-in, dark | Activity, dark | Hydration, dark |
 | --- | --- | --- | --- | --- |
 | ![Hydration hero](components/hero-hydration.png) | ![Mood hero](components/hero-mood.png) | ![Home hero, dark](components/home-hero-dark.png) | ![Activity hero, dark](components/hero-activity-dark.png) | ![Hydration hero, dark](components/hero-hydration-dark.png) |
+
+| Health score | Health score, dark |
+| --- | --- |
+| ![Health score](components/score-hero.png) | ![Health score, dark](components/score-hero-dark.png) |
 
 ### Charts and cards
 

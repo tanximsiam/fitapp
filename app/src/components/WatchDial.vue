@@ -6,7 +6,7 @@
   <svg viewBox="0 0 64 64" aria-hidden="true" class="dial">
     <!-- Strap -->
     <rect v-if="kind === 'other'" x="24" y="2" width="16" height="60" rx="8" class="strap" />
-    <rect v-else x="22" y="2" width="20" height="60" rx="6" class="strap" />
+    <rect v-else x="22" y="2" width="20" height="60" rx="6" class="strap" :class="{ brand: kind === 'fitapp' }" />
 
     <template v-if="kind === 'apple'">
       <rect x="47" y="24" width="4" height="8" rx="2" class="case" />
@@ -33,7 +33,7 @@
         <rect x="50" y="24" width="4" height="5" rx="1.5" class="case" />
         <rect x="50" y="36" width="4" height="5" rx="1.5" class="case" />
       </template>
-      <rect v-else-if="kind === 'google'" x="49.5" y="28" width="4.5" height="8" rx="2.25" class="case" />
+      <rect v-else-if="kind === 'google' || kind === 'fitapp'" x="49.5" y="28" width="4.5" height="8" rx="2.25" class="case" />
       <template v-else>
         <rect x="50" y="23" width="4" height="6" rx="2" class="case" />
         <rect x="50" y="35" width="4" height="6" rx="2" class="case" />
@@ -67,6 +67,10 @@ defineProps<{ kind: Exclude<WearableBrand, 'none'> }>()
 }
 .strap {
   fill: var(--strap);
+}
+/* FitApp's own watch wears the brand teal. */
+.strap.brand {
+  fill: var(--accent);
 }
 .case {
   fill: var(--case);

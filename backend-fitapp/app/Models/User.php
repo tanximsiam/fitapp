@@ -31,7 +31,7 @@ class User extends Authenticatable
     ];
 
     /** Watch or tracker families the app knows how to connect (the app's setup screens offer these). */
-    public const WEARABLE_BRANDS = ['amazfit', 'apple', 'samsung', 'google', 'garmin', 'other', 'none'];
+    public const WEARABLE_BRANDS = ['fitapp', 'amazfit', 'apple', 'samsung', 'google', 'garmin', 'other', 'none'];
 
     /** Same defaults as the columns, so a new model has them before it is read back. */
     protected $attributes = [

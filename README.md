@@ -12,6 +12,7 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 - **Watch first.** A dashboard overview (today's goals as donuts, a month calendar, your journal and a widget per measurement), Activity (steps, distance, active energy, workouts), Sleep (duration, schedule, stages), Heart rate (latest reading, daily readings, resting trend), Stress (watch estimate, 0–100 with zones), Blood oxygen (overnight SpO₂), Skin temperature (nightly deviation from baseline) and a Watch & sync page with device, capabilities and freshness.
 - **Personal trackers.** Mood check-ins (mood, energy, emotions, self-reported stress, notes), meals, water and an optional cycle tracker, logged in the mobile app and shown on both clients. Meal nutrients are estimated from a built-in food list from the food, amount and unit you pick, or typed in yourself; estimates are labelled as such.
 - **Explainable wellbeing overview.** Rule-based observations with their calculation, period, counts and links to the records, and explicit "not enough data" states. No AI service, scores, diagnoses or predictions.
+- **Personal AI coach.** A weekly health score out of 100, built from published guidelines on what FitApp collects (WHO activity minutes, daily steps, 7 to 9 hours of sleep, sleep regularity, resting heart rate and water), shown as the Insights hero with a summary and one tip to raise it; a personal daily quote, a short reaction to every entry, and insights that connect areas. Text comes from an AI service on your own server (Groq, `openai/gpt-oss-20b` by default); it sees numbers and categories, never notes, and the app falls back to built-in wording without it.
 - **Open data path.** Watches share through Health Connect or Apple Health, the phone app uploads to one documented API, and anything else you build can use the same API with a signed-in token. See [docs/integration.md](docs/integration.md).
 - **Works without hardware.** A complete simulated-watch demo with six months of history runs entirely in the browser.
 
@@ -20,19 +21,24 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 <p>
   <img src="docs/screenshots/app/01-welcome.png" width="180" alt="Welcome" />
   <img src="docs/screenshots/app/05-setup-watch.png" width="180" alt="Setup: which watch" />
+  <img src="docs/screenshots/app/07d-pair-choose.png" width="180" alt="Pairing a FitApp Watch" />
   <img src="docs/screenshots/app/08-home.png" width="180" alt="Home" />
-  <img src="docs/screenshots/app/10-activity.png" width="180" alt="Activity" />
 </p>
 <p>
+  <img src="docs/screenshots/app/18-insights.png" width="180" alt="Insights with the health score" />
+  <img src="docs/screenshots/app/10-activity.png" width="180" alt="Activity" />
   <img src="docs/screenshots/app/15-hydration.png" width="180" alt="Hydration" />
   <img src="docs/screenshots/app/24-log-workout.png" width="180" alt="Logging a workout" />
+</p>
+<p>
   <img src="docs/screenshots/app/30-home-dark.png" width="180" alt="Home, dark" />
+  <img src="docs/screenshots/app/35-insights-dark.png" width="180" alt="Insights, dark" />
   <img src="docs/screenshots/app/31-activity-dark.png" width="180" alt="Activity, dark" />
 </p>
 
-| Goals | Activity hero | Water per day |
-| --- | --- | --- |
-| ![Today's goals](docs/screenshots/components/goals-card.png) | ![Activity hero](docs/screenshots/components/hero-activity.png) | ![Water per day](docs/screenshots/components/chart-water-per-day.png) |
+| Health score | Goals | Activity hero | Water per day |
+| --- | --- | --- | --- |
+| ![Health score](docs/screenshots/components/score-hero.png) | ![Today's goals](docs/screenshots/components/goals-card.png) | ![Activity hero](docs/screenshots/components/hero-activity.png) | ![Water per day](docs/screenshots/components/chart-water-per-day.png) |
 
 ### Web dashboard
 
@@ -45,7 +51,7 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 | ![Stress](docs/screenshots/desktop-stress.png) | ![Blood oxygen](docs/screenshots/desktop-blood-oxygen.png) | ![Skin temperature](docs/screenshots/desktop-skin-temperature.png) |
 | ![Mood](docs/screenshots/desktop-mood.png) | ![Food](docs/screenshots/desktop-food.png) | ![Cycle](docs/screenshots/desktop-cycle.png) |
 
-Every screen and component, in light and dark: **[docs/screenshots](docs/screenshots/README.md)**.
+Every screen and component, in light and dark: **[the screenshots branch](https://github.com/tanximsiam/fitapp/tree/screenshots/docs/screenshots)**.
 
 Screenshots are from the demo. All values in them are simulated.
 
