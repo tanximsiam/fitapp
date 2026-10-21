@@ -69,6 +69,7 @@ import JournalState from '@/components/JournalState.vue'
 import { useJournalData } from '@/composables/useJournalData'
 import { workoutLabel } from '@/data/connection'
 import { formatDeviation } from '@/data/signals'
+import { activityKind } from '@/data/activities'
 import { energyOrigin, enteredEnergy } from '@/data/journalDerive'
 import { formatClock, formatDuration, formatInt, formatKm, formatLongDate } from '@/lib/format'
 
@@ -101,6 +102,7 @@ const AREA_ICONS: Record<string, string> = {
   Mood: ICONS.mood,
   Meal: ICONS.meals,
   Water: ICONS.water,
+  'Logged activity': ICONS.workouts,
   Cycle: ICONS.cycle,
 }
 
@@ -131,8 +133,11 @@ const timeline = computed(() => {
           const e = enteredEnergy([m])
           rows.push({ time: formatClock(m.eatenAt), area: 'Meal', text: `${m.mealType[0].toUpperCase()}${m.mealType.slice(1)}: ${m.items.map((i) => i.name).join(', ')}${e.kcal != null ? ` · ${formatInt(e.kcal)} kcal ${energyOrigin(e)}` : ''}`, source: m.provenance, to: '/food' })
         }
-        if (j.hydration.length) rows.push({ time: null, area: 'Water', text: `${formatInt(j.hydration.reduce((a, h) => a + h.volumeMl, 0))} ml in ${j.hydration.length} drinks`, source: j.hydration[0].provenance, to: '/food' })
       }
+      if (journal.prefs.hydration && j.hydration.length)
+        rows.push({ time: null, area: 'Water', text: `${formatInt(j.hydration.reduce((a, h) => a + h.volumeMl, 0))} ml in ${j.hydration.length} drinks`, source: j.hydration[0].provenance, to: '/hydration' })
+      for (const a of j.activities)
+        rows.push({ time: formatClock(a.startedAt), area: 'Logged activity', text: `${activityKind(a.activityType).label} · ${formatDuration(a.durationMin)}${a.energyKcal != null ? ` · ${formatInt(a.energyKcal)} kcal${a.energySource === 'estimated' ? ' (estimated)' : ''}` : ''}`, source: a.provenance, to: '/activity' })
       if (journal.prefs.cycle && j.cycleDay)
         rows.push({ time: null, area: 'Cycle', text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · '), source: j.cycleDay.provenance, to: '/cycle' })
     }

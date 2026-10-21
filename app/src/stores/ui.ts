@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export type LogKind = 'mood' | 'meal' | 'drink' | 'cycle'
+export type LogKind = 'mood' | 'meal' | 'drink' | 'activity' | 'cycle'
 /** 'choose' shows the four log types first. */
 export type QuickLogView = LogKind | 'choose'
 

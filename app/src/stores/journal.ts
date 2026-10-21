@@ -5,6 +5,8 @@ import { useFitnessStore } from './fitness'
 import { useModeStore } from './mode'
 import type { ISODate } from '@/types/fitness'
 import type {
+  ActivityEntry,
+  ActivityInput,
   CycleDay,
   CycleDayInput,
   EntryId,
@@ -26,7 +28,7 @@ let requestId = 0
 
 export const useJournalStore = defineStore('journal', {
   state: () => ({
-    data: { mood: [], meals: [], hydration: [], cycleDays: [] } as JournalData,
+    data: { mood: [], meals: [], hydration: [], activities: [], cycleDays: [] } as JournalData,
     prefs: { mood: true, food: true, hydration: true, cycle: false } as TrackerPrefs,
     loading: false,
     loaded: false,
@@ -37,6 +39,7 @@ export const useJournalStore = defineStore('journal', {
       mood: s.data.mood.filter((e) => e.date === date),
       meals: s.data.meals.filter((e) => e.date === date),
       hydration: s.data.hydration.filter((e) => e.date === date),
+      activities: s.data.activities.filter((e) => e.date === date),
       cycleDay: s.data.cycleDays.find((e) => e.date === date) ?? null,
     }),
   },
@@ -86,10 +89,13 @@ export const useJournalStore = defineStore('journal', {
     saveHydration(input: HydrationInput, existing?: HydrationEntry) {
       return this.write(() => useModeStore().journal.saveHydration(input, existing))
     },
+    saveActivity(input: ActivityInput, existing?: ActivityEntry) {
+      return this.write(() => useModeStore().journal.saveActivity(input, existing))
+    },
     saveCycleDay(date: ISODate, input: CycleDayInput, existing?: CycleDay) {
       return this.write(() => useModeStore().journal.saveCycleDay(date, input, existing))
     },
-    remove(kind: 'mood' | 'meals' | 'hydration', id: EntryId) {
+    remove(kind: 'mood' | 'meals' | 'hydration' | 'activities', id: EntryId) {
       return this.write(() => useModeStore().journal.remove(kind, id))
     },
     removeCycleDay(date: ISODate) {

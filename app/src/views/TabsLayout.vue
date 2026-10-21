@@ -12,7 +12,7 @@
 
     <!-- Manual entries belong to Home and Journal; watch pages have nothing to log by hand. -->
     <Transition name="fab">
-      <button v-if="showLog" type="button" class="quick-log" aria-label="Quick log: add a mood, meal, drink or period day" @click="ui.openQuickLog(LOG_KIND[route.path])">
+      <button v-if="showLog" type="button" class="quick-log" aria-label="Quick log: add a mood, meal, drink, activity or period day" @click="ui.openQuickLog(LOG_KIND[route.path])">
         <ion-icon :icon="add" aria-hidden="true" />
       </button>
     </Transition>
@@ -53,7 +53,9 @@ const LOG_KIND: Record<string, QuickLogView> = {
   '/home': 'choose',
   '/journal': 'choose',
   '/journal/mood': 'mood',
-  '/journal/food': 'choose',
+  '/journal/food': 'meal',
+  '/journal/hydration': 'drink',
+  '/health/activity': 'activity',
   // Not on /journal/cycle: the page edits the selected day in place, and the button would cover the calendar.
 }
 const showLog = computed(() => route.path in LOG_KIND)

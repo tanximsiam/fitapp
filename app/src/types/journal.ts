@@ -57,6 +57,19 @@ export interface HydrationEntry extends Entry {
   volumeMl: number
 }
 
+export const ACTIVITY_TYPES = ['chores', 'walking', 'jogging', 'running', 'cycling', 'swimming', 'strength', 'yoga', 'other'] as const
+export type ActivityType = (typeof ACTIVITY_TYPES)[number]
+
+/** An activity the person logged by hand; never added to the watch's activity totals. */
+export interface ActivityEntry extends Entry {
+  startedAt: string
+  activityType: ActivityType
+  durationMin: number
+  energyKcal: number | null
+  /** "estimated" by the app from the activity and time, or "entered" by the person. */
+  energySource: 'estimated' | 'entered' | null
+}
+
 export const FLOWS = ['spotting', 'light', 'medium', 'heavy'] as const
 export type Flow = (typeof FLOWS)[number]
 export const SYMPTOMS = ['cramps', 'headache', 'bloating', 'back_pain', 'breast_tenderness', 'acne', 'fatigue', 'nausea', 'mood_changes', 'cravings'] as const
@@ -72,6 +85,7 @@ export interface JournalData {
   mood: MoodEntry[]
   meals: Meal[]
   hydration: HydrationEntry[]
+  activities: ActivityEntry[]
   cycleDays: CycleDay[]
 }
 
@@ -85,6 +99,7 @@ export interface TrackerPrefs {
 export type MoodInput = Pick<MoodEntry, 'recordedAt' | 'mood' | 'energy' | 'stress' | 'emotions' | 'note'>
 export type MealInput = Pick<Meal, 'eatenAt' | 'mealType' | 'note' | 'items'>
 export type HydrationInput = Pick<HydrationEntry, 'recordedAt' | 'volumeMl'>
+export type ActivityInput = Pick<ActivityEntry, 'startedAt' | 'activityType' | 'durationMin' | 'energyKcal' | 'energySource'>
 export type CycleDayInput = Pick<CycleDay, 'flow' | 'symptoms' | 'note'>
 
 export interface JournalAdapter {
@@ -93,8 +108,9 @@ export interface JournalAdapter {
   saveMood(input: MoodInput, existing?: MoodEntry): Promise<void>
   saveMeal(input: MealInput, existing?: Meal): Promise<void>
   saveHydration(input: HydrationInput, existing?: HydrationEntry): Promise<void>
+  saveActivity(input: ActivityInput, existing?: ActivityEntry): Promise<void>
   saveCycleDay(date: ISODate, input: CycleDayInput, existing?: CycleDay): Promise<void>
-  remove(kind: 'mood' | 'meals' | 'hydration', id: EntryId): Promise<void>
+  remove(kind: 'mood' | 'meals' | 'hydration' | 'activities', id: EntryId): Promise<void>
   removeCycleDay(date: ISODate): Promise<void>
   getPrefs(): Promise<TrackerPrefs>
   savePrefs(prefs: TrackerPrefs): Promise<TrackerPrefs>

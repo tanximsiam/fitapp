@@ -53,6 +53,18 @@ export interface HydrationEntry extends Entry {
   volumeMl: number
 }
 
+export const ACTIVITY_TYPES = ['chores', 'walking', 'jogging', 'running', 'cycling', 'swimming', 'strength', 'yoga', 'other'] as const
+export type ActivityType = (typeof ACTIVITY_TYPES)[number]
+
+/** An activity logged by hand in the mobile app; never added to the watch's activity totals. */
+export interface ActivityEntry extends Entry {
+  startedAt: string
+  activityType: ActivityType
+  durationMin: number
+  energyKcal: number | null
+  energySource: 'estimated' | 'entered' | null
+}
+
 export const FLOWS = ['spotting', 'light', 'medium', 'heavy'] as const
 export type Flow = (typeof FLOWS)[number]
 export const SYMPTOMS = ['cramps', 'headache', 'bloating', 'back_pain', 'breast_tenderness', 'acne', 'fatigue', 'nausea', 'mood_changes', 'cravings'] as const
@@ -68,12 +80,14 @@ export interface JournalData {
   mood: MoodEntry[]
   meals: Meal[]
   hydration: HydrationEntry[]
+  activities: ActivityEntry[]
   cycleDays: CycleDay[]
 }
 
 export interface TrackerPrefs {
   mood: boolean
   food: boolean
+  hydration: boolean
   cycle: boolean
 }
 

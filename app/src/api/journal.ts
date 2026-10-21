@@ -1,5 +1,6 @@
 import { api } from './client'
 import type {
+  ActivityEntry,
   CycleDay,
   CycleDayInput,
   EntryId,
@@ -18,6 +19,7 @@ type MoodPayload = Meta & { recorded_at: string; mood: number; energy: number | 
 type ItemPayload = { name: string; quantity: number | null; unit: string | null; energy_kcal: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null; nutrition_source: 'database' | 'entered' | null }
 type MealPayload = Meta & { eaten_at: string; meal_type: Meal['mealType']; note: string | null; items: ItemPayload[] }
 type HydrationPayload = Meta & { recorded_at: string; volume_ml: number }
+type ActivityPayload = Meta & { started_at: string; activity_type: ActivityEntry['activityType']; duration_min: number; energy_kcal: number | null; energy_source: ActivityEntry['energySource'] }
 type CyclePayload = Meta & { flow: CycleDay['flow']; symptoms: CycleDay['symptoms']; note: string | null }
 
 const meta = (p: Meta) => ({ id: p.id, date: p.date, provenance: p.provenance, updatedAt: p.updated_at })
@@ -41,6 +43,14 @@ export const toMeal = (p: MealPayload): Meal => ({
 })
 
 export const toHydration = (p: HydrationPayload): HydrationEntry => ({ ...meta(p), recordedAt: p.recorded_at, volumeMl: p.volume_ml })
+export const toActivity = (p: ActivityPayload): ActivityEntry => ({
+  ...meta(p),
+  startedAt: p.started_at,
+  activityType: p.activity_type,
+  durationMin: p.duration_min,
+  energyKcal: p.energy_kcal,
+  energySource: p.energy_source,
+})
 export const toCycleDay = (p: CyclePayload): CycleDay => ({ ...meta(p), flow: p.flow, symptoms: p.symptoms, note: p.note })
 
 const moodBody = (m: MoodInput) => ({ recorded_at: m.recordedAt, mood: m.mood, energy: m.energy, stress: m.stress, emotions: m.emotions, note: m.note })
@@ -61,17 +71,20 @@ export function createBackendJournal(): JournalAdapter {
   return {
     async list(from, to, cycleFrom) {
       const get = <T>(path: string, f = from) => api.get<{ data: T[] }>(`/journal/${path}`, { params: { from: f, to } }).then((r) => r.data.data)
-      const [mood, meals, hydration, cycle] = await Promise.all([
+      const [mood, meals, hydration, activities, cycle] = await Promise.all([
         get<MoodPayload>('mood'),
         get<MealPayload>('meals'),
         get<HydrationPayload>('hydration'),
+        get<ActivityPayload>('activities'),
         get<CyclePayload>('cycle-days', cycleFrom),
       ])
-      return { mood: mood.map(toMood), meals: meals.map(toMeal), hydration: hydration.map(toHydration), cycleDays: cycle.map(toCycleDay) }
+      return { mood: mood.map(toMood), meals: meals.map(toMeal), hydration: hydration.map(toHydration), activities: activities.map(toActivity), cycleDays: cycle.map(toCycleDay) }
     },
     saveMood: (input, existing) => save('mood', moodBody(input), existing),
     saveMeal: (input, existing) => save('meals', mealBody(input), existing),
     saveHydration: (input, existing) => save('hydration', { recorded_at: input.recordedAt, volume_ml: input.volumeMl }, existing),
+    saveActivity: (input, existing) =>
+      save('activities', { started_at: input.startedAt, activity_type: input.activityType, duration_min: input.durationMin, energy_kcal: input.energyKcal, energy_source: input.energySource }, existing),
     async saveCycleDay(date, input: CycleDayInput, existing) {
       await api.put(`/journal/cycle-days/${date}`, { ...input, updated_at: existing?.updatedAt ?? null })
     },

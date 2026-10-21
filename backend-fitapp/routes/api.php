@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FitnessController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\IngestController;
+use App\Http\Controllers\Journal\ActivityEntryController;
 use App\Http\Controllers\Journal\CycleDayController;
 use App\Http\Controllers\Journal\HydrationController;
 use App\Http\Controllers\Journal\MealController;
@@ -39,7 +40,7 @@ Route::middleware(['auth:sanctum', 'abilities:app'])->group(function () {
 
     // Manually entered records (never written by ingestion).
     Route::prefix('journal')->group(function () {
-        foreach (['mood' => MoodEntryController::class, 'meals' => MealController::class, 'hydration' => HydrationController::class] as $path => $controller) {
+        foreach (['mood' => MoodEntryController::class, 'meals' => MealController::class, 'hydration' => HydrationController::class, 'activities' => ActivityEntryController::class] as $path => $controller) {
             Route::get("/$path", [$controller, 'index']);
             Route::post("/$path", [$controller, 'store']);
             Route::put("/$path/{id}", [$controller, 'update'])->whereNumber('id');

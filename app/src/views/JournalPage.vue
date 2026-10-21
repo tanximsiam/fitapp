@@ -68,12 +68,13 @@ import { dayRows } from '@/data/timeline'
 import { addDays } from '@/lib/dates'
 import { formatLongDate } from '@/lib/format'
 
-type Category = 'all' | 'mood' | 'meals' | 'water' | 'cycle' | 'watch'
+type Category = 'all' | 'mood' | 'meals' | 'water' | 'activities' | 'cycle' | 'watch'
 /** Timeline areas shown for each category ('all' shows everything). */
 const AREAS: Record<Exclude<Category, 'all'>, string[]> = {
   mood: ['Mood'],
   meals: ['Meal'],
   water: ['Water'],
+  activities: ['Logged activity'],
   cycle: ['Period'],
   watch: ['Sleep', 'Workout', 'Activity'],
 }
@@ -89,6 +90,7 @@ const categories = computed(() =>
     { value: 'mood' as const, label: 'Mood', icon: ICONS.mood, on: journal.prefs.mood },
     { value: 'meals' as const, label: 'Meals', icon: ICONS.meals, on: journal.prefs.food },
     { value: 'water' as const, label: 'Water', icon: ICONS.water, on: journal.prefs.hydration },
+    { value: 'activities' as const, label: 'Activities', icon: ICONS.workouts, on: true },
     { value: 'cycle' as const, label: 'Periods', icon: ICONS.cycle, on: journal.prefs.cycle },
     { value: 'watch' as const, label: 'Watch', icon: watchOutline, on: true },
   ].filter((c) => c.on),

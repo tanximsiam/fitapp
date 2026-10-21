@@ -1,6 +1,8 @@
 <template>
   <div class="w-full min-w-0">
-    <label :for="inputId" class="mb-1.5 block text-sm font-medium text-ink-2">{{ label }}</label>
+    <label :for="inputId" class="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink-2">
+      <ion-icon v-if="icon" :icon="icon" aria-hidden="true" class="shrink-0 text-base" :style="{ color: iconColor }" />{{ label }}
+    </label>
     <div class="relative">
       <input
         :id="inputId"
@@ -53,8 +55,11 @@ const props = withDefaults(
     max?: number
     step?: number | string
     hint?: string
+    /** Small metric icon before the label, in the metric's colour. */
+    icon?: string
+    iconColor?: string
   }>(),
-  { type: 'text', placeholder: '', required: false, error: false, autocomplete: 'off', inputmode: undefined, min: undefined, max: undefined, step: undefined, hint: undefined },
+  { type: 'text', placeholder: '', required: false, error: false, autocomplete: 'off', inputmode: undefined, min: undefined, max: undefined, step: undefined, hint: undefined, icon: undefined, iconColor: undefined },
 )
 const emit = defineEmits<{ 'update:modelValue': [string] }>()
 

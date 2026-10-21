@@ -105,6 +105,11 @@ class User extends Authenticatable
         return $this->hasMany(HydrationEntry::class);
     }
 
+    public function activityEntries(): HasMany
+    {
+        return $this->hasMany(ActivityEntry::class);
+    }
+
     public function cycleDays(): HasMany
     {
         return $this->hasMany(CycleDay::class);
