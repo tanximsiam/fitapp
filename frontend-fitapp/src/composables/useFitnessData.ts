@@ -12,7 +12,6 @@ export function useFitnessData() {
 
   const freshness = computed(() => {
     const s = fitness.status
-    if (mode.isDemo) return 'Sample data generated in your browser'
     if (!s) return ''
     if (!s.lastIngestedAt) return 'No uploads yet'
     const latest = s.latestDate ? ` · latest data ${formatShortDate(s.latestDate)}` : ''

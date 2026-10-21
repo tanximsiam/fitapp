@@ -18,7 +18,7 @@
               <input type="radio" name="mode" class="mt-1 accent-[var(--accent)]" :checked="mode.isDemo" @change="switchMode('demo')" />
               <span>
                 <span class="block text-sm font-medium">Sample data</span>
-                <span class="mt-0.5 block text-xs text-ink-2">Six months generated in this browser. No account, nothing sent anywhere.</span>
+                <span class="mt-0.5 block text-xs text-ink-2">Six months of example data, kept in this browser.</span>
               </span>
             </label>
             <label :class="[optionClass(!mode.isDemo), !mode.backendConfigured && 'cursor-not-allowed opacity-60']">
@@ -31,11 +31,9 @@
                 @change="switchMode('backend')"
               />
               <span>
-                <span class="block text-sm font-medium">Your FitApp backend</span>
+                <span class="block text-sm font-medium">Your FitApp account</span>
                 <span v-if="mode.backendConfigured" class="mt-0.5 block break-all text-xs text-ink-2">{{ mode.backendUrl }}</span>
-                <span v-else class="mt-0.5 block text-xs text-ink-2">
-                  Not available in this build. Set <code>VITE_BACKEND_URI</code> and rebuild to use a self-hosted backend.
-                </span>
+                <span v-else class="mt-0.5 block text-xs text-ink-2">Not available in this version.</span>
               </span>
             </label>
           </div>
@@ -45,12 +43,12 @@
       <PanelSection title="Connection status">
         <template v-if="mode.isDemo">
           <dl class="grid gap-4 sm:grid-cols-3">
-            <MetricItem label="Source" value="Generated sample data" />
-            <MetricItem label="Last generated" :value="formatRelative(fitness.status?.lastIngestedAt ?? null)" />
-            <MetricItem label="Watch" value="None" />
+            <MetricItem label="Source" value="Sample data" />
+            <MetricItem label="Last sync" :value="formatRelative(fitness.status?.lastIngestedAt ?? null)" />
+            <MetricItem label="Watch" :value="fitness.status?.sources[0]?.device ?? 'FitApp Watch'" />
           </dl>
           <p class="mt-4 max-w-prose text-sm text-ink-2">
-            Everything shown in sample mode is simulated. No device, account or external service is involved.
+            Sample data stays in this browser.
           </p>
         </template>
 
