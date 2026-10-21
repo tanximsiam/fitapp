@@ -6,11 +6,7 @@
     <ol class="grid gap-3">
       <li v-for="(row, i) in rows" :key="row.key" class="rounded-2xl bg-page p-3">
         <div class="flex items-start gap-2">
-          <!-- The exercise's icon once it is a known one; until then its number. -->
-          <span class="tabular mt-2.5 grid size-6 shrink-0 place-items-center rounded-full bg-surface text-xs font-semibold text-ink-2" aria-hidden="true">
-            <ion-icon v-if="exerciseIcon(row.name)" :icon="exerciseIcon(row.name)!" class="text-[13px] text-[var(--heart)]" />
-            <template v-else>{{ i + 1 }}</template>
-          </span>
+          <span class="tabular mt-2.5 grid size-6 shrink-0 place-items-center rounded-full bg-surface text-xs font-semibold text-ink-2" aria-hidden="true">{{ i + 1 }}</span>
           <ExercisePicker v-model="row.name" :label="`Exercise ${i + 1}`" :invalid="!!errors[i]?.name" />
           <button v-if="rows.length > 1" type="button" class="mt-1 grid size-9 shrink-0 place-items-center rounded-full text-muted hover:text-danger" :aria-label="`Remove exercise ${i + 1}`" @click="rows.splice(i, 1)">
             <ion-icon :icon="closeOutline" aria-hidden="true" class="text-lg" />
@@ -51,7 +47,7 @@ import { computed } from 'vue'
 import { IonIcon } from '@ionic/vue'
 import { addOutline, closeOutline } from 'ionicons/icons'
 import { estimateWorkoutKcal, workoutMinutes } from '@/data/activities'
-import { exerciseIcon, MINUTES_PER_SET } from '@/data/exercises'
+import { MINUTES_PER_SET } from '@/data/exercises'
 import ExercisePicker from './ExercisePicker.vue'
 import type { WorkoutExercise } from '@/types/journal'
 

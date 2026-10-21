@@ -27,12 +27,11 @@
         :key="e.name"
         role="option"
         :aria-selected="i === active"
-        class="flex min-h-10 cursor-pointer items-center gap-2.5 px-3 text-[15px]"
+        class="flex min-h-10 cursor-pointer items-center px-3 text-[15px]"
         :class="i === active ? 'bg-accent-soft text-ink' : 'text-ink-2'"
         @mousedown.prevent="choose(e.name)"
         @mousemove="active = i"
       >
-        <ion-icon :icon="e.icon" aria-hidden="true" class="shrink-0 text-base text-[var(--heart)]" />
         <span class="truncate">
           {{ e.name.slice(0, hit(e.name)) }}<strong class="font-semibold text-ink">{{ e.name.slice(hit(e.name), hit(e.name) + query.length) }}</strong>{{ e.name.slice(hit(e.name) + query.length) }}
         </span>
@@ -43,7 +42,6 @@
 
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue'
-import { IonIcon } from '@ionic/vue'
 import { searchExercises } from '@/data/exercises'
 
 defineProps<{ label: string; invalid?: boolean }>()
