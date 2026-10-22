@@ -1,5 +1,7 @@
 # FitApp backend
 
+[![CI](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml)
+
 Laravel 12 + Sanctum API for FitApp. Both clients use it: the mobile app ([`../app`](../app)) reads and writes, the web dashboard ([`../frontend-fitapp`](../frontend-fitapp)) only reads. It stores watch data uploaded by the phone, the journal entered in the app, and serves the AI coach's text.
 
 - API contract: [`docs/openapi.yaml`](../docs/openapi.yaml) (OpenAPI 3.1)
@@ -84,13 +86,27 @@ At that point keep the `/api/ai/*` routes here as a thin proxy so the apps don't
 
 **Privacy.** The apps send aggregates and categories only. `AiController` also drops `note`, `notes`, `name` and `email` at any depth before anything reaches the model, and the answers are habit advice, never diagnoses.
 
-## Tests
+## Tests and CI
+
+The `backend` job in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push to `main` and every pull request: PHP 8.3 with SQLite, `composer install`, a fresh `.env` and key, then `php artisan test`. On `main` it passes: 61 tests, 316 assertions (last checked Oct 22, 2026).
+
+| Test file | Covers |
+|---|---|
+| `AuthTest` | Sign-in, wrong passwords, token checks, sign-out, `fitapp:create-user` |
+| `RegistrationTest` | Sign-up, validation, turning it off with `FITAPP_REGISTRATION`, which sign-in options are offered |
+| `GoogleAuthTest` | New and linked Google accounts, one-time codes, unverified emails, allowed return addresses, closed registration, off until configured |
+| `ProfileTest` | Setup answers (profile, wearable, trackers, goals) and their validation |
+| `IngestionTest` | The documented sample payload, re-uploads replacing totals, local dates and UTC instants, validation, deleting a source |
+| `FitnessReadTest` | Days with gaps as `null`, newest source per date, the default 30-day range in the user's timezone, heart-rate readings, status freshness |
+| `JournalTest` | Mood and meal edits, cycle days, notes encrypted at rest, stale edits refused (`409`), uploads never touching manual records, tracker preferences |
+| `ActivityEntryTest` | Activities logged by hand, optional energy, workouts with exercises |
+| `AiTest` | The AI endpoints with the model faked: notes never sent, insights trimmed, answers cached, `503` when off or failing, `AI_DEMO`, validation |
+
+Ingestion, the read API, the journal and logged activities each have a test that one account cannot see another's records.
 
 ```bash
 php artisan test
 ```
-
-Feature tests cover auth and registration, Google sign-in, ownership, ingestion, the journal, the read API, the profile and the AI endpoints (with the model faked). CI runs them on every push (`.github/workflows/ci.yml`).
 
 ## Deploy
 

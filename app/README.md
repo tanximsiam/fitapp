@@ -1,5 +1,7 @@
 # FitApp Mobile
 
+[![CI](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml)
+
 The Android and iOS app for [FitApp](https://github.com/tanximsiam/fitapp), a watch-centred holistic health tracker. The watch supplies activity, sleep, heart rate and body signals; you add mood, meals, water and cycle entries; FitApp explains what the combined records show.
 
 ## The product
@@ -31,7 +33,7 @@ Phases 1 to 5 of the mobile specification (foundation, mobile features, backend 
 | Quick log (mood, meal, drink, cycle) as a bottom sheet, opening the matching form per page | Working; saves locally in demo mode |
 | Profile & settings: goals, trackers, theme, data source, server tokens, privacy | Working (server sections need a running backend) |
 | Light and dark themes (follows the system) | Working |
-| Android project (`android/`) | Generated, **not built or run yet** (no Android SDK on the development machine) |
+| Android project (`android/`) | Debug APK builds in CI on every push; **not run on a device yet** |
 | iOS project (`ios/`) | Generated, **not built** (needs macOS and Xcode) |
 | FitApp watch over Bluetooth LE: pairing handshake, per-session authentication, minute-level steps and heart rate | Implemented and tested against a byte-level fake watch. **Not yet run against a physical watch**; UUIDs, flags or framing may need adjusting on first contact |
 | Health Connect (Android) / Apple Health (iOS): steps, active energy, workouts, workout heart rate | Implemented, permissions configured; **not yet run on a device**. Normalisation and upload are unit- and contract-tested |
@@ -45,7 +47,28 @@ Phases 1 to 5 of the mobile specification (foundation, mobile features, backend 
 | App icons and splash screens (Android adaptive, iOS, light and dark) from the brand files | Generated |
 | Accessibility: axe WCAG 2.2 AA on every screen in light and dark; system text size; reduced motion | No remaining violations in the browser (two measurement artefacts noted in the audit); screen readers not yet tried on a device |
 | Start-up size | Screens, quick log and device code load on demand; font subset to Latin WOFF2 (483 → 32 KB) |
-| Release builds and CI | Signing, versioning and store notes in [RELEASE.md](RELEASE.md); GitHub Actions runs tests and builds a debug APK (not yet run) |
+| Release builds and CI | Signing, versioning and store notes in [RELEASE.md](RELEASE.md); CI passes on `main` (see below) |
+
+## Tests and CI
+
+GitHub Actions ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)) runs two jobs for this app on every push to `main` and every pull request:
+
+| Job | What it runs | Result on `main` |
+|---|---|---|
+| `app` | `npm ci`, type-check (`vue-tsc --noEmit`), unit tests (`vitest run`), production build (`vite build`) | Passing: 16 test files, 81 tests passed, 11 skipped |
+| `android` | After `app`: web build, `cap sync android`, `./gradlew assembleDebug` with Java 21 | Passing; the debug APK is attached to the run as `fitapp-debug-apk` |
+
+The 11 skipped tests are the API contract tests, which need a running backend (see "API contract tests" below). Last checked on Oct 22, 2026.
+
+Unit tests (`tests/unit`) cover the watch protocol against a byte-level fake watch (pairing, authentication, minute data), the watch connection layer and health sources, the offline outbox, the health score, the insight rules, the timeline, the journal, foods, activities, the home layout, sign-in and the components.
+
+```bash
+npx vue-tsc --noEmit
+npx vitest run
+npm run test:contract   # with scripts/contract-backend.sh running
+```
+
+The watch protocol tests need Node 20 or later (as CI uses). On Node 18 they fail with `crypto is not defined`, because the Web Crypto global is missing there.
 
 ## Getting started
 
