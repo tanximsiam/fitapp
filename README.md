@@ -47,10 +47,11 @@ FitApp brings the activity, sleep and heart-rate data recorded by a wearable tog
 
 | | | |
 | --- | --- | --- |
-| ![Overview, dark](docs/screenshots/desktop-overview-dark.png) | ![Activity](docs/screenshots/desktop-activity.png) | ![Sleep](docs/screenshots/desktop-sleep.png) |
-| ![Hydration](docs/screenshots/desktop-hydration.png) | ![Heart rate](docs/screenshots/desktop-heart-rate.png) | ![Timeline](docs/screenshots/desktop-timeline.png) |
-| ![Stress](docs/screenshots/desktop-stress.png) | ![Blood oxygen](docs/screenshots/desktop-blood-oxygen.png) | ![Skin temperature](docs/screenshots/desktop-skin-temperature.png) |
-| ![Mood](docs/screenshots/desktop-mood.png) | ![Food](docs/screenshots/desktop-food.png) | ![Cycle](docs/screenshots/desktop-cycle.png) |
+| ![Insights with the health score](docs/screenshots/desktop-insights.png) | ![Overview, dark](docs/screenshots/desktop-overview-dark.png) | ![Activity](docs/screenshots/desktop-activity.png) |
+| ![Sleep](docs/screenshots/desktop-sleep.png) | ![Heart rate](docs/screenshots/desktop-heart-rate.png) | ![Stress](docs/screenshots/desktop-stress.png) |
+| ![Blood oxygen](docs/screenshots/desktop-blood-oxygen.png) | ![Skin temperature](docs/screenshots/desktop-skin-temperature.png) | ![Timeline](docs/screenshots/desktop-timeline.png) |
+| ![Mood](docs/screenshots/desktop-mood.png) | ![Food](docs/screenshots/desktop-food.png) | ![Hydration](docs/screenshots/desktop-hydration.png) |
+| ![Periods](docs/screenshots/desktop-cycle.png) | ![Watch & sync](docs/screenshots/desktop-device.png) | |
 
 Every screen and component, in light and dark: **[the screenshots branch](https://github.com/tanximsiam/fitapp/tree/screenshots/docs/screenshots)**.
 

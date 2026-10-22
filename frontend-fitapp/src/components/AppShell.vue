@@ -7,28 +7,32 @@
           class="sticky top-0 z-20 hidden h-dvh shrink-0 flex-col border-r border-line-strong/70 bg-rail py-5 motion-safe:transition-[width] motion-safe:duration-200 lg:flex"
           :class="collapsed ? 'w-[4.5rem] px-3' : 'w-56 px-3'"
         >
-          <div class="mb-6 flex items-center pt-1" :class="collapsed ? 'flex-col gap-3' : 'justify-between pl-3'">
+          <div class="mb-6 flex pt-1" :class="collapsed ? 'justify-center' : 'pl-3'">
             <RouterLink to="/overview" class="flex" aria-label="FitApp overview">
               <BrandLogo :symbol="collapsed" class="h-8" />
             </RouterLink>
-            <button
-              type="button"
-              class="grid size-8 place-items-center rounded-lg text-muted transition-colors duration-150 hover:bg-surface hover:text-ink"
-              aria-controls="sidebar"
-              :aria-expanded="!collapsed"
-              :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-              :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-              @click="toggleSidebar"
-            >
-              <svg viewBox="0 0 20 20" class="size-[18px]" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                <rect x="2.75" y="3.75" width="14.5" height="12.5" rx="2.5" />
-                <path d="M7.75 4v12" />
-              </svg>
-            </button>
           </div>
           <nav aria-label="Sections" class="-mx-3 flex min-h-0 flex-1 flex-col gap-5 overflow-x-hidden overflow-y-auto px-3">
-            <div v-for="group in groups" :key="group.label" class="flex flex-col gap-0.5">
-              <p v-if="!collapsed" class="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide whitespace-nowrap text-muted">{{ group.label }}</p>
+            <div v-for="(group, i) in groups" :key="group.label" class="flex flex-col gap-0.5">
+              <!-- The first group's label row also holds the collapse button; collapsed, the button stays there alone. -->
+              <div v-if="!collapsed || i === 0" class="flex items-center pb-1" :class="collapsed ? 'justify-center' : 'justify-between pl-3'">
+                <p v-if="!collapsed" class="text-[11px] font-medium uppercase tracking-wide whitespace-nowrap text-muted">{{ group.label }}</p>
+                <button
+                  v-if="i === 0"
+                  type="button"
+                  class="grid size-7 place-items-center rounded-lg text-muted transition-colors duration-150 hover:bg-surface hover:text-ink"
+                  aria-controls="sidebar"
+                  :aria-expanded="!collapsed"
+                  :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+                  :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+                  @click="toggleSidebar"
+                >
+                  <svg viewBox="0 0 20 20" class="size-[17px]" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <rect x="2.75" y="3.75" width="14.5" height="12.5" rx="2.5" />
+                    <path d="M7.75 4v12" />
+                  </svg>
+                </button>
+              </div>
               <NavButton v-for="item in group.items" :key="item.to" :to="item.to" :label="item.label" :icon="item.icon" variant="rail" :collapsed="collapsed" />
             </div>
           </nav>
