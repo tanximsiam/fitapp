@@ -1,5 +1,7 @@
 # FitApp web dashboard
 
+[![CI](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tanximsiam/fitapp/actions/workflows/ci.yml)
+
 The read-only web client for FitApp: watch data and the journal on a large screen, for reading trends. Everything is entered in the mobile app ([`../app`](../app)); the dashboard's settings cover only sign-in, the data source and the theme.
 
 Vue 3 + TypeScript, Ionic, Tailwind CSS 4, Pinia and Vite. Charts are hand-written SVG components; there is no chart library.
@@ -64,6 +66,27 @@ npm run build        # type-check (vue-tsc) and production build into dist/
 npx vitest run       # unit tests: demo data, adapters, cycle, insights, food list, components
 npm run lint         # eslint with --fix
 npx vite-node scripts/demo-payload.ts 30 0 > /tmp/demo.json   # 30 days of sample uploads
+```
+
+## Tests and CI
+
+The `frontend` job in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push to `main` and every pull request: `npm ci`, ESLint (`src`, `tests`, `scripts`), the unit tests, then `npm run build`, which type-checks with `vue-tsc` and builds. On `main` it passes: 8 test files, 46 tests (last checked Oct 22, 2026).
+
+| Test file | Covers |
+|---|---|
+| `data.spec.ts` | Demo watch data, the demo and server adapters sharing one contract, derived values |
+| `journal.spec.ts` | Period and cycle derivation, the demo journal, food values, the server journal adapter |
+| `insights.spec.ts` | Rule-based wellbeing observations |
+| `healthScore.spec.ts` | The weekly health score and each guideline's points (same rules as the mobile app) |
+| `aiFallback.spec.ts` | Built-in insights shown when no AI server can be asked |
+| `foods.spec.ts` | Food list estimates and the logging streak |
+| `auth.spec.ts` | The sign-in store |
+| `components.spec.ts` | Bar chart, month calendar and goal meter |
+
+```bash
+npx eslint src tests scripts --ext .ts,.vue
+npx vitest run
+npm run build
 ```
 
 ## Deploy
