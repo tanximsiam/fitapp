@@ -28,7 +28,7 @@ withDefaults(defineProps<{ to: string; title: string; icon: string; tone: Tone; 
 <style scoped>
 .badge {
   background: var(--tone-soft);
-  color: var(--tone);
+  color: var(--tone-icon);
 }
 .tone-skin .badge {
   color: var(--tone-ink);

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { defineStore } from 'pinia'
 import * as authApi from '@/api/auth'
 import { errorMessage, isUnauthorized, tokenStorage } from '@/api/client'
@@ -10,6 +11,8 @@ export const useAuthStore = defineStore('auth', {
     user: null as User | null,
     isLoading: false,
     error: null as string | null,
+    /** The server's message per form field (e.g. "email" already taken). */
+    fieldErrors: {} as Record<string, string>,
   }),
   getters: {
     isAuthenticated: (state) => state.user !== null,
@@ -33,17 +36,33 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async login(email: string, password: string): Promise<boolean> {
+    login(email: string, password: string): Promise<boolean> {
+      return this.signInWith(() => authApi.login(email, password), 'Sign-in failed.')
+    },
+
+    register(input: Parameters<typeof authApi.register>[0]): Promise<boolean> {
+      return this.signInWith(() => authApi.register(input), 'Could not create the account.')
+    },
+
+    loginWithGoogleCode(code: string): Promise<boolean> {
+      return this.signInWith(() => authApi.exchangeGoogleCode(code), 'Google sign-in failed.')
+    },
+
+    /** Every way of signing in ends with a user and a token to keep (as in the mobile app). */
+    async signInWith(request: () => Promise<{ user: User; token: string }>, fallback: string): Promise<boolean> {
       this.isLoading = true
       this.error = null
+      this.fieldErrors = {}
       try {
-        const { user, token } = await authApi.login(email, password)
+        const { user, token } = await request()
         tokenStorage.set(token)
         this.user = user
         return true
       } catch (err) {
         this.user = null
-        this.error = errorMessage(err, 'Sign-in failed.')
+        this.error = errorMessage(err, fallback)
+        const errors = axios.isAxiosError(err) ? (err.response?.data as { errors?: Record<string, string[]> } | undefined)?.errors : undefined
+        if (errors) this.fieldErrors = Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, v[0]]))
         return false
       } finally {
         this.isLoading = false

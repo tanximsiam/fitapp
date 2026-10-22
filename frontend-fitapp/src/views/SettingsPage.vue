@@ -10,15 +10,15 @@
         </div>
       </PanelSection>
 
-      <PanelSection title="Data source">
+      <PanelSection v-if="mode.backendConfigured" title="Data source">
         <fieldset>
           <legend class="sr-only">Where FitApp reads data from</legend>
           <div class="grid gap-3 sm:grid-cols-2">
             <label :class="optionClass(mode.isDemo)">
               <input type="radio" name="mode" class="mt-1 accent-[var(--accent)]" :checked="mode.isDemo" @change="switchMode('demo')" />
               <span>
-                <span class="block text-sm font-medium">Sample data</span>
-                <span class="mt-0.5 block text-xs text-ink-2">Six months of example data, kept in this browser.</span>
+                <span class="block text-sm font-medium">Without an account</span>
+                <span class="mt-0.5 block text-xs text-ink-2">Look around FitApp; nothing leaves this browser.</span>
               </span>
             </label>
             <label :class="[optionClass(!mode.isDemo), !mode.backendConfigured && 'cursor-not-allowed opacity-60']">
@@ -42,14 +42,10 @@
 
       <PanelSection title="Connection status">
         <template v-if="mode.isDemo">
-          <dl class="grid gap-4 sm:grid-cols-3">
-            <MetricItem label="Source" value="Sample data" />
+          <dl class="grid gap-4 sm:grid-cols-2">
             <MetricItem label="Last sync" :value="formatRelative(fitness.status?.lastIngestedAt ?? null)" />
             <MetricItem label="Watch" :value="fitness.status?.sources[0]?.device ?? 'FitApp Watch'" />
           </dl>
-          <p class="mt-4 max-w-prose text-sm text-ink-2">
-            Sample data stays in this browser.
-          </p>
         </template>
 
         <template v-else>
@@ -169,6 +165,6 @@ const TRACKERS: { key: keyof TrackerPrefs; label: string }[] = [
   { key: 'mood', label: 'Mood' },
   { key: 'food', label: 'Food' },
   { key: 'hydration', label: 'Hydration' },
-  { key: 'cycle', label: 'Cycle' },
+  { key: 'cycle', label: 'Periods' },
 ]
 </script>

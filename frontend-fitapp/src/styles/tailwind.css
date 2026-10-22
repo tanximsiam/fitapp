@@ -76,6 +76,8 @@
   --skin-ink: #474747;
   --mood-soft: #f8dfe9;
   --mood-ink: #8f2f55;
+  /* How much of its hue a badge icon keeps; the rest blends into the card (see --tone-icon). */
+  --icon-mix: 100%;
 
 }
 
@@ -132,6 +134,8 @@
     --skin-ink: #cacaca;
     --mood-soft: #2f1622;
     --mood-ink: #f2a9c6;
+    /* Full-strength hues glow on near-black badges, so icons sit a step back. */
+    --icon-mix: 80%;
 
   }
 }
@@ -218,6 +222,8 @@
   .tone-spo2 { --tone-soft: var(--spo2-soft); --tone-ink: var(--spo2-ink); --tone: var(--spo2); }
   .tone-skin { --tone-soft: var(--skin-soft); --tone-ink: var(--skin-ink); --tone: var(--ink-2); }
   .tone-mood { --tone-soft: var(--mood-soft); --tone-ink: var(--mood-ink); --tone: var(--mood-ink); }
+  /* Badge icons: the metric's hue, softened toward the card in dark mode. */
+  [class*='tone-'] { --tone-icon: color-mix(in srgb, var(--tone) var(--icon-mix), var(--surface)); }
 }
 
 @layer base {

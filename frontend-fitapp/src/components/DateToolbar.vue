@@ -14,16 +14,17 @@
     <div ref="root" class="relative">
       <button
         type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink transition-colors duration-150 hover:border-line-strong"
+        class="inline-flex min-h-9 items-center gap-2 rounded-full px-3.5 text-xs font-medium shadow-[var(--card-shadow)] transition-colors duration-150"
+        :class="fitness.isToday ? 'bg-surface text-ink' : 'bg-accent text-accent-ink'"
         :aria-expanded="open"
         :aria-controls="panelId"
         aria-haspopup="dialog"
         :aria-label="`Choose a date, ${formatLongDate(fitness.selectedDate)} selected`"
         @click="open = !open"
       >
-        <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-sm text-ink-2" />
+        <ion-icon :icon="calendarOutline" aria-hidden="true" class="text-sm" />
         {{ fitness.isToday ? 'Today' : formatShortDate(fitness.selectedDate) }}
-        <ion-icon :icon="chevronDown" aria-hidden="true" class="text-ink-2 transition-transform duration-150" :class="open ? 'rotate-180' : ''" />
+        <ion-icon :icon="chevronDown" aria-hidden="true" class="transition-transform duration-150" :class="open ? 'rotate-180' : ''" />
       </button>
       <div
         v-if="open"

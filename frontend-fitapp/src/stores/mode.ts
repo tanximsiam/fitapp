@@ -23,7 +23,8 @@ const adapters: Record<DataMode, FitnessAdapter | null> = { demo: null, backend:
 const journals: Record<DataMode, JournalAdapter | null> = { demo: null, backend: null }
 
 export const useModeStore = defineStore('mode', {
-  state: () => ({ mode: initialMode() }),
+  // entered: the visitor chose sample data or signed in on this device; until then the app opens on sign-in.
+  state: () => ({ mode: initialMode(), entered: localStorage.getItem(MODE_KEY) !== null }),
   getters: {
     backendConfigured: () => backendConfigured,
     backendUrl: () => BACKEND_URL,
@@ -38,7 +39,14 @@ export const useModeStore = defineStore('mode', {
     setMode(mode: DataMode) {
       if (mode === 'backend' && !backendConfigured) return
       this.mode = mode
+      this.entered = true
       localStorage.setItem(MODE_KEY, mode)
+    },
+    /** Signing out of sample data: back to the sign-in page as a new visitor. */
+    leave() {
+      localStorage.removeItem(MODE_KEY)
+      this.entered = false
+      this.mode = initialMode()
     },
   },
 })

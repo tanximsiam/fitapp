@@ -1,5 +1,5 @@
 <template>
-  <div role="radiogroup" aria-label="Range" class="inline-flex rounded-lg border border-line bg-surface p-0.5" @keydown="onKeydown">
+  <div role="radiogroup" aria-label="Range" class="inline-flex rounded-full bg-surface p-0.5 shadow-[var(--card-shadow)]" @keydown="onKeydown">
     <button
       v-for="opt in options"
       :key="opt"
@@ -8,7 +8,7 @@
       role="radio"
       :aria-checked="opt === modelValue"
       :tabindex="opt === modelValue ? 0 : -1"
-      class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-150"
+      class="min-h-8 rounded-full px-3.5 text-xs font-medium transition-colors duration-150"
       :class="opt === modelValue ? 'bg-accent text-accent-ink' : 'text-ink-2 hover:text-ink'"
       @click="emit('update:modelValue', opt)"
     >

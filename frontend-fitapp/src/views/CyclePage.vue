@@ -1,11 +1,11 @@
 <template>
-  <AppShell title="Cycle">
+  <AppShell title="Periods">
     <template #subtitle>Periods and symptoms you recorded</template>
     <TrackerGate tracker="cycle">
       <JournalState>
         <ModuleHero
           class="mb-4"
-          title="Cycle"
+          title="Periods"
           tone="cycle"
           :icon="ICONS.cycle"
           eyebrow="From the days you recorded"
@@ -21,7 +21,7 @@
           ]"
         />
 
-        <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
+        <div class="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
           <PanelSection :title="monthTitle">
             <template #aside>
               <div class="flex gap-1">
@@ -63,7 +63,7 @@
               <div><dt class="text-xs text-muted">Symptoms</dt><dd class="mt-0.5">{{ selectedDay.symptoms.join(', ').replace(/_/g, ' ') || 'None' }}</dd></div>
               <div v-if="selectedDay.note"><dt class="text-xs text-muted">Note</dt><dd class="mt-0.5 whitespace-pre-line">{{ selectedDay.note }}</dd></div>
             </dl>
-            <p v-else class="text-sm text-muted">Nothing recorded on this day. Cycle days are recorded in the FitApp mobile app.</p>
+            <p v-else class="text-sm text-muted">Nothing recorded on this day. Period days are recorded in the FitApp mobile app.</p>
           </PanelSection>
         </div>
 
@@ -104,7 +104,7 @@
               </tbody>
             </table>
           </div>
-          <p v-else class="text-sm text-muted">No periods recorded yet. Cycle days are recorded in the FitApp mobile app.</p>
+          <p v-else class="text-sm text-muted">No periods recorded yet. Period days are recorded in the FitApp mobile app.</p>
         </PanelSection>
       </JournalState>
     </TrackerGate>

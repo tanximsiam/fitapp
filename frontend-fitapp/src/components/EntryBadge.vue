@@ -8,5 +8,5 @@ import { computed } from 'vue'
 /** Where a value came from: the watch or the person's own entry (sample data reads the same). */
 const props = defineProps<{ kind: 'watch' | 'simulated-watch' | 'manual' | 'simulated' }>()
 const text = computed(() => ({ watch: 'Watch', 'simulated-watch': 'Watch', manual: 'You logged', simulated: 'You logged' })[props.kind])
-const cls = computed(() => (props.kind === 'watch' || props.kind === 'simulated-watch' ? 'border-activity/40 text-activity' : 'border-line-strong text-ink-2'))
+const cls = computed(() => (props.kind === 'watch' || props.kind === 'simulated-watch' ? 'border-activity/40 text-[var(--activity-ink)]' : 'border-line-strong text-ink-2'))
 </script>

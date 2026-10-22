@@ -115,8 +115,8 @@ const rows = computed(() => {
       empty: !water,
     },
     {
-      kind: 'cycle', label: 'Cycle', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,
-      value: c ? [c.flow && `${c.flow} flow`, c.symptoms.length ? `${c.symptoms.length} symptoms` : null].filter(Boolean).join(' · ') || 'Note only' : 'Nothing logged',
+      kind: 'cycle', label: 'Periods', icon: ICONS.cycle, tone: 'spo2', to: '/cycle', on: journal.prefs.cycle,
+      value: c ? [c.flow && `${c.flow} flow`, c.symptoms.length ? `${c.symptoms.length} symptom${c.symptoms.length === 1 ? '' : 's'}` : null].filter(Boolean).join(' · ') || 'Note only' : 'Nothing logged',
       empty: !c,
     },
   ]
@@ -127,7 +127,7 @@ const rows = computed(() => {
 <style scoped>
 .badge {
   background: var(--tone-soft);
-  color: var(--tone);
+  color: var(--tone-icon);
 }
 .dot {
   background: var(--tone);

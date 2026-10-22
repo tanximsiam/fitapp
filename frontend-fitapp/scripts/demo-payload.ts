@@ -19,7 +19,7 @@ const end = addDays(clock.today, -endDaysAgo)
 const generated = Array.from({ length: days }, (_, i) => generateDay(addDays(end, i - days + 1), clock))
 
 const payload = {
-  source: { key: 'fitapp-demo', name: 'FitApp sample data', device: DEMO_DEVICE, measurements: DEMO_MEASUREMENTS },
+  source: { key: 'fitapp-demo', name: 'FitApp Watch', device: DEMO_DEVICE, measurements: DEMO_MEASUREMENTS },
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   workouts: generated.flatMap(({ summary: { date, workouts } }) =>
     workouts.map((w) => ({

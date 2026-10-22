@@ -50,7 +50,7 @@
                 </BarChart>
               </WidgetCard>
 
-              <WidgetCard title="Goal days" :icon="ICONS.water" tone="activity" label="Reached on" :value="`${goalDays} of ${fitness.rangeDays}`" note="days">
+              <WidgetCard class="@2xl:col-span-2 @[76rem]:col-span-1" title="Goal days" :icon="ICONS.water" tone="activity" label="Reached on" :value="`${goalDays} of ${fitness.rangeDays}`" note="days">
                 <GoalDots :height="AREA" :days="dots" color="var(--activity)" what="Water goal" met-label="Goal reached" missed-label="Below goal" />
               </WidgetCard>
             </div>

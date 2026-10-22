@@ -1,6 +1,5 @@
 <template>
   <AppShell :title="fitness.isToday ? 'Today' : formatLongDate(fitness.selectedDate)">
-    <template #actions><WatchStatus class="w-full sm:w-auto sm:max-w-sm" /></template>
     <template #subtitle>{{ fitness.isToday ? `${formatLongDate(fitness.today)} · ` : '' }}{{ freshness }}</template>
     <DataState>
       <div class="stagger grid gap-4">
@@ -251,7 +250,6 @@ import DataState from '@/components/DataState.vue'
 import MonthCalendar from '@/components/MonthCalendar.vue'
 import RangeTabs from '@/components/RangeTabs.vue'
 import GoalMeter from '@/components/GoalMeter.vue'
-import WatchStatus from '@/components/WatchStatus.vue'
 import WellbeingOverview from '@/components/WellbeingOverview.vue'
 import TodayEntries from '@/components/TodayEntries.vue'
 import TodayNudge from '@/components/TodayNudge.vue'
