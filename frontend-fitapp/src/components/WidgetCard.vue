@@ -45,6 +45,6 @@ section {
 }
 .badge {
   background: var(--tone-soft);
-  color: var(--tone);
+  color: var(--tone-icon);
 }
 </style>

@@ -147,7 +147,7 @@ const rows = computed(() => {
 <style scoped>
 .badge {
   background: var(--tone-soft);
-  color: var(--tone);
+  color: var(--tone-icon);
 }
 .dot {
   background: var(--tone);

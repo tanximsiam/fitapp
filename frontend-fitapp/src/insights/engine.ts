@@ -286,10 +286,12 @@ export function analyse(input: AnalysisInput): Insight[] {
     out.push({
       id: 'food-completeness',
       area: 'food',
-      status: 'ok',
-      text: complete
+      status: meals.length ? 'ok' : 'insufficient',
+      text: !meals.length
+        ? `No meals were logged in these ${n} days yet.`
+        : complete
         ? `Meals were logged on ${mealDays.size} of ${n} days (${meals.length} meals); ${fullDays} days have two or more.${water.size ? ` Water was logged on ${water.size} days, ${formatInt(mean([...water.values()]))} ml on average on those days.` : ''}`
-        : `Only ${meals.length} meals were logged on ${mealDays.size} of ${n} days, so the food overview is incomplete.${water.size ? ` Water was logged on ${water.size} days.` : ''}`,
+        : `Only ${meals.length} ${meals.length === 1 ? 'meal was' : 'meals were'} logged on ${mealDays.size} of ${n} days, so the food overview is incomplete.${water.size ? ` Water was logged on ${water.size} days.` : ''}`,
       calculation: `Counts of meal entries in ${label}. The overview is treated as complete when at least ${need} days have two or more meals. Water average uses only days with drinks logged.`,
       range,
       counts: [

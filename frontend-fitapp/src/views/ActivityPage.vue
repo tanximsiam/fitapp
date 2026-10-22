@@ -87,8 +87,8 @@
               <GoalDots :height="AREA" :days="stepGoalDots" color="var(--activity)" what="Step goal" />
             </WidgetCard>
 
-            <WidgetCard title="Logged in the app" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(logged.length)" :note="loggedKcal ? `${formatInt(loggedKcal)} kcal` : undefined">
-              <ul v-if="logged.length" class="divide-y divide-line overflow-y-auto" :style="{ height: `${AREA}px` }">
+            <WidgetCard title="Logged by you" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(logged.length)" :note="loggedKcal ? `${formatInt(loggedKcal)} kcal` : undefined">
+              <ul v-if="logged.length" class="divide-y divide-line overflow-y-auto" tabindex="0" aria-label="Activities you logged" :style="{ height: `${AREA}px` }">
                 <li v-for="e in logged" :key="e.id" class="flex items-center gap-3 py-2 text-sm first:pt-0">
                   <ion-icon :icon="activityKind(e.activityType).icon" aria-hidden="true" class="shrink-0 text-base text-[var(--heart)]" />
                   <span class="min-w-0 flex-1 truncate font-medium">{{ activityTitle(e) }}</span>
@@ -100,9 +100,10 @@
               <p v-else class="text-sm text-muted" :style="{ height: `${AREA}px` }">No activities logged on this day. Chores, walks and workouts are logged in the FitApp mobile app.</p>
             </WidgetCard>
 
-            <WidgetCard title="Workouts" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(day?.workouts.length ?? 0)" :note="`${rangeWorkouts} in the last ${fitness.rangeDays} days`">
+            <WidgetCard class="@2xl:col-span-full" title="Workouts" :icon="ICONS.workouts" tone="heart" :label="fitness.isToday ? 'Today' : 'This day'" :value="String(day?.workouts.length ?? 0)" :note="`${rangeWorkouts} in the last ${fitness.rangeDays} days`">
               <!-- This day's workouts first, then the most recent ones in the period. -->
-              <ul v-if="recentWorkouts.length" class="divide-y divide-line overflow-y-auto" :style="{ height: `${AREA}px` }">
+              <!-- Scrolls inside the card, so it takes keyboard focus to be scrollable without touch. -->
+              <ul v-if="recentWorkouts.length" class="divide-y divide-line overflow-y-auto" tabindex="0" aria-label="Recent workouts" :style="{ height: `${AREA}px` }">
                 <li v-for="w in recentWorkouts" :key="w.startAt" class="flex items-center gap-3 py-2 text-sm first:pt-0">
                   <span class="tabular w-14 shrink-0 text-xs text-muted">{{ w.startAt.slice(0, 10) === fitness.selectedDate ? formatClock(w.startAt) : formatShortDate(w.startAt.slice(0, 10)) }}</span>
                   <span class="min-w-0 flex-1 truncate font-medium">{{ workoutLabel(w.type) }}</span>

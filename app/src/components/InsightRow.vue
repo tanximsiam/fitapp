@@ -7,7 +7,7 @@
         :title="label"
         aria-hidden="true"
       >
-        <ion-icon :icon="icon" class="text-base" :style="{ color: tone ? 'var(--tone-ink)' : 'var(--ink-2)' }" />
+        <ion-icon :icon="icon" class="text-base" :style="{ color: tone ? 'var(--tone-icon)' : 'var(--ink-2)' }" />
       </span>
       <div class="min-w-0 flex-1">
         <p class="text-sm" :class="insight.status === 'ok' ? 'text-ink' : 'text-muted'">

@@ -3,9 +3,10 @@
     :to="to"
     :aria-current="active ? 'page' : undefined"
     :class="variant === 'rail' ? railClass : barClass"
+    :title="collapsed ? label : undefined"
   >
     <ion-icon :icon="icon" aria-hidden="true" class="shrink-0" :class="variant === 'rail' ? 'text-[18px]' : 'text-[22px]'" />
-    <span :class="variant === 'bar' ? 'text-[11px] leading-none' : ''">{{ label }}</span>
+    <span :class="variant === 'bar' ? 'text-[11px] leading-none' : collapsed ? 'sr-only' : 'whitespace-nowrap'">{{ label }}</span>
   </RouterLink>
 </template>
 
@@ -14,12 +15,13 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { IonIcon } from '@ionic/vue'
 
-const props = defineProps<{ to: string; label: string; icon: string; variant: 'rail' | 'bar' }>()
+const props = defineProps<{ to: string; label: string; icon: string; variant: 'rail' | 'bar'; collapsed?: boolean }>()
 const route = useRoute()
 const active = computed(() => route.path === props.to)
 
 const railClass = computed(() => [
-  'flex items-center gap-3 rounded-full px-3 py-2 text-sm transition-colors duration-150',
+  'flex items-center gap-3 rounded-full py-2 text-sm transition-colors duration-150',
+  props.collapsed ? 'justify-center px-0' : 'px-3',
   active.value ? 'bg-accent text-accent-ink font-medium' : 'text-ink-2 hover:bg-surface hover:text-ink',
 ])
 const barClass = computed(() => [

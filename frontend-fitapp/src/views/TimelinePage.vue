@@ -103,7 +103,7 @@ const AREA_ICONS: Record<string, string> = {
   Meal: ICONS.meals,
   Water: ICONS.water,
   'Logged activity': ICONS.workouts,
-  Cycle: ICONS.cycle,
+  Periods: ICONS.cycle,
 }
 
 /** Show a few days first; older ones on request. */
@@ -139,7 +139,7 @@ const timeline = computed(() => {
       for (const a of j.activities)
         rows.push({ time: formatClock(a.startedAt), area: 'Logged activity', text: `${activityTitle(a)} · ${formatDuration(a.durationMin)}${a.energyKcal != null ? ` · ${formatInt(a.energyKcal)} kcal${a.energySource === 'estimated' ? ' (estimated)' : ''}` : ''}`, source: a.provenance, to: '/activity' })
       if (journal.prefs.cycle && j.cycleDay)
-        rows.push({ time: null, area: 'Cycle', text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · '), source: j.cycleDay.provenance, to: '/cycle' })
+        rows.push({ time: null, area: 'Periods', text: [j.cycleDay.flow && `${j.cycleDay.flow} flow`, j.cycleDay.symptoms.join(', ').replace(/_/g, ' ')].filter(Boolean).join(' · '), source: j.cycleDay.provenance, to: '/cycle' })
     }
     rows.sort((a, b) => (a.time ?? '99').localeCompare(b.time ?? '99'))
     return { date: d.date, rows }

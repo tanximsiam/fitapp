@@ -18,6 +18,7 @@ import MoodPage from '@/views/MoodPage.vue'
 import FoodPage from '@/views/FoodPage.vue'
 import CyclePage from '@/views/CyclePage.vue'
 import LoginPage from '@/views/LoginPage.vue'
+import InsightsPage from '@/views/InsightsPage.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -31,6 +32,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/', redirect: '/overview' },
   { path: '/home', redirect: '/overview' },
   { path: '/overview', name: 'Overview', component: OverviewPage, meta: { requiresData: true, title: 'Overview' } },
+  { path: '/insights', name: 'Insights', component: InsightsPage, meta: { requiresData: true, title: 'Insights' } },
   { path: '/activity', name: 'Activity', component: ActivityPage, meta: { requiresData: true, title: 'Activity' } },
   { path: '/sleep', name: 'Sleep', component: SleepPage, meta: { requiresData: true, title: 'Sleep' } },
   { path: '/heart-rate', name: 'HeartRate', component: HeartRatePage, meta: { requiresData: true, title: 'Heart rate' } },
@@ -41,11 +43,13 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/mood', name: 'Mood', component: MoodPage, meta: { requiresData: true, title: 'Mood' } },
   { path: '/food', name: 'Food', component: FoodPage, meta: { requiresData: true, title: 'Food' } },
   { path: '/hydration', name: 'Hydration', component: () => import('@/views/HydrationPage.vue'), meta: { requiresData: true, title: 'Hydration' } },
-  { path: '/cycle', name: 'Cycle', component: CyclePage, meta: { requiresData: true, title: 'Cycle' } },
+  { path: '/cycle', name: 'Cycle', component: CyclePage, meta: { requiresData: true, title: 'Periods' } },
   { path: '/device', name: 'Device', component: DevicePage, meta: { requiresData: true, title: 'Watch & sync' } },
   { path: '/settings', name: 'Settings', component: SettingsPage, meta: { title: 'Settings' } },
   { path: '/more', name: 'More', component: MorePage, meta: { title: 'All sections' } },
   { path: '/login', name: 'Login', component: LoginPage, meta: { title: 'Sign in' } },
+  { path: '/register', name: 'Register', component: () => import('@/views/RegisterPage.vue'), meta: { title: 'Create account' } },
+  { path: '/auth/google', name: 'GoogleReturn', component: () => import('@/views/AuthCallbackPage.vue'), meta: { title: 'Signing in' } },
   { path: '/:pathMatch(.*)*', redirect: '/overview' },
 ]
 
@@ -56,8 +60,11 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const mode = useModeStore()
+  // Without a server only the sign-in page exists (it opens sample data); there is no sign-up or Google return.
+  if (!mode.backendConfigured && (to.path === '/register' || to.path === '/auth/google')) return '/login'
   if (mode.isDemo) {
-    return to.path === '/login' && !mode.backendConfigured ? '/overview' : undefined
+    // A new visitor starts on sign-in, even on the browser-only build.
+    return to.meta.requiresData && !mode.entered ? { path: '/login', query: { redirect: to.fullPath } } : undefined
   }
 
   const auth = useAuthStore()
@@ -65,7 +72,7 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresData && !auth.isAuthenticated) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
-  if (to.path === '/login' && auth.isAuthenticated) {
+  if ((to.path === '/login' || to.path === '/register') && auth.isAuthenticated) {
     return '/overview'
   }
 })

@@ -20,7 +20,10 @@
               :note="fitness.status?.latestHeartRate ? `at ${formatClock(fitness.status.latestHeartRate.at)}, ${formatShortDate(fitness.status.latestHeartRate.at.slice(0, 10))}` : undefined"
             />
           </dl>
-          <p v-if="s.lastIngestedAt" class="mt-4 text-xs text-muted">Synced {{ formatAbsolute(s.lastIngestedAt) }}. Values are the latest uploaded, not live.</p>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <PrimaryButton variant="secondary" :label="syncing ? 'Syncing…' : 'Sync now'" :disabled="syncing" @click="syncNow" />
+            <p v-if="s.lastIngestedAt" class="text-xs text-muted" role="status">Synced {{ formatAbsolute(s.lastIngestedAt) }}. Values are the latest uploaded, not live.</p>
+          </div>
 
           <h3 class="mt-6 text-sm font-semibold">
             Measurements
@@ -43,25 +46,6 @@
           </p>
         </PanelSection>
 
-        <!-- Sample data only: a small way to preview the other connection states. -->
-        <PanelSection v-if="mode.isDemo" title="Sample data">
-          <p class="mb-4 max-w-prose text-sm text-ink-2">
-            Preview how other connection states look.
-          </p>
-          <div role="radiogroup" aria-label="Connection state to preview" class="grid gap-3 sm:grid-cols-3">
-            <label v-for="opt in SCENARIOS" :key="opt.value" :class="optionClass(scenario === opt.value)">
-              <input type="radio" name="scenario" class="mt-1 accent-[var(--accent)]" :checked="scenario === opt.value" @change="setScenario(opt.value)" />
-              <span>
-                <span class="block text-sm font-medium">{{ opt.label }}</span>
-                <span class="mt-0.5 block text-xs text-ink-2">{{ opt.hint }}</span>
-              </span>
-            </label>
-          </div>
-          <div class="mt-4 flex items-center gap-3">
-            <PrimaryButton variant="secondary" label="Sync now" @click="syncNow" />
-            <p v-if="synced" role="status" class="text-sm text-ink-2">Synced.</p>
-          </div>
-        </PanelSection>
       </div>
     </DataState>
   </AppShell>
@@ -78,7 +62,7 @@ import MetricItem from '@/components/MetricItem.vue'
 import PanelSection from '@/components/PanelSection.vue'
 import PrimaryButton from '@/components/PrimaryButton.vue'
 import { useFitnessData } from '@/composables/useFitnessData'
-import { demoControls, type DemoScenario } from '@/data/adapters'
+import { demoControls } from '@/data/adapters'
 import { MEASUREMENT_LABELS, SYNC_LABELS, syncState } from '@/data/connection'
 import { EMPTY, formatClock, formatRelative, formatShortDate } from '@/lib/format'
 import { MEASUREMENTS } from '@/types/fitness'
@@ -90,35 +74,19 @@ const state = computed(() => syncState(fitness.status))
 const dotClass = computed(() => ({ current: 'bg-[#0ca30c]', delayed: 'bg-[#fab219]', stale: 'bg-danger', none: 'bg-line-strong' })[state.value])
 const formatAbsolute = (iso: string) => new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 
-const SCENARIOS: { value: DemoScenario; label: string; hint: string }[] = [
-  { value: 'synced', label: 'Syncing normally', hint: 'Uploads every 15 minutes.' },
-  { value: 'delayed', label: 'Sync delayed', hint: 'Last upload 9 hours ago.' },
-  { value: 'offline', label: 'Not syncing', hint: 'Nothing since two days ago.' },
-]
-const scenario = ref<DemoScenario>(demoControls.scenario())
-const synced = ref(false)
 const showMeasurements = ref(false)
-const optionClass = (selected: boolean) => [
-  'flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors duration-150',
-  selected ? 'border-accent bg-accent-soft/50' : 'border-line hover:border-line-strong',
-]
 
-async function reloadAll() {
-  fitness.$reset()
-  await fitness.load()
-}
-
-async function setScenario(next: DemoScenario) {
-  demoControls.setScenario(next)
-  scenario.value = next
-  synced.value = false
-  await reloadAll()
-}
-
+/** Asks for the latest upload; the browser-only account syncs its watch on the spot. */
+const syncing = ref(false)
 async function syncNow() {
-  demoControls.syncNow()
-  scenario.value = 'synced'
-  await reloadAll()
-  synced.value = true
+  syncing.value = true
+  if (mode.isDemo) {
+    demoControls.syncNow()
+    fitness.$reset()
+    await fitness.load()
+  } else {
+    await fitness.refreshStatus()
+  }
+  syncing.value = false
 }
 </script>

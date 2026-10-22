@@ -115,7 +115,8 @@ const yRange = computed(() => {
   if (props.yDomain) return props.yDomain
   const vals = measured.value.map((p) => p.value)
   if (!vals.length) return [40, 100]
-  const lo = Math.floor((Math.min(...vals) - 4) / 10) * 10
+  const min = Math.min(...vals)
+  const lo = min >= 0 ? Math.max(0, Math.floor((min - 4) / 10) * 10) : Math.floor((min - 4) / 10) * 10
   const hi = Math.ceil((Math.max(...vals) + 4) / 10) * 10
   return [lo, Math.max(hi, lo + 20)]
 })

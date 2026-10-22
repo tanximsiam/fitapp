@@ -133,7 +133,7 @@ curl -X POST http://localhost:8000/api/ingest \
   --data @../docs/examples/ingest-sample.json
 ```
 
-For realistic data, generate payloads from the demo generator (in `frontend-fitapp`) and post each one: `npx vite-node scripts/demo-payload.ts 30 0 > /tmp/demo.json` gives the last 30 days; `30 30`, `30 60`, … go further back (one request holds about 30 days). It is labelled as FitApp sample data.
+For realistic data, generate payloads from the demo generator (in `frontend-fitapp`) and post each one: `npx vite-node scripts/demo-payload.ts 30 0 > /tmp/demo.json` gives the last 30 days; `30 30`, `30 60`, … go further back (one request holds about 30 days). Its values are simulated.
 
 ## API
 
